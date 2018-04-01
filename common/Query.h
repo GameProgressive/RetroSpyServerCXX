@@ -17,7 +17,7 @@
 #ifndef RETROSPYCOMMON_DATABASE_H
 #define RETROSPYCOMMON_DATABASE_H
 
-#include "DllApi.h"
+#include "Defines.h"
 
 /* Fixed define of mysql */
 #ifndef _MSC_STDINT_H_
@@ -26,6 +26,7 @@
 #include <mysql.h>
 
 #include <vector>
+#include <string>
 
 class CDBResult
 {
@@ -40,12 +41,13 @@ public:
 
 	my_ulonglong DLLAPI GetFieldsCount();
 
-	std::vector<char*> DLLAPI GetRow(size_t index);
+	std::vector<std::string> DLLAPI GetRow(size_t index);
+	DLLAPI std::string GetColumnByRow(size_t row, size_t column);
 
 private:
-	std::vector<std::vector<char*>> m_rows;
+	std::vector<std::vector<std::string>> m_rows;
 	
-	std::vector<char*> _Dummy;
+	std::vector<std::string> _Dummy;
 
 	my_ulonglong m_totalrows;
 	my_ulonglong m_fields;

@@ -17,7 +17,7 @@
 #ifndef RETROSPYCOMMON_LOOP_H
 #define RETROSPYCOMMON_LOOP_H
 
-#include "DllApi.h"
+#include "Defines.h"
 
 #include <uv.h>
 

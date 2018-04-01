@@ -17,7 +17,7 @@
 #ifndef RETROSPYCOMMON_STRING_H
 #define RETROSPYCOMMON_STRING_H
 
-#include "DllApi.h"
+#include "Defines.h"
 
 bool DLLAPI strendswith(const char *buffer, const char *what);
 bool DLLAPI strdelete(char *buffer, int buffersize, int number);

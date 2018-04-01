@@ -169,6 +169,8 @@ DLLAPI char* get_gs_data(const char *base, const char *what, char *out, int max_
 	int i2 = 0, i = 0;
 	bool bfound = false, bRun = true;
 
+	out[0] = '\0';
+
 	while (bRun)
 	{
 		char *tmp = NULL;
@@ -202,10 +204,12 @@ DLLAPI char* get_gs_data(const char *base, const char *what, char *out, int max_
 				bfound = true;
 		}
 
-		free(tmp);
-		i2 += i + 1;
+		if (bRun)
+		{
+			free(tmp);
+			i2 += i + 1;
+		}
 	}
 
-	out[0] = '\0';
 	return out;
 }

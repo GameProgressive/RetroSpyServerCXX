@@ -27,6 +27,9 @@ int RetroSpyMain(void* data)
 {
 	ModuleMain *mm = (ModuleMain*)data;
 
+	if (mm->port == -1)
+		mm->port = DEFAULT_PORT;
+
 	CLoop loop;
 	PSServer *Server = new PSServer(&loop);
 

@@ -17,10 +17,7 @@
 #ifndef RETROSPYCOMMON_DLLAPI_H
 #define RETROSPYCOMMON_DLLAPI_H
 
-/*
-	This file exports the DLLAPI for Windows
-*/
-
+// DLLAPI exports for W32
 #if _WIN32 && _MSC_VER
 	#if RSC_EXPORT
 		#define DLLAPI __declspec(dllexport)
@@ -30,5 +27,7 @@
 #else
 	#define DLLAPI 
 #endif
+
+#define EMAIL_MAX_LEN 51
 
 #endif

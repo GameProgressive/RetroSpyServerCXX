@@ -87,7 +87,7 @@ bool DLLAPI CDBResult::Execute(MYSQL_RES *res)
 		row = mysql_fetch_row(res);
 		if (row)
 		{
-			std::vector<char*> vec;
+			std::vector<std::string> vec;
 	
 			for (i = 0; i < m_fields; i++)
 				vec.push_back(row[i]);
@@ -108,10 +108,20 @@ my_ulonglong DLLAPI CDBResult::GetTotalRows() { return m_totalrows; }
 my_ulonglong DLLAPI CDBResult::GetProcessedRows() { return m_processrow; }
 my_ulonglong DLLAPI CDBResult::GetFieldsCount() { return m_fields; }
 
-std::vector<char*> DLLAPI CDBResult::GetRow(size_t index)
+std::vector<std::string> DLLAPI CDBResult::GetRow(size_t index)
 {
 	if (index > m_rows.size())
 		return _Dummy;
 
 	return m_rows.at(index);
+}
+
+DLLAPI std::string CDBResult::GetColumnByRow(size_t row, size_t column)
+{
+	std::vector<std::string> vec = GetRow(row);
+
+	if (vec.size() < 1)
+		return NULL;
+
+	return vec.at(column);
 }
