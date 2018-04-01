@@ -24,7 +24,8 @@ typedef std::map<std::string, std::string> ModuleConfigMap;
 
 typedef struct SModuleMain
 {
-	char *default_ip;
+	char *ip;
+	int port;
 	ModuleConfigMap cfg;
 } ModuleMain;
 

@@ -101,7 +101,22 @@ bool CModule::Load(const char *name)
 
 void CModule::Start()
 {
-	m_module.default_ip = (char*)CConfig::GetDefaultIP();
+	// Retrive bind ip and bind port
+	{
+		ModuleConfigMap::iterator it = m_module.cfg.find("Port");
+
+		if (it == m_module.cfg.end())
+			m_module.port = -1;
+		else
+			m_module.port = atoi(it->second.c_str());
+
+		it = m_module.cfg.find("BindIP");
+
+		if (it == m_module.cfg.end())
+			m_module.ip = (char*)CConfig::GetDefaultIP();
+		else
+			m_module.ip = (char*)it->second.c_str();
+	}
 
 	// Create the module thread
 #ifdef _WIN32

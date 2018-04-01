@@ -26,27 +26,14 @@
 int RetroSpyMain(void* data)
 {
 	ModuleMain *mm = (ModuleMain*)data;
-	int port = 0;
-
-	// Get config
-	{
-		ModuleConfigMap::iterator it = mm->cfg.find("Port");
-		
-		if (it == mm->cfg.end())
-			port = DEFAULT_PORT;
-		else
-		{
-			port = atoi(it->second.c_str());
-		}
-	}
 
 	CLoop loop;
 	PSServer *Server = new PSServer(&loop);
 
-	if (!Server->Bind(mm->default_ip, port, false))
+	if (!Server->Bind(mm->ip, mm->port, false))
 		return 1;
 
-	printf("[PlayerSearch] Started on %s:%d\n", mm->default_ip, port);
+	printf("[PlayerSearch] Started on %s:%d\n", mm->ip, mm->port);
 
 	loop.Run();
 
