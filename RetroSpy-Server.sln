@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RetroSpyCommon", "common\common.vcproj", "{42C72133-0B60-4109-BAD7-8E6F51A3893A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RetroSpy", "RetroSpy\RetroSpy.vcproj", "{7CC180D3-9C21-4290-B1B3-2A6D4A861EC0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playersearch", "playersearch\playersearch.vcproj", "{B3AD4943-7D4A-4539-99A1-4BBC444EA081}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuv", "libuv_project\libuv.vcproj", "{602578CD-B289-4261-887B-8E015866E93C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42C72133-0B60-4109-BAD7-8E6F51A3893A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{42C72133-0B60-4109-BAD7-8E6F51A3893A}.Debug|Win32.Build.0 = Debug|Win32
+		{42C72133-0B60-4109-BAD7-8E6F51A3893A}.Release|Win32.ActiveCfg = Release|Win32
+		{42C72133-0B60-4109-BAD7-8E6F51A3893A}.Release|Win32.Build.0 = Release|Win32
+		{7CC180D3-9C21-4290-B1B3-2A6D4A861EC0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7CC180D3-9C21-4290-B1B3-2A6D4A861EC0}.Debug|Win32.Build.0 = Debug|Win32
+		{7CC180D3-9C21-4290-B1B3-2A6D4A861EC0}.Release|Win32.ActiveCfg = Release|Win32
+		{7CC180D3-9C21-4290-B1B3-2A6D4A861EC0}.Release|Win32.Build.0 = Release|Win32
+		{B3AD4943-7D4A-4539-99A1-4BBC444EA081}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B3AD4943-7D4A-4539-99A1-4BBC444EA081}.Debug|Win32.Build.0 = Debug|Win32
+		{B3AD4943-7D4A-4539-99A1-4BBC444EA081}.Release|Win32.ActiveCfg = Release|Win32
+		{B3AD4943-7D4A-4539-99A1-4BBC444EA081}.Release|Win32.Build.0 = Release|Win32
+		{602578CD-B289-4261-887B-8E015866E93C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{602578CD-B289-4261-887B-8E015866E93C}.Debug|Win32.Build.0 = Debug|Win32
+		{602578CD-B289-4261-887B-8E015866E93C}.Release|Win32.ActiveCfg = Release|Win32
+		{602578CD-B289-4261-887B-8E015866E93C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
