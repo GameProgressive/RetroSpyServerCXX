@@ -7,7 +7,7 @@ The server is written in C++ and it's the spiritual successor to OpenSpy Core (I
 
 See the [wiki](https://github.com/GameProgressive/RetroSpyServer/wiki) for more information about compiling and creating a RetroSpy Server.
 
-<html><a name="cloning-submodules><h2>Cloning submodules</h2></a></html>
+### Cloning submodules
 ```
 git submodule update --recursive --remote
 ```
