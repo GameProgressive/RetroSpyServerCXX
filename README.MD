@@ -13,6 +13,6 @@ git submodule update --recursive --remote
 ```
 
 ### Special thanks
-* [Luigi Auriemmta](http://aluigi.altervista.org/papers.htm) for his papers about gamespy that i used as a reference
+* [Luigi Auriemma](http://aluigi.altervista.org/papers.htm) for his papers about gamespy that i used as a reference
 * [OpenSpy](https://github.com/Masaq-/Openspy-Core) for the idea of the architecture and the portions of code of the modules
 
