@@ -18,6 +18,8 @@
 #include "Config.h"
 #include "Database.h"
 
+#include "../common/Helper.h"
+
 #ifdef _WIN32
 	#include <WinSock.h>
 	#pragma comment(lib, "WSock32.lib")
@@ -25,6 +27,9 @@
 
 #include <iostream>
 #include <string>
+
+#include <stdlib.h>
+#include <time.h>
 
 #define CONFIG_NAME "RetroSpy.ini"
 
@@ -74,6 +79,8 @@ int main()
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(1,0), &wsadata);
 #endif
+
+	Util_RandSeed((unsigned int)time(NULL));
 
 	printf("RetroSpy Server By GameProgressive\n");
 	
