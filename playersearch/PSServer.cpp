@@ -96,7 +96,7 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 
 	bool bSendUnique = false;
 	
-	my_ulonglong i = 0;
+	size_t i = 0;
 
 	CDBResult *result = NULL;
 
@@ -200,8 +200,39 @@ bool PSServer::OnOthersList(uv_stream_t *stream, const char *buf, int size)
 
 bool PSServer::OnUniqueSearch(uv_stream_t *stream, const char *buf, int size)
 {
-	puts(buf);
-	return false;
+	char preferrednick[GP_NICK_LEN];
+	std::string sendmsg = "\\us\\7";
+
+	preferrednick[0] = 0;
+
+	if (!get_gs_data(buf, "preferrednick", preferrednick, sizeof(preferrednick)))
+		return false;
+
+	// TODO: Change this to something more real
+
+	gs_make_valid(preferrednick);
+
+	// 7 times (us=7)
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+	sendmsg += "\\nick\\";
+	sendmsg += preferrednick;
+
+	sendmsg += "\\usdone\\final\\";
+
+	Write(stream, sendmsg);
+
+	return true;
 }
 
 bool PSServer::OnProfileList(uv_stream_t *stream, const char *buf, int size)

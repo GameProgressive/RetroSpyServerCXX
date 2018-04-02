@@ -30,5 +30,6 @@ DLLAPI int Util_RandInt(int low, int high);
 
 // Helper
 DLLAPI void gs_pass_decode(const char *buf, char *out);
+DLLAPI void gs_make_valid(char *name);
 
 #endif

@@ -21,6 +21,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+const char cvdallowed[] = "1234567890#"
+		"_-`()$-=;/[]"
+		"@+&%"
+		"abcdefghijklmnopqrstuvwxyz"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+
 DLLAPI void gs_pass_decode(const char *in, char *out)
 {
 	int pass_len = strlen(in), out_len = B64DecodeLen(in, 1), i = 0;
@@ -35,4 +42,26 @@ DLLAPI void gs_pass_decode(const char *in, char *out)
 
 	/* Restore the seed */
 	Util_RandSeed((unsigned int)time(NULL));
+}
+
+bool charValid(char ch)
+{
+	int i = 0;
+	for (; i < sizeof(cvdallowed); i++)
+	{
+		if (cvdallowed[i] == ch)
+			return true;
+	}
+
+	return false;
+}
+
+DLLAPI void gs_make_valid(char *name)
+{
+	size_t i = 0;
+	for (; i < strlen(name); i++)
+	{
+		if (!charValid(name[i]))
+			name[i] = '_';
+	}
 }
