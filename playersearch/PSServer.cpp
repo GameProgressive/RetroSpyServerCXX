@@ -18,6 +18,7 @@
 
 #include "../common/RSString.h"
 #include "../common/Query.h"
+#include "../common/Helper.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -56,7 +57,7 @@ bool PSServer::OnNewConnection(uv_stream_t*) { return true; }
 bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 {
 	char buffer[256];
-	char email[EMAIL_MAX_LEN];
+	char email[GP_EMAIL_LEN];
 	CDBResult *result = new CDBResult();
 
 	buffer[0] = email[0] = 0;
@@ -67,7 +68,7 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 		return false;
 	}
 
-	_snprintf_s(buffer, sizeof(buffer), "SELECT COUNT(id) FROM `users` WHERE `email` = '%s'", email);
+	_snprintf_s(buffer, sizeof(buffer), "SELECT COUNT(userid) FROM `users` WHERE `email` = '%s'", email);
 
 	if (!RunDBQueryWithResult(buffer, result))
 	{
@@ -84,10 +85,93 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 {
-	puts(buf);
-	return false;
+	char email[GP_EMAIL_LEN];
+	char pass[GP_PASSWORD_LEN];
+	char gamename[GS_GAMENAME_LEN];
+	char passenc[GP_PASSWORDENC_LEN];
+
+	std::string str = "";
+
+	bool bSendUnique = false;
+	
+	my_ulonglong i = 0;
+
+	CDBResult *result = NULL;
+
+	gamename[0] = pass[0] = email[0] = passenc[0] = 0;
+
+	// Get data from buffer
+
+	if (!get_gs_data(buf, "email", email, sizeof(email)))
+		return false;
+
+	if (get_gs_data(buf, "passenc", passenc, sizeof(passenc)))
+	{
+		// Uncrypt the password
+		gs_pass_decode(passenc, pass);
+	}
+	else
+	{
+		if (!get_gs_data(buf, "pass", pass, sizeof(pass)))
+			return false;
+	}
+
+	if (get_gs_data(buf, "gamename", gamename, sizeof(gamename)))
+		bSendUnique = true;
+
+	// Create the query and execute it
+	str = "SELECT profiles.nick, profiles.uniquenick FROM profiles INNER "
+		"JOIN users ON profiles.userid=users.userid WHERE users.email='";
+	str += email;
+	str += "' AND password='";
+	str += pass;
+	str += "'";
+
+	result = new CDBResult();
+
+	if (!RunDBQueryWithResult(str.c_str(), result))
+	{
+		delete result;
+		return false;
+	}
+
+	// No nicknames found
+	if (result->GetTotalRows() == 0)
+	{
+		delete result;
+
+		Write(stream, "\\nr\\\\ndone\\final\\");
+		return true;
+	}
+
+	// We use gamename to avoid big memory usage
+	_snprintf_s(gamename, sizeof(gamename), "\\nr\\%d", result->GetTotalRows());
+
+	str = gamename;
+
+	// Get all the nicks and store them
+	for (; i < result->GetTotalRows(); i++)
+	{
+		str += "\\nick\\";
+		str += result->GetColumnByRow(i, 0);
+
+		if (bSendUnique)
+		{
+			str += "\\uniquenick\\";
+			str += result->GetColumnByRow(i, 1);
+		}
+	}
+
+	str += "\\ndone\\final\\";
+
+	// Send to the socket
+	Write(stream, str);
+
+	delete result;
+
+	return true;
 }
 
 bool PSServer::OnCheckNicks(uv_stream_t *stream, const char *buf, int size)
