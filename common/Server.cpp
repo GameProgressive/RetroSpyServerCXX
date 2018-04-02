@@ -122,7 +122,13 @@ bool DLLAPI CServer::OnNewConnection(uv_stream_t*) { return true; }
 void _OnClose(uv_handle_t* handle)
 {
 	if (handle)
+	{
+		// Free CClientData
+		if (handle->data)
+			delete handle->data;
+
 		free(handle);
+	}
 }
 
 void _OnWrite(uv_write_t* req, int)
@@ -138,7 +144,7 @@ void _AllocBuffer(uv_handle_t*, size_t size, uv_buf_t *buf)
 
 void _OnRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 {
-	CServer *server = NULL;
+	CClientData *data = NULL;
 
 	if (nread < 0 || stream->data == NULL)
 	{
@@ -157,8 +163,8 @@ void _OnRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 		return;
 	}
 
-	server = (CServer*)stream->data;
-	server->OnRead(stream, buf->base, nread);
+	data = (CClientData*)stream->data;
+	data->GetInstance()->OnRead(stream, buf->base, nread);
 	
 	if (buf->base)
 		free(buf->base);
@@ -187,7 +193,7 @@ void _OnTCPNewConnection(uv_stream_t *server, int status)
 		uv_close((uv_handle_t*)client, _OnClose);
 	}
 
-	client->data = (void*)data->instance;
+	client->data = (void*)new CClientData(data->instance);
 	
 	if (!data->instance->OnNewConnection((uv_stream_t*)client))
 	{
@@ -222,7 +228,7 @@ void _OnUDPNewConnection(uv_stream_t *server, int status)
 		uv_close((uv_handle_t*)client, _OnClose);
 	}
 
-	client->data = (void*)data->instance;
+	client->data = (void*)new CClientData(data->instance);
 	
 	if (!data->instance->OnNewConnection((uv_stream_t*)client))
 	{
@@ -234,4 +240,28 @@ void _OnUDPNewConnection(uv_stream_t *server, int status)
 
 	if (status != 0)
 		uv_close((uv_handle_t*)client, _OnClose);
+}
+
+// CClientData
+DLLAPI CClientData::~CClientData() {}
+
+DLLAPI CClientData::CClientData(CServer *instance)
+{
+	m_instance = instance;
+	m_data = NULL;
+}
+
+DLLAPI CServer* CClientData::GetInstance()
+{
+	return m_instance;
+}
+
+DLLAPI void *CClientData::GetUserData()
+{
+	return m_data;
+}
+
+DLLAPI void CClientData::SetUserData(void *data)
+{
+	m_data = data;
 }

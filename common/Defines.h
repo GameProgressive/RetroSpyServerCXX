@@ -50,5 +50,9 @@
 #define GP_LOGIN_TICKET_LEN         25
 #define GP_LOCATION_STRING_LEN      256
 #define GS_PARTNER_ID				0
+#define GP_SERVERCHALL_LEN			11
+#define GP_AUTHTOKEN_LEN			256
+#define GP_PARTNERCHALLENGE_LEN     256
+#define GP_CLIENTCHALL_LEN			64
 
 #endif

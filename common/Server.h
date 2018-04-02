@@ -123,4 +123,41 @@ private:
 	TServerData m_data;
 };
 
+/*
+	This class rapresents a generic client data
+	that are passed throught all the clients
+*/
+class CClientData
+{
+public:
+	DLLAPI CClientData(CServer *instance);
+	DLLAPI ~CClientData();
+
+	/*
+		Function: GetInstance
+		Description: Get the server instance
+		Return: A pointer to the server instance
+	*/
+	DLLAPI CServer *GetInstance();
+	
+	/*
+		Function: GetUserData
+		Description: Get the user data
+		Return: A pointer to the user data
+	*/
+	DLLAPI void *GetUserData();
+
+	/*
+		Function: SetUserData
+		Description: Set user data that could be passed throught the socket
+		Parameters:
+			data => A pointer to the data that will be passed
+	*/
+	DLLAPI void SetUserData(void *data);
+
+protected:
+	CServer *m_instance;
+	void *m_data;
+};
+
 #endif
