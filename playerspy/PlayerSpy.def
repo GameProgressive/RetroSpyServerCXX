@@ -1,0 +1,4 @@
+LIBRARY	"playerspy"
+EXPORTS
+	RetroSpyMain @1
+	

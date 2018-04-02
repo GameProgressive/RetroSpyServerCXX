@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playersearch", "playersearc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuv", "libuv_project\libuv.vcproj", "{602578CD-B289-4261-887B-8E015866E93C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playerspy", "playerspy\playerspy.vcproj", "{E57FB55F-EF4E-4CD9-B263-A3AB6726301B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{602578CD-B289-4261-887B-8E015866E93C}.Debug|Win32.Build.0 = Debug|Win32
 		{602578CD-B289-4261-887B-8E015866E93C}.Release|Win32.ActiveCfg = Release|Win32
 		{602578CD-B289-4261-887B-8E015866E93C}.Release|Win32.Build.0 = Release|Win32
+		{E57FB55F-EF4E-4CD9-B263-A3AB6726301B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E57FB55F-EF4E-4CD9-B263-A3AB6726301B}.Debug|Win32.Build.0 = Debug|Win32
+		{E57FB55F-EF4E-4CD9-B263-A3AB6726301B}.Release|Win32.ActiveCfg = Release|Win32
+		{E57FB55F-EF4E-4CD9-B263-A3AB6726301B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
