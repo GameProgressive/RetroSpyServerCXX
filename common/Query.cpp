@@ -79,7 +79,6 @@ bool DLLAPI CDBResult::Execute(MYSQL_RES *res)
 	if (!res)
 		return false;
 
-	m_totalrows = mysql_num_rows(res);
 	m_fields = mysql_num_fields(res);
 
 	do
@@ -100,6 +99,8 @@ bool DLLAPI CDBResult::Execute(MYSQL_RES *res)
 			bExec = false;
 		}
 	} while (bExec);
+
+	m_totalrows = mysql_num_rows(res);
 	
 	return true;
 }
