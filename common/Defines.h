@@ -28,6 +28,27 @@
 	#define DLLAPI 
 #endif
 
-#define EMAIL_MAX_LEN 51
+#define GS_REQUEST_LEN				20
+#define GS_GAMENAME_LEN				64
+#define GP_EMAIL_LEN				51
+#define GP_PASSWORD_LEN				31
+#define GP_PASSWORDENC_LEN			((((GP_PASSWORD_LEN+2)*4)/3)+1)
+#define GP_PARTNERID_LEN			sizeof(int)
+#define GP_NAMESPACEID_LEN			sizeof(int)
+#define GP_NICK_LEN                 31
+#define GP_UNIQUENICK_LEN           21
+#define RS_NICK_MAX					10
+#define MD5_BUFFER_LEN				33
+#define GP_XOR_SEED                 0x79707367 // "gspy"
+#define GP_STATUS_STRING_LEN        256
+#define GP_FIRSTNAME_LEN            31
+#define GP_LASTNAME_LEN             31
+#define GP_HOMEPAGE_LEN             76
+#define GP_ZIPCODE_LEN              11
+#define GP_COUNTRYCODE_LEN          3
+#define GP_AIMNAME_LEN              51
+#define GP_LOGIN_TICKET_LEN         25
+#define GP_LOCATION_STRING_LEN      256
+#define GS_PARTNER_ID				0
 
 #endif

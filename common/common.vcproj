@@ -176,6 +176,18 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Helper.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Helper_Base64.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Helper_Random.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Loop.cpp"
 				>
 			</File>
@@ -203,6 +215,10 @@
 			>
 			<File
 				RelativePath=".\Defines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Helper.h"
 				>
 			</File>
 			<File
