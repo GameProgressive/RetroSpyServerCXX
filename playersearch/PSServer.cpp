@@ -68,6 +68,8 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 		return false;
 	}
 
+	EscapeSQLString(email, email, strlen(email));
+
 	_snprintf_s(buffer, sizeof(buffer), "SELECT COUNT(userid) FROM `users` WHERE `email` = '%s'", email);
 
 	if (!RunDBQueryWithResult(buffer, result))
@@ -107,6 +109,8 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	if (!get_gs_data(buf, "email", email, sizeof(email)))
 		return false;
 
+	EscapeSQLString(email, email, strlen(email));
+
 	if (get_gs_data(buf, "passenc", passenc, sizeof(passenc)))
 	{
 		// Uncrypt the password
@@ -117,6 +121,8 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 		if (!get_gs_data(buf, "pass", pass, sizeof(pass)))
 			return false;
 	}
+
+	EscapeSQLString(pass, pass, strlen(pass));
 
 	if (get_gs_data(buf, "gamename", gamename, sizeof(gamename)))
 		bSendUnique = true;

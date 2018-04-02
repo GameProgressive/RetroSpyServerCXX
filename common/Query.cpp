@@ -126,3 +126,8 @@ DLLAPI std::string CDBResult::GetColumnByRow(size_t row, size_t column)
 
 	return vec.at(column);
 }
+
+DLLAPI unsigned long EscapeSQLString(const char *from, char *to, unsigned long length)
+{
+	return mysql_real_escape_string(_QueryDatabaseInstanceMysql, to, from, length);
+}

@@ -88,5 +88,16 @@ DLLAPI bool RunDBQueryWithResult(const char *stmt, CDBResult *out);
 */
 DLLAPI void SetDBInstance(MYSQL *db);
 
+/*
+	Function: EscapeSQLString
+	Description: Add escapes from a standard string
+	Parameters:
+		from => The string to start
+		to => The string to produce
+		length => Length of the string
+	Return: Length of the encoded string or -1 if an error occurs
+*/
+DLLAPI unsigned long EscapeSQLString(const char *from, char *to, unsigned long length);
+
 #endif
 
