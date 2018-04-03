@@ -17,9 +17,12 @@
 #define RSC_EXPORT 1 //Export the methods
 #include "Helper.h"
 
+#include "md5.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 const char cvdallowed[] = "1234567890#"
 		"_-`()$-=;/[]"
@@ -64,4 +67,43 @@ DLLAPI void gs_make_valid(char *name)
 		if (!charValid(name[i]))
 			name[i] = '_';
 	}
+}
+
+DLLAPI void hash_md5(const char *what, int len, char *out)
+{
+	unsigned char md5h[16];
+	static const char hex[] = "0123456789abcdef";
+	md5_context         md5t;
+	int i = 0;
+
+    md5_starts(&md5t);
+    md5_update(&md5t, (unsigned char *)what, len);
+    md5_finish(&md5t, md5h);
+
+	for (i = 0; i < 16; i++) {
+		*out++ = hex[md5h[i] >> 4];
+		*out++ = hex[md5h[i] & 15];
+	}
+	*out = 0;
+}
+
+DLLAPI void gs_do_proof(char *out, const char *password, const char *token, const char *serverch, const char *clientch)
+{
+	char passmd5[MD5_BUFFER_LEN], buffer[512];
+	passmd5[0] = buffer[0] = 0;
+
+	/* Hash the decrypted password */
+	hash_md5(password, strlen(password), passmd5);
+
+	/* Generate the buffer */
+	_snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, "%s%s%s%s%s%s",
+		passmd5,
+		"                                                ",
+		token,
+		serverch,
+		clientch,
+		passmd5);
+
+	/* Hash the buffer */
+	hash_md5(buffer, strlen(buffer), out);
 }

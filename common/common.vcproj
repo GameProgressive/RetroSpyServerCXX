@@ -176,6 +176,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\chc_endian.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Helper.cpp"
 				>
 			</File>
@@ -184,11 +188,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Helper_Query.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Helper_Random.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Loop.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\md5.c"
 				>
 			</File>
 			<File
@@ -214,6 +226,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\chc_endian.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Defines.h"
 				>
 			</File>
@@ -223,6 +239,10 @@
 			</File>
 			<File
 				RelativePath=".\Loop.h"
+				>
+			</File>
+			<File
+				RelativePath=".\md5.h"
 				>
 			</File>
 			<File
@@ -247,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\StringServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\w_stdint.h"
 				>
 			</File>
 		</Filter>
