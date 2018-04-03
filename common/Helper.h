@@ -32,6 +32,7 @@ DLLAPI int Util_RandInt(int low, int high);
 DLLAPI void gs_pass_decode(const char *buf, char *out);
 DLLAPI void gs_make_valid(char *name);
 DLLAPI void gs_do_proof(char *out, const char *password, const char *token, const char *serverch, const char *clientch);
+DLLAPI void hash_md5(const char *what, int len, char *out);
 
 // Database
 DLLAPI unsigned int GetProfileIDFromNickEmail(const char *nick, const char *email);

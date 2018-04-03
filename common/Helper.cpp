@@ -107,3 +107,4 @@ DLLAPI void gs_do_proof(char *out, const char *password, const char *token, cons
 	/* Hash the buffer */
 	hash_md5(buffer, strlen(buffer), out);
 }
+
