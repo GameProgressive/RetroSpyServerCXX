@@ -180,31 +180,31 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnCheckNicks(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnCheckNicks(uv_stream_t *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnSearchUsers(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnSearchUsers(uv_stream_t *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnReverseBuddies(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnReverseBuddies(uv_stream_t *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnOthersList(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnOthersList(uv_stream_t *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnUniqueSearch(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnUniqueSearch(uv_stream_t *stream, const char *buf, int)
 {
 	char preferrednick[GP_NICK_LEN];
 	std::string sendmsg = "\\us\\7";
@@ -241,13 +241,13 @@ bool PSServer::OnUniqueSearch(uv_stream_t *stream, const char *buf, int size)
 	return true;
 }
 
-bool PSServer::OnProfileList(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnProfileList(uv_stream_t *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnProductMatching(uv_stream_t *stream, const char *buf, int size)
+bool PSServer::OnProductMatching(uv_stream_t *, const char *buf, int)
 {
 	puts(buf);
 	return false;
