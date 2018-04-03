@@ -31,6 +31,8 @@ public:
 
 	static CClient *GetFromProfileID(unsigned int id);
 
+	static void SendUpdateStatus(CClient *c);
+
 private:
 	static ClientMap m_clients;
 

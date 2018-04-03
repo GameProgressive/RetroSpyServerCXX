@@ -29,6 +29,8 @@ void CClientManager::Free()
 			delete it->second;
 
 		m_clients.erase(it);
+
+		it++;
 	}
 }
 
@@ -107,9 +109,26 @@ CClient * CClientManager::GetFromProfileID(unsigned int id)
 	{
 		if (it->second->GetProfileID() == id)
 			return it->second;
+
+		it++;
 	}
 	
 	return NULL;
+}
+
+void CClientManager::SendUpdateStatus(CClient *c)
+{
+	ClientMap::iterator it = m_clients.begin();
+
+	while (it != m_clients.end())
+	{
+		CClient *cc = it->second;
+
+		if (cc->HasBuddy(c))
+			cc->SendBuddyStatus(c);
+
+		it++;
+	}
 }
 
 ClientMap CClientManager::m_clients;
