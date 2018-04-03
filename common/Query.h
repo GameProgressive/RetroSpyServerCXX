@@ -39,10 +39,10 @@ public:
 	my_ulonglong DLLAPI GetTotalRows();
 	my_ulonglong DLLAPI GetProcessedRows();
 
-	my_ulonglong DLLAPI GetFieldsCount();
+	unsigned int DLLAPI GetFieldsCount();
 
-	std::vector<std::string> DLLAPI GetRow(size_t index);
-	DLLAPI std::string GetColumnByRow(size_t row, size_t column);
+	std::vector<std::string> DLLAPI GetRow(my_ulonglong index);
+	DLLAPI std::string GetColumnByRow(my_ulonglong row, unsigned int column);
 
 private:
 	std::vector<std::vector<std::string>> m_rows;
@@ -50,7 +50,7 @@ private:
 	std::vector<std::string> _Dummy;
 
 	my_ulonglong m_totalrows;
-	my_ulonglong m_fields;
+	unsigned int m_fields;
 	my_ulonglong m_processrow;
 
 };

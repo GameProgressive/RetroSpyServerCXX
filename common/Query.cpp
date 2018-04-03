@@ -62,7 +62,8 @@ DLLAPI bool RunDBQueryWithResult(const char *stmt, CDBResult *out)
 // CDBResult
 DLLAPI CDBResult::CDBResult()
 {
-	m_totalrows = m_fields = m_processrow = 0;
+	m_totalrows = m_processrow = 0;
+	m_fields = 0;
 }
 
 DLLAPI CDBResult::~CDBResult()
@@ -72,7 +73,7 @@ DLLAPI CDBResult::~CDBResult()
 
 bool DLLAPI CDBResult::Execute(MYSQL_RES *res)
 {
-	int i = 0;
+	unsigned int i = 0;
 	bool bExec = true;
 	MYSQL_ROW row;
 
@@ -107,24 +108,24 @@ bool DLLAPI CDBResult::Execute(MYSQL_RES *res)
 
 my_ulonglong DLLAPI CDBResult::GetTotalRows() { return m_totalrows; }
 my_ulonglong DLLAPI CDBResult::GetProcessedRows() { return m_processrow; }
-my_ulonglong DLLAPI CDBResult::GetFieldsCount() { return m_fields; }
+unsigned int DLLAPI CDBResult::GetFieldsCount() { return m_fields; }
 
-std::vector<std::string> DLLAPI CDBResult::GetRow(size_t index)
+std::vector<std::string> DLLAPI CDBResult::GetRow(my_ulonglong index)
 {
 	if (index > m_rows.size())
 		return _Dummy;
 
-	return m_rows.at(index);
+	return m_rows.at((size_t)index);
 }
 
-DLLAPI std::string CDBResult::GetColumnByRow(size_t row, size_t column)
+DLLAPI std::string CDBResult::GetColumnByRow(my_ulonglong row, unsigned int column)
 {
 	std::vector<std::string> vec = GetRow(row);
 
 	if (vec.size() < 1)
 		return NULL;
 
-	return vec.at(column);
+	return vec.at((size_t)column);
 }
 
 DLLAPI unsigned long EscapeSQLString(const char *from, char *to, unsigned long length)
