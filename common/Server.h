@@ -57,7 +57,7 @@ public:
 			data => the data to write
 			size => size of the data to write
 	*/
-	void DLLAPI Write(uv_stream_t *client, void *data, int size);
+	static void DLLAPI Write(uv_stream_t *client, void *data, int size);
 
 	/*
 		Function: Write
@@ -66,7 +66,7 @@ public:
 			client => the client
 			data => the data to write
 	*/
-	void DLLAPI Write(uv_stream_t *client, const char *data);
+	static void DLLAPI Write(uv_stream_t *client, const char *data);
 
 	/*
 		Function: Write
@@ -75,7 +75,7 @@ public:
 			client => the client
 			data => the string that will be written
 	*/
-	void DLLAPI Write(uv_stream_t *client, std::string data);
+	static void DLLAPI Write(uv_stream_t *client, std::string data);
 
 	/*
 		Function: OnRead
