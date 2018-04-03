@@ -20,6 +20,45 @@
 // Defines
 #define DEFAULT_BACKLOG 128
 
+#ifdef _WIN32
+	#define s_addr S_un.S_addr
+
+int uv_udp_getpeername(const uv_udp_t* handle,
+                       struct sockaddr* name,
+                       int* namelen) {
+  int result;
+
+  if (handle->socket == INVALID_SOCKET) {
+    return UV_EINVAL;
+  }
+
+  result = getpeername(handle->socket, name, namelen);
+  if (result != 0) {
+    return uv_translate_sys_error(WSAGetLastError());
+  }
+
+  return 0;
+}
+#else
+int uv_udp_getpeername(const uv_udp_t* handle,
+                       struct sockaddr* name,
+                       int* namelen) {
+  socklen_t socklen;
+
+  if (uv__stream_fd(handle) < 0)
+    return UV_EINVAL;  /* FIXME(bnoordhuis) UV_EBADF */
+
+  /* sizeof(socklen_t) != sizeof(int) on some systems. */
+  socklen = (socklen_t) *namelen;
+
+  if (getpeername(uv__stream_fd(handle), name, &socklen))
+    return UV__ERR(errno);
+
+  *namelen = (int) socklen;
+  return 0;
+}
+#endif
+
 // Prototypes
 void _OnTCPNewConnection(uv_stream_t *server, int status);
 void _OnUDPNewConnection(uv_stream_t *server, int status);
@@ -114,6 +153,25 @@ void DLLAPI CServer::Close(uv_handle_t* handle)
 	uv_close(handle, _OnClose);
 }
 
+int DLLAPI CServer::GetIPFromStream(uv_stream_t *stream)
+{
+	struct sockaddr_in clientaddr;
+	socklen_t clientaddr_len;
+	CClientData *data = NULL;
+
+	if (!stream->data)
+		return -1;
+
+	data = (CClientData*)stream->data;
+
+	if (data->IsUDP())
+		uv_udp_getpeername((const uv_udp_t*)stream, (struct sockaddr*)&clientaddr, (int*)&clientaddr_len);
+	else
+		uv_tcp_getpeername((const uv_tcp_t*)stream, (struct sockaddr*)&clientaddr, (int*)&clientaddr_len);
+
+	return clientaddr.sin_addr.s_addr;
+}
+
 // Pure virtual functions
 void DLLAPI CServer::OnRead(uv_stream_t*, const char *, ssize_t) {}
 bool DLLAPI CServer::OnNewConnection(uv_stream_t*) { return true; }
@@ -193,7 +251,7 @@ void _OnTCPNewConnection(uv_stream_t *server, int status)
 		uv_close((uv_handle_t*)client, _OnClose);
 	}
 
-	client->data = (void*)new CClientData(data->instance);
+	client->data = (void*)new CClientData(data->instance, false);
 	
 	if (!data->instance->OnNewConnection((uv_stream_t*)client))
 	{
@@ -228,7 +286,7 @@ void _OnUDPNewConnection(uv_stream_t *server, int status)
 		uv_close((uv_handle_t*)client, _OnClose);
 	}
 
-	client->data = (void*)new CClientData(data->instance);
+	client->data = (void*)new CClientData(data->instance, true);
 	
 	if (!data->instance->OnNewConnection((uv_stream_t*)client))
 	{
@@ -245,10 +303,11 @@ void _OnUDPNewConnection(uv_stream_t *server, int status)
 // CClientData
 DLLAPI CClientData::~CClientData() {}
 
-DLLAPI CClientData::CClientData(CServer *instance)
+DLLAPI CClientData::CClientData(CServer *instance, bool udp)
 {
 	m_instance = instance;
 	m_data = NULL;
+	m_udp = udp;
 }
 
 DLLAPI CServer* CClientData::GetInstance()
@@ -264,4 +323,9 @@ DLLAPI void *CClientData::GetUserData()
 DLLAPI void CClientData::SetUserData(void *data)
 {
 	m_data = data;
+}
+
+DLLAPI bool CClientData::IsUDP()
+{
+	return m_udp;
 }

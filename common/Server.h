@@ -114,6 +114,14 @@ public:
 	*/
 	void DLLAPI Close(uv_handle_t *handle);
 
+	/*
+		Function: GetIPFromStream
+		Description: Get the IP of a stream
+		Parameters:
+			stream => the stream to get the ip
+	*/
+	static int DLLAPI GetIPFromStream(uv_stream_t *stream);
+
 private:
 	uv_loop_t *m_loop;
 
@@ -130,7 +138,7 @@ private:
 class CClientData
 {
 public:
-	DLLAPI CClientData(CServer *instance);
+	DLLAPI CClientData(CServer *instance, bool udp);
 	DLLAPI ~CClientData();
 
 	/*
@@ -155,9 +163,17 @@ public:
 	*/
 	DLLAPI void SetUserData(void *data);
 
+	/*
+		Function: IsUDP
+		Description: Check if the stream is in UDP mode
+		Return: true if the stream is UDP otherwise false
+	*/
+	DLLAPI bool IsUDP();
+
 protected:
 	CServer *m_instance;
 	void *m_data;
+	bool m_udp;
 };
 
 #endif
