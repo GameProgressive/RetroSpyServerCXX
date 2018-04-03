@@ -209,6 +209,10 @@
 				RelativePath=".\PYServer.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Types.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

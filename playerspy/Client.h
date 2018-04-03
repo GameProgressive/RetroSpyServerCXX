@@ -17,81 +17,101 @@
 #ifndef PY_CLIENT_H
 #define PY_CLIENT_H
 
+#include "Types.h"
+
 #include <Defines.h>
 
 #include <uv.h>
+#include <time.h>
 
 #include <list>
+#include <string>
 
 class CClient
 {
 public:
-	CClient(uv_stream_t *stream);
+	CClient(uv_stream_t *stream, unsigned int vid);
 	~CClient();
 
-	int GetUserID();
-	int GetProfileID();
+	unsigned int GetUserID();
+	unsigned int GetProfileID();
 
 	time_t GetLastPacket();
 
 	bool HasBuddy(CClient *c);
-	bool HasBuddy(int id);
+	bool HasBuddy(unsigned int id);
 
 	bool HasBlocked(CClient *c);
-	bool HasBlocked(int id);
+	bool HasBlocked(unsigned int id);
 
 	void SendBuddyStatus(CClient *c);
 
-	size_t GetVectorID();
+	int GetPartnerID();
 
-	bool ProductInviteable(int pid);
+	bool ProductInviteable(unsigned int pid);
 
 	bool Handle(const char *req, const char *buf, int len);
 
+	short GetPort();
+	int GetIP();
+	
+	int GetSDKVersion();
+
+	GPEnum GetStatusType();
+	const char *GetStatus();
+
+	GPEnum GetQuietFlags();
+
+	const char *GetLocation();
+
+	void Disconnect();
+
 	// Operator overload
-	bool operator==(CClient& c)
-	{
-		if ( (GetProfileID() == c.GetProfileID()) && (GetUserID() == c.GetUserID()) )
-			return true;
+	bool operator==(CClient& c);
+	bool operator!=(CClient& c);
 
-		return false;
-	}
+	unsigned int m_vectorid;
 
-	bool operator!=(CClient& c)
-	{
-		if ( (GetProfileID() != c.GetProfileID()) || (GetUserID() != c.GetUserID()) )
-			return true;
-
-		return false;
-	}
 private:
 	char m_email[GP_EMAIL_LEN];
 
-	char m_challenge[11];
+	unsigned int m_profileid;
+	unsigned int m_userid;
 
-	int m_profileid;
-	int m_userid;
-
-	int m_sesskey;
+	unsigned int m_sesskey;
 
 	uv_stream_t* m_stream;
 
 	int m_sdkversion;
 
-	int m_port;
+	int m_partnerid;
+
+	short m_port;
+	int m_ip;
 
 	time_t m_lastpacket;
 
-	std::list<int> m_blocked;
-	std::list<int> m_buddies;
-	std::list<int> m_products;
+	GPEnum m_status_type;
+	char m_status[GP_STATUS_STRING_LEN];
+
+	GPEnum m_quiet_flags;
+
+	char m_location[GP_STATUS_STRING_LEN];
+
+
+	std::list<unsigned int> m_blocked;
+	std::list<unsigned int> m_buddies;
+	std::list<unsigned int> m_products;
 	
 private:
 	bool HandleLogin(const char *buf, int len);
 	bool HandleInviteTo(const char *buf, int len);
 	bool HandleNewUser(const char *buf, int len);
 
-	void SendBuddyInfo(int id);
+	void SendBuddyInfo(unsigned int id);
+
+	void Write(const char *str);
+	void Write(std::string str);
 };
 
 #endif

@@ -27,19 +27,13 @@
 
 PYServer::PYServer(CLoop *loop) : CStringServer(loop)
 {
-	server_id = 1;
-	
-	strrnd(server_challenge, sizeof(server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	
-	cm = new CClientManager(server_challenge, server_id);
+	PYServer::server_id = 1;
+	strrnd(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }
 
 PYServer::~PYServer()
 {
-	if (cm)
-		delete cm;
-
-	cm = NULL;
+	CClientManager::Free();
 }
 
 bool PYServer::HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size)
@@ -51,7 +45,7 @@ bool PYServer::HandleRequest(uv_stream_t *stream, const char *req, const char *b
 		return true;
 	}
 
-	cm->Handle(stream, req, buf, size);
+	CClientManager::Handle(stream, req, buf, size);
 	return true;
 }
 
@@ -66,3 +60,16 @@ bool PYServer::OnNewConnection(uv_stream_t* stream)
 	return true;
 
 }
+
+int PYServer::GetServerID()
+{
+	return server_id;
+}
+
+const char *PYServer::GetServerChallenge()
+{
+	return server_challenge;
+}
+
+int PYServer::server_id = 0;
+char PYServer::server_challenge[GP_SERVERCHALL_LEN] = {0};

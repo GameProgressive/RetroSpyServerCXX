@@ -18,13 +18,7 @@
 
 #include "../common/Server.h" //CClientData
 
-CClientManager::CClientManager(const char *server_chall, int server_id)
-{
-	m_challenge = (char*)server_chall;
-	m_serverid = server_id;
-}
-
-CClientManager::~CClientManager()
+void CClientManager::Free()
 {
 	ClientMap::iterator it = m_clients.begin();
 
@@ -54,22 +48,22 @@ void CClientManager::Delete(ClientMap::iterator it)
 bool CClientManager::CreateAndHandle(uv_stream_t *stream, const char *req, const char *buf, int len)
 {
 	ClientMap::iterator it;
-
+	CClient *c = NULL;
 	CClientData *cc = (CClientData*)stream->data;
 
 	unsigned int i = m_clients.size();
 	
 	// Create che client
-	m_clients[i] = new CClient(stream);
-	
-	// Go to the position so we can pass the key memory
+	m_clients[i] = new CClient(stream, i);
+
 	it = m_clients.begin();
 	std::advance(it, i);
 
-	// Pass the key memory (no corruptions ^.^)
-	cc->SetUserData((void*)&it->first);
+	c = it->second;
 
-	if (!it->second->Handle(req, buf, len))
+	cc->SetUserData((void *)&c->m_vectorid);
+
+	if (!c->Handle(req, buf, len))
 	{
 		Delete(it); // Delete the client if it returned false
 		return false;
@@ -104,3 +98,18 @@ bool CClientManager::Handle(uv_stream_t* stream, const char *req, const char*buf
 
 	return true;
 }
+
+CClient * CClientManager::GetFromProfileID(unsigned int id)
+{
+	ClientMap::iterator it = m_clients.begin();
+
+	while (it != m_clients.end())
+	{
+		if (it->second->GetProfileID() == id)
+			return it->second;
+	}
+	
+	return NULL;
+}
+
+ClientMap CClientManager::m_clients;

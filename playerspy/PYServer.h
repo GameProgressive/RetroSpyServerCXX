@@ -17,8 +17,6 @@
 #ifndef GPCMSERVER_H
 #define GPCMSERVER_H
 
-#include "ClientManager.h"
-
 #include <StringServer.h>
 #include <Loop.h>
 
@@ -37,11 +35,12 @@ public:
 	/* See CStringServer::HandleRequest */
 	bool HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size);
 
-private:
-	char server_challenge[GP_SERVERCHALL_LEN];
-	int server_id;
+	static int GetServerID();
+	static const char *GetServerChallenge();
 
-	CClientManager *cm;
+private:
+	static char server_challenge[GP_SERVERCHALL_LEN];
+	static int server_id;
 };
 
 #endif

@@ -26,20 +26,17 @@ typedef std::map<unsigned int, CClient*> ClientMap;
 class CClientManager
 {
 public:
-	CClientManager(const char *server_challenge, int server_id);
-	~CClientManager();
+	static bool Handle(uv_stream_t* stream, const char *req, const char*buf, int len);
+	static void Free();
 
-	bool Handle(uv_stream_t* stream, const char *req, const char*buf, int len);
-
-private:
-	ClientMap m_clients;
-
-	int m_serverid;
-	char *m_challenge;
+	static CClient *GetFromProfileID(unsigned int id);
 
 private:
-	void Delete(ClientMap::iterator it);
-	bool CreateAndHandle(uv_stream_t* stream, const char *req, const char *buf, int len);
+	static ClientMap m_clients;
+
+private:
+	static void Delete(ClientMap::iterator it);
+	static bool CreateAndHandle(uv_stream_t* stream, const char *req, const char *buf, int len);
 	
 };
 
