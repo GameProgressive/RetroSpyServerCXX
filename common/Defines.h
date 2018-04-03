@@ -52,8 +52,6 @@
 #define GP_NAMESPACEID_LEN			sizeof(int)
 #define GP_NICK_LEN                 31
 #define GP_UNIQUENICK_LEN           21
-#define RS_NICK_MAX					10
-#define MD5_BUFFER_LEN				33
 #define GP_XOR_SEED                 0x79707367 // "gspy"
 #define GP_STATUS_STRING_LEN        256
 #define GP_FIRSTNAME_LEN            31
@@ -69,5 +67,7 @@
 #define GP_AUTHTOKEN_LEN			256
 #define GP_PARTNERCHALLENGE_LEN     256
 #define GP_CLIENTCHALL_LEN			64
+
+#define MD5_BUFFER_LEN				33
 
 #endif
