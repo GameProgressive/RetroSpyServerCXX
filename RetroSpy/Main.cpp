@@ -20,11 +20,6 @@
 
 #include "../common/Helper.h"
 
-#ifdef _WIN32
-	#include <WinSock.h>
-	#pragma comment(lib, "WSock32.lib")
-#endif
-
 #include <iostream>
 #include <string>
 
@@ -73,12 +68,6 @@ int main()
 	// I defined this here, so we won't create
 	// a variable each call of the loop
 	std::string consoleInput = "";
-
-	// Initialize WinSock1
-#ifdef _WIN32
-	WSADATA wsadata;
-	WSAStartup(MAKEWORD(1,0), &wsadata);
-#endif
 
 	Util_RandSeed((unsigned int)time(NULL));
 
