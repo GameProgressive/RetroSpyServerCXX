@@ -628,11 +628,11 @@ bool CClient::HandleGetProfile(const char *buf, int)
 
 	if (!get_gs_data(buf, "profileid", txp, sizeof(txp)))
 		return false;
-
-	str += buf;
-	str += "\\userid\\";
-
+	
+	str += txp;
 	pid = atoi(txp);
+
+	str += "\\userid\\";
 
 	if (!GetProfileInfo(pid, &info, &uid))
 		return false;
@@ -758,6 +758,9 @@ bool CClient::HandleGetProfile(const char *buf, int)
 	str += "\\id\\";
 	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", id);
 	str += txp;
+
+	// Old support
+	str += "\\mp\\4\\st\\";
 	
 	str += "\\final\\";
 
