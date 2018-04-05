@@ -193,7 +193,7 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 		" profiles.occupationid, profiles.incomeid, profiles.industryid, profiles.marriedid, profiles.childcount," //14
 		" profiles.interests1, profiles.ownership1, profiles.connectiontype, profiles.sex, profiles.zipcode," //19
 		" profiles.countrycode, profiles.homepage, profiles.birthday, profiles.birthmonth, profiles.birthyear," //24
-		" profiles.location, profiles.icq FROM profiles WHERE profileid=%u", pid);
+		" profiles.location, profiles.icq, users.email FROM profiles INNER JOIN users ON users.userid=profiles.userid WHERE profiles.profileid=%u", pid);
 
 	if (!RunDBQueryWithResult(query, res))
 	{
@@ -274,6 +274,8 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(17).c_str());
 	out->conntypeid = atoi(query);
+
+	strncpy_s(out->email, sizeof(out->email), vec.at(27).c_str(), sizeof(out->email) - 1);
 
 	return true;
 }
