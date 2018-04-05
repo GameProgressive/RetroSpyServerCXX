@@ -189,10 +189,10 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT profiles.uniquenick, profiles.nick, profiles.firstname, profiles.lastname, profiles.latitude," //5
-		" profiles.longitude, profiles.publicmask, profiles.userid, profiles.aim, profiles.picture," //10
-		" profiles.occupationid, incomeid, profiles.industryid, profiles.marriedid, profiles.childcount," //15
-		" profiles.interests1, profiles.ownership1, profiles.connectiontype, profiles.sex, profiles.zipcode," //20
-		" profiles.countrycode, profiles.homepage, profiles.birthday, profiles.birthmonth, profiles.birthyear," // 25
+		" profiles.longitude, profiles.publicmask, profiles.userid, profiles.aim, profiles.picture," //9
+		" profiles.occupationid, profiles.incomeid, profiles.industryid, profiles.marriedid, profiles.childcount," //14
+		" profiles.interests1, profiles.ownership1, profiles.connectiontype, profiles.sex, profiles.zipcode," //19
+		" profiles.countrycode, profiles.homepage, profiles.birthday, profiles.birthmonth, profiles.birthyear," //24
 		" profiles.location, profiles.icq FROM profiles WHERE profileid=%u", pid);
 
 	if (!RunDBQueryWithResult(query, res))
@@ -211,13 +211,13 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 	strncpy_s(out->uniquenick, sizeof(out->uniquenick), vec.at(0).c_str(), sizeof(out->uniquenick) - 1);
 	strncpy_s(out->firstname, sizeof(out->firstname), vec.at(2).c_str(), sizeof(out->firstname) - 1);
 	strncpy_s(out->lastname, sizeof(out->lastname), vec.at(3).c_str(), sizeof(out->lastname) - 1);
-	strncpy_s(out->homepage, sizeof(out->homepage), vec.at(22).c_str(), sizeof(out->homepage) - 1);
+	strncpy_s(out->homepage, sizeof(out->homepage), vec.at(21).c_str(), sizeof(out->homepage) - 1);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(27).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(26).c_str());
 	out->icquin = atoi(query);
 
-	strncpy_s(out->zipcode, sizeof(out->zipcode), vec.at(20).c_str(), sizeof(out->zipcode) - 1);
-	strncpy_s(out->countrycode, sizeof(out->countrycode), vec.at(21).c_str(), sizeof(out->countrycode) - 1);
+	strncpy_s(out->zipcode, sizeof(out->zipcode), vec.at(19).c_str(), sizeof(out->zipcode) - 1);
+	strncpy_s(out->countrycode, sizeof(out->countrycode), vec.at(20).c_str(), sizeof(out->countrycode) - 1);
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%f", vec.at(5).c_str());
 	out->longitude = (float)atof(query);
@@ -225,20 +225,20 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%f", vec.at(4).c_str());
 	out->latitude = (float)atof(query);
 
-	strncpy_s(out->place, sizeof(out->place), vec.at(26).c_str(), sizeof(out->place) - 1);
+	strncpy_s(out->place, sizeof(out->place), vec.at(25).c_str(), sizeof(out->place) - 1);
 	
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(23).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(22).c_str());
 	out->birthday = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(24).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(23).c_str());
 	out->birthmonth = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(25).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(24).c_str());
 	out->birthyear = atoi(query);
 
-	if (strcmp(vec.at(19).c_str(), "MALE") == 0)
+	if (strcmp(vec.at(18).c_str(), "MALE") == 0)
 		out->sex = GP_MALE;
-	else if (strcmp(vec.at(19).c_str(), "FEMALE") == 0)
+	else if (strcmp(vec.at(18).c_str(), "FEMALE") == 0)
 		out->sex = GP_FEMALE;
 	else
 		out->sex = GP_PAT;
@@ -246,33 +246,33 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(6).c_str());
 	out->publicmask = atoi(query);
 
-	strncpy_s(out->aimname, sizeof(out->aimname), vec.at(9).c_str(), sizeof(out->aimname) - 1);
+	strncpy_s(out->aimname, sizeof(out->aimname), vec.at(8).c_str(), sizeof(out->aimname) - 1);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(10).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(9).c_str());
 	out->pic = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(11).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(10).c_str());
 	out->occupationid = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(13).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(12).c_str());
 	out->industryid = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(12).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(11).c_str());
 	out->incomeid = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(14).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(13).c_str());
 	out->marriedid = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(15).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(14).c_str());
 	out->childcount = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(16).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(15).c_str());
 	out->interests1 = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(17).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(16).c_str());
 	out->ownership1 = atoi(query);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(18).c_str());
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", vec.at(17).c_str());
 	out->conntypeid = atoi(query);
 
 	return true;
