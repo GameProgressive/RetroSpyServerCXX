@@ -112,7 +112,7 @@ unsigned int DLLAPI CDBResult::GetFieldsCount() { return m_fields; }
 
 std::vector<std::string> DLLAPI CDBResult::GetRow(my_ulonglong index)
 {
-	if (index > m_rows.size())
+	if ((index+1) > m_rows.size())
 		return _Dummy;
 
 	return m_rows.at((size_t)index);
@@ -123,7 +123,7 @@ DLLAPI std::string CDBResult::GetColumnByRow(my_ulonglong row, unsigned int colu
 	std::vector<std::string> vec = GetRow(row);
 
 	if (vec.size() < 1)
-		return NULL;
+		return "";
 
 	return vec.at((size_t)column);
 }
