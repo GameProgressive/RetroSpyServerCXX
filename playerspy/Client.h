@@ -98,6 +98,8 @@ private:
 
 	char m_location[GP_STATUS_STRING_LEN];
 
+	bool m_SentBuddies;
+	bool m_SentAddRequests;
 
 	std::list<unsigned int> m_blocked;
 	std::list<unsigned int> m_buddies;
@@ -107,8 +109,17 @@ private:
 	bool HandleLogin(const char *buf, int len);
 	bool HandleInviteTo(const char *buf, int len);
 	bool HandleNewUser(const char *buf, int len);
+	bool HandleStatus(const char *buf, int len);
+	bool HandleGetProfile(const char *buf, int len);
 
 	void SendBuddyInfo(unsigned int id);
+	void SendBuddies();
+	void SendAddRequests();
+
+	void LoadBuddies();
+	void LoadBlockedList();
+
+	void SendMessages();
 
 	void Write(const char *str);
 	void Write(std::string str);

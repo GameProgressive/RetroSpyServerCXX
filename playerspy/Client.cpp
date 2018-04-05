@@ -22,7 +22,10 @@
 #include "../common/Server.h"
 #include "../common/RSString.h"
 #include "../common/Helper.h"
+#include "../common/Query.h"
 #include "../common/chc_endian.h"
+
+#include <string>
 
 CClient::CClient(uv_stream_t *stream, unsigned int vid)
 {
@@ -34,6 +37,7 @@ CClient::CClient(uv_stream_t *stream, unsigned int vid)
 	m_sdkversion = 0;
 	m_port = 0;
 	m_status_type = m_quiet_flags = GP_ERROR;
+	m_SentBuddies = m_SentAddRequests = false;
 
 	m_ip = CServer::GetIPFromStream(stream);
 
@@ -197,6 +201,10 @@ bool CClient::Handle(const char *req, const char *buf, int len)
 		Disconnect();
 		return false;
 	}
+	else if (strcmp(req, "status") == 0)
+		return HandleStatus(buf, len);
+	else if (strcmp(req, "getprofile") == 0)
+		return HandleGetProfile(buf, len);
 	else
 		puts(req);
 
@@ -311,13 +319,49 @@ bool CClient::HandleLogin(const char *buf, int)
 
 	Write(sendbuf);
 
+	LoadBuddies();
+	LoadBlockedList();
+	SendMessages();
+
+	if (m_sdkversion & GPI_NEW_LIST_RETRIEVAL_ON_LOGIN)
+		SendBuddies();
+
 	return true;
 }
 
 bool CClient::HandleInviteTo(const char *buf, int)
 {
-	puts(buf);
-	return false;
+	char products[256];
+	int pdo = 0;
+	char *pch = NULL, *ctx = NULL;
+
+	if (!get_gs_data(buf, "products", products, sizeof(products)))
+		return false;
+
+	m_products.clear();
+
+	if (strcmp(products, "") == 0)
+		return true;
+
+	if (strchr(products, '\\') != NULL)
+	{
+		pch = strtok_s(products, ",", &ctx);
+
+		while (pch != NULL)
+		{
+			pdo = atoi(pch);
+			m_products.push_front(pdo);
+			//pch = strtok(pch, ",");
+			pch = strtok_s(NULL, ",", &ctx); // TODO: Finish this
+		}
+	}
+	else
+	{
+		pdo = atoi(products);
+		m_products.push_front(pdo);
+	}
+
+	return true;
 }
 
 bool CClient::HandleNewUser(const char *buf, int)
@@ -369,4 +413,354 @@ void CClient::Write(std::string str)
 void CClient::Write(const char *str)
 {
 	CServer::Write(m_stream, str);
+}
+
+bool CClient::HandleStatus(const char *buf, int)
+{
+	get_gs_data(buf, "statstring", m_status, sizeof(m_status));
+	get_gs_data(buf, "locstring", m_location, sizeof(m_location));
+
+	if (!m_SentBuddies)
+		SendBuddies();
+
+	if (!m_SentAddRequests)
+		SendAddRequests();
+
+	CClientManager::SendUpdateStatus(this);
+	return true;
+}
+
+void CClient::SendBuddies()
+{
+	std::list<unsigned int>::iterator it;
+	unsigned int pid = 0;
+
+	m_SentBuddies = true;
+
+	if (m_sdkversion & GPI_NEW_LIST_RETRIEVAL_ON_LOGIN)
+	{
+		std::string str = "";
+		char txp[16];
+
+		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", m_buddies.size());
+
+		it = m_buddies.begin();
+
+		str = "\\bdy\\";
+		str += txp;
+		str += "\\list\\";
+
+		while (it != m_buddies.end())
+		{
+			pid = *it;
+
+			_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", pid);
+
+			str += txp;
+
+			it++;
+
+			if (it != m_buddies.end())
+			{
+				str += ",";	
+			}
+		}
+
+		Write(str);
+	}
+
+	it = m_buddies.begin();
+
+	while (it != m_buddies.end())
+	{
+		pid = *it;
+		SendBuddyInfo(pid);
+		it++;
+	}
+}
+
+void CClient::SendAddRequests()
+{
+	char query[256];
+	CDBResult *res = new CDBResult();
+	my_ulonglong x = 0;
+	std::string str = "";
+
+	query[0] = 0;
+
+	_snprintf_s(query, sizeof(query), "SELECT `profileid`, `syncrequested`, `reason` FROM `addrequests` WHERE `targetid`=%u", m_profileid);
+	if (!RunDBQueryWithResult(query, res))
+	{
+		delete res;
+		return;
+	}
+
+	m_SentAddRequests = true;
+
+	for (; x < res->GetTotalRows(); x++)
+	{
+		std::vector<std::string> vec = res->GetRow(x);
+
+		str = "\\bm\\";
+		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", GPI_BM_REQUEST);
+		str += query;
+		str += "\\f\\";
+		str += vec.at(0);
+		str += "\\msg\\";
+		str += vec.at(1);
+		str += "|signed|";
+		str += vec.at(2);
+		str += "\\final\\";
+
+		Write(str);
+	}
+
+	delete res;
+}
+
+void CClient::LoadBuddies()
+{
+	char query[128];
+	my_ulonglong x = 0;
+	CDBResult *res = new CDBResult();
+
+	query[0] = 0;
+
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
+		"SELECT `targetid` FROM `friends` WHERE `profileid`=%u", m_profileid);
+
+	if (!RunDBQueryWithResult(query, res))
+	{
+		delete res;
+		return;
+	}
+
+	m_buddies.clear();
+
+	for (; x < res->GetTotalRows(); x++)
+		m_buddies.push_front(atoi(res->GetColumnByRow(x, 0).c_str()));
+
+	delete res;
+}
+
+void CClient::LoadBlockedList()
+{
+	char query[128];
+	my_ulonglong x = 0;
+	CDBResult *res = new CDBResult();
+
+	query[0] = 0;
+
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
+		"SELECT `targetid` FROM `blocked` WHERE `profileid`=%u", m_profileid);
+
+	if (!RunDBQueryWithResult(query, res))
+	{
+		delete res;
+		return;
+	}
+
+	m_blocked.clear();
+
+	for (; x < res->GetTotalRows(); x++)
+		m_blocked.push_front(atoi(res->GetColumnByRow(x, 0).c_str()));
+
+	delete res;
+}
+
+void CClient::SendMessages()
+{
+	char query[256];
+	CDBResult *res = new CDBResult();
+	my_ulonglong x = 0;
+	std::string str = "";
+
+	query[0] = 0;
+
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
+
+	if (!RunDBQueryWithResult(query, res))
+	{
+		delete res;
+		return;
+	}
+
+	for (; x < res->GetTotalRows(); x++)
+	{
+		std::vector<std::string> row = res->GetRow(x);
+
+		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", GPI_BM_MESSAGE); 
+		
+		str = "\\bm\\";
+		str += query;
+		str += "\\f\\";
+		str += row.at(1);
+		str += "\\date\\";
+		str += row.at(2);
+		str += "\\msg\\";
+		str += row.at(0);
+		str += "\\final\\";
+	}
+
+	delete res;
+
+	_snprintf_s(query, sizeof(query), "DELETE FROM `messages` WHERE `to`=%u", m_profileid);
+	RunDBQuery(query);
+}
+
+bool CClient::HandleGetProfile(const char *buf, int)
+{
+	std::string str = "\\pi\\profileid\\";
+	char txp[101];
+	char sign[MD5_BUFFER_LEN];
+	int id = 0;
+	unsigned int pid = 0;
+	unsigned int uid = 0;
+	GPIInfoCache info;
+
+	if (!m_SentBuddies)
+		SendBuddies();
+
+	if (!get_gs_data(buf, "id", txp, sizeof(txp)))
+		return false;
+
+	id = atoi(txp);
+
+	if (!get_gs_data(buf, "profileid", txp, sizeof(txp)))
+		return false;
+
+	str += buf;
+	str += "\\userid\\";
+
+	pid = atoi(txp);
+
+	if (!GetProfileInfo(pid, &info, &uid))
+		return false;
+
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", uid);
+	str += txp;
+
+	str += "\\nick\\";
+	str += info.nick;
+	str += "\\uniquenick\\";
+	str += info.uniquenick;
+	
+	if (info.publicmask & GP_MASK_EMAIL)
+	{
+		str += "\\email\\";
+		str += info.email;
+	}
+
+	str += "\\firstname\\";
+	str += info.firstname;
+	str += "\\lastname\\";
+	str += info.lastname;
+
+	if (info.publicmask & GP_MASK_COUNTRYCODE)
+	{
+		str += "\\countrycode\\";
+		str += info.countrycode;
+	}
+
+	str += "\\aim\\";
+	str += info.aimname;
+
+	str += "\\pmask\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.publicmask);
+	str += txp;
+	
+	str += "\\pic\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.pic);
+	str += txp;
+
+	str += "\\ooc\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.occupationid);
+	str += txp;
+
+	str += "\\ind\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.industryid);
+	str += txp;
+
+	str += "\\inc\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.incomeid);
+	str += txp;
+
+	str += "\\mar\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.marriedid);
+	str += txp;
+
+	str += "\\chc\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.childcount);
+	str += txp;
+
+	str += "\\i1\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.interests1);
+	str += txp;
+
+	str += "\\o1\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.ownership1);
+	str += txp;
+
+	str += "\\conn\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.conntypeid);
+	str += txp;
+
+	if (info.publicmask & GP_MASK_SEX)
+	{
+		str += "\\sex\\";
+		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.sex);
+		str += txp;
+	}
+
+	if (info.publicmask & GP_MASK_ZIPCODE)
+	{
+		str += "\\zipcode\\";
+		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.zipcode);
+		str += txp;
+	}
+
+	if (info.publicmask & GP_MASK_HOMEPAGE)
+	{
+		str += "\\homepage\\";
+		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.homepage);
+		str += txp;
+	}
+
+	if (info.publicmask & GP_MASK_BIRTHDAY)
+	{
+		int bdd = 0;
+
+		bdd |= (info.birthday << 24);
+		bdd |= (info.birthmonth << 16);
+		bdd |= info.birthyear;
+
+		str += "\\birthday\\";
+		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", bdd);
+		str += txp;
+	}
+
+	str += "\\lon\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%f", info.longitude);
+	str += txp;
+
+	str += "\\lat\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%f", info.latitude);
+	str += txp;
+
+	str += "\\loc\\";
+	str += info.place;
+
+	hash_md5(str.c_str(), str.length(), sign);
+
+	str += "\\sig\\";
+	str += sign;
+
+	str += "\\id\\";
+	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", id);
+	str += txp;
+	
+	str += "\\final\\";
+
+	Write(str);
+	return true;
 }
