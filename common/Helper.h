@@ -42,5 +42,6 @@ DLLAPI void GetPasswordFromUserID(char *out, int out_len, unsigned int id);
 DLLAPI unsigned int GetUserIDFromProfileID(unsigned int id);
 DLLAPI int AssignSessionKeyFromProfileID(unsigned int id);
 DLLAPI void FreeSessionKey(unsigned int profileid);
+DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
 
 #endif
