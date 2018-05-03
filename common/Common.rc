@@ -74,7 +74,7 @@ BEGIN
             VALUE "FileVersion", "1, 0, 0, 0"
             VALUE "InternalName", "RetroSpy Common Library"
             VALUE "LegalCopyright", "Copyright (C) 2018 GameProgressive."
-            VALUE "OriginalFilename", "RetroSpy.dll"
+            VALUE "OriginalFilename", "RetroSpyCommon.dll"
             VALUE "ProductName", "RetroSpy Common Dynamic Link Library"
             VALUE "ProductVersion", "1, 0, 0, 1"
         END
