@@ -1,4 +1,7 @@
-[submodule "libuv"]
-	path = libuv
-	url = https://github.com/libuv/libuv
-	branch = v1.x
+[submodule "mysql-connector-cpp"]
+	path = mysql-connector-cpp
+	url = https://github.com/mysql/mysql-connector-cpp
+[submodule "libuv-cmake"]
+	path = libuv-cmake
+	url = https://github.com/jen20/libuv-cmake
+	branch = v1.9.0
