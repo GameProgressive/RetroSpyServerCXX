@@ -14,7 +14,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Config.h"
+#include "RConfig.h"
 
 #include "INIReader.h"
 
