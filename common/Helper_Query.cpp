@@ -23,113 +23,123 @@
 #include <string.h>
 #include <limits.h>
 
+bool ExecuteFirstQuery(sql::ResultSet **res, std::string q)
+{
+	if (!RunDBQuery(q, res))
+		return false;
+
+	if ((*res)->first())
+		return false;
+
+	return true;
+}
+
 DLLAPI unsigned int GetProfileIDFromNickEmail(const char *nick, const char *email)
 {
-	char query[251];
-	char _email[GP_EMAIL_LEN];
-	char _nick[GP_NICK_LEN];
-	CDBResult *res = new CDBResult();
-	query[0] = _email[0] = _nick[0] = 0;
+	std::string query = "";
+	std::string _email = "", _nick = "";
+	sql::ResultSet *res = NULL;
+	unsigned int ret = 0;
 
-	// SQL injections fix
-	EscapeSQLString(nick, _nick, strlen(nick));
-	EscapeSQLString(email, _email, strlen(email));
-
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT profiles.profileid FROM profiles INNER JOIN"
+	query = "SELECT profiles.profileid FROM profiles INNER JOIN"
 			" users ON profiles.userid=users.userid WHERE"
-			" users.email='%s' AND profiles.nick='%s'", _email, _nick);
+			" users.email='";
+	query += EscapeSQLString(email);
+	query += "' AND profiles.nick='";
+	query += EscapeSQLString(nick);
+	query += "'";
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
-		return 0;
+		return ret;
 	}
 
-	strncpy_s(query, sizeof(query), res->GetColumnByRow(0, 0).c_str(), sizeof(query) - 1);
+	ret = res->getUInt(0);
 
 	delete res;
-	return atoi(query);
+	return ret;
 }
 
 DLLAPI void GetUniqueNickFromProfileID(unsigned int pid, char *unick, int size)
 {
-	char query[121];
-	CDBResult *res = new CDBResult();
-	query[0] = 0;
+	std::string query = "";
+	sql::ResultSet *res = NULL;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT uniquenick FROM profiles WHERE profileid='%u'", pid);
+	query = "SELECT uniquenick FROM profiles WHERE profileid='";
+	query += std::to_string(pid);
+	query += "'";
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
 		return;
 	}
 
-	strncpy_s(unick, size, res->GetColumnByRow(0, 0).c_str(), size - 1);
+	strncpy_s(unick, size, res->getString(0).c_str(), size - 1);
 
 	delete res;
 }
 
 DLLAPI unsigned int GetProfileIDFromUniqueNick(const char *unick)
 {
-	char query[121];
-	char _unick[GP_UNIQUENICK_LEN];
-	CDBResult *res = new CDBResult();
-	query[0] = _unick[0] = 0;
+	std::string query = "";
+	sql::ResultSet *res = NULL;
+	unsigned int ret = 0;
 
-	EscapeSQLString(unick, _unick, strlen(unick));
+	query = "SELECT profileid FROM profiles WHERE uniquenick='";
+	query += EscapeSQLString(unick);
+	query += "'";
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT profileid FROM profiles WHERE uniquenick='%s'", _unick);
-
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
-		return 0;
+		return ret;
 	}
 
-	strncpy_s(query, sizeof(query), res->GetColumnByRow(0, 0).c_str(), sizeof(query) - 1);
+	ret = res->getUInt(0);
 
 	delete res;
-	return atoi(query);
+	return ret;
 }
 
 DLLAPI void GetPasswordFromUserID(char *out, int out_len, unsigned int id)
 {
+	sql::ResultSet *res = NULL;
 	char query[61];
-	CDBResult *res = new CDBResult();
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT password FROM users WHERE userid='%u'", id);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
 		return;
 	}
 
-	strncpy_s(out, out_len, res->GetColumnByRow(0, 0).c_str(), out_len - 1);
+	strncpy_s(out, out_len, res->getString(0).c_str(), out_len - 1);
 
 	delete res;
 }
 
 DLLAPI unsigned int GetUserIDFromProfileID(unsigned int id)
 {
+	sql::ResultSet *res = NULL;
 	char query[61];
-	CDBResult *res = new CDBResult();
+	unsigned int ret = 0;
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT userid FROM profiles WHERE profileid='%u'", id);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
-		return 0;
+		return ret;
 	}
 
-	strncpy_s(query, sizeof(query), res->GetColumnByRow(0, 0).c_str(), sizeof(query) - 1);
-
+	ret = res->getUInt(0);
 	delete res;
-	return atoi(query);
+	return (unsigned)std::stoi(query);
 }
 
 DLLAPI int AssignSessionKeyFromProfileID(unsigned int profileid)
@@ -163,82 +173,84 @@ DLLAPI void FreeSessionKey(unsigned int profileid)
 
 DLLAPI int GetPublicMaskFromProfileID(unsigned int pid)
 {
-	CDBResult *res = new CDBResult();
-	char query[61];
-	query[0] = 0;
+	sql::ResultSet *res = NULL;
+	std::string query = "";
+	int ret = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT publicmask FROM profiles WHERE profileid=%u", pid);
+	query = "SELECT publicmask FROM profiles WHERE profileid=";
+	query += std::to_string(pid);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
-		return -1;
+		return ret;
 	}
 
+	ret = res->getInt(0);
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", res->GetColumnByRow(0, 0).c_str());
-	return atoi(query);
+	delete res;
+	return ret;
 }
 
 DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id_out)
 {
-	CDBResult *res = new CDBResult();
-	char query[1024];
-	std::vector<std::string> vec;
+#define resget(x) res->getString(x).c_str()
 
-	query[0] = 0;
+	sql::ResultSet *res = NULL;
+	std::string query = "";
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT profiles.uniquenick, profiles.nick, profiles.firstname, profiles.lastname, profiles.latitude," //5
+	query = "SELECT profiles.uniquenick, profiles.nick, profiles.firstname, profiles.lastname, profiles.latitude," //5
 		" profiles.longitude, profiles.publicmask, profiles.userid, profiles.aim, profiles.picture," //9
 		" profiles.occupationid, profiles.incomeid, profiles.industryid, profiles.marriedid, profiles.childcount," //14
 		" profiles.interests1, profiles.ownership1, profiles.connectiontype, profiles.sex, profiles.zipcode," //19
 		" profiles.countrycode, profiles.homepage, profiles.birthday, profiles.birthmonth, profiles.birthyear," //24
-		" profiles.location, profiles.icq, users.email FROM profiles INNER JOIN users ON users.userid=profiles.userid WHERE profiles.profileid=%u", pid);
+		" profiles.location, profiles.icq, users.email FROM profiles INNER JOIN users ON users.userid=profiles.userid WHERE profiles.profileid=";
+	
+	query += std::to_string(pid);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!ExecuteFirstQuery(&res, query))
 	{
 		delete res;
 		return false;
 	}
 
-	vec = res->GetRow(0);
-	delete res;
+	strncpy_s(out->uniquenick, sizeof(out->uniquenick), resget(0), sizeof(out->uniquenick) - 1);
+	strncpy_s(out->nick, sizeof(out->nick), resget(1), sizeof(out->nick) - 1);
+	strncpy_s(out->firstname, sizeof(out->firstname), resget(2), sizeof(out->firstname) - 1);
+	strncpy_s(out->lastname, sizeof(out->lastname), resget(3), sizeof(out->lastname) - 1);
+	out->latitude = (float)res->getDouble(4);
+	out->longitude = (float)res->getDouble(5);
+	out->publicmask = res->getInt(6);
+	*id_out = res->getUInt(7);
+	strncpy_s(out->aimname, sizeof(out->aimname), resget(8), sizeof(out->aimname) - 1);
+	out->pic = res->getInt(9);
+	out->occupationid = res->getInt(10);
+	out->incomeid = res->getInt(11);
+	out->industryid = res->getInt(12);
+	out->marriedid = res->getInt(13);
+	out->childcount = res->getInt(14);
+	out->interests1 = res->getInt(15);
+	out->ownership1 = res->getInt(16);
+	out->conntypeid = res->getInt(17);
 
-	strncpy_s(out->uniquenick, sizeof(out->uniquenick), vec.at(0).c_str(), sizeof(out->uniquenick) - 1);
-	strncpy_s(out->nick, sizeof(out->nick), vec.at(1).c_str(), sizeof(out->nick) - 1);
-	strncpy_s(out->firstname, sizeof(out->firstname), vec.at(2).c_str(), sizeof(out->firstname) - 1);
-	strncpy_s(out->lastname, sizeof(out->lastname), vec.at(3).c_str(), sizeof(out->lastname) - 1);
-	out->latitude = (float)atof(vec.at(4).c_str());
-	out->longitude = (float)atof(vec.at(5).c_str());
-	out->publicmask = atoi(vec.at(6).c_str());
-	*id_out = (unsigned)atoi(vec.at(7).c_str());
-	strncpy_s(out->aimname, sizeof(out->aimname), vec.at(8).c_str(), sizeof(out->aimname) - 1);
-	out->pic = atoi(vec.at(9).c_str());
-	out->occupationid = atoi(vec.at(10).c_str());
-	out->incomeid = atoi(vec.at(11).c_str());
-	out->industryid = atoi(vec.at(12).c_str());
-	out->marriedid = atoi(vec.at(13).c_str());
-	out->childcount = atoi(vec.at(14).c_str());
-	out->interests1 = atoi(vec.at(15).c_str());
-	out->ownership1 = atoi(vec.at(16).c_str());
-	out->conntypeid = atoi(vec.at(17).c_str());
-
-	if (strcmp(vec.at(18).c_str(), "MALE") == 0)
+	if (res->getString(18).compare("MALE") == 0)
 		out->sex = GP_MALE;
-	else if (strcmp(vec.at(18).c_str(), "FEMALE") == 0)
+	else if (res->getString(18).compare("FEMALE") == 0)
 		out->sex = GP_FEMALE;
 	else
 		out->sex = GP_PAT;	
 
-	strncpy_s(out->zipcode, sizeof(out->zipcode), vec.at(19).c_str(), sizeof(out->zipcode) - 1);
-	strncpy_s(out->countrycode, sizeof(out->countrycode), vec.at(20).c_str(), sizeof(out->countrycode) - 1);
-	strncpy_s(out->homepage, sizeof(out->homepage), vec.at(21).c_str(), sizeof(out->homepage) - 1);
-	out->birthday = atoi(vec.at(22).c_str());
-	out->birthmonth = atoi(vec.at(23).c_str());
-	out->birthyear = atoi(vec.at(24).c_str());
-	strncpy_s(out->place, sizeof(out->place), vec.at(25).c_str(), sizeof(out->place) - 1);
-	out->icquin = atoi(vec.at(26).c_str());
-	strncpy_s(out->email, sizeof(out->email), vec.at(27).c_str(), sizeof(out->email) - 1);
+	strncpy_s(out->zipcode, sizeof(out->zipcode), resget(19), sizeof(out->zipcode) - 1);
+	strncpy_s(out->countrycode, sizeof(out->countrycode), resget(20), sizeof(out->countrycode) - 1);
+	strncpy_s(out->homepage, sizeof(out->homepage), resget(21), sizeof(out->homepage) - 1);
+	out->birthday = res->getInt(22);
+	out->birthmonth = res->getInt(23);
+	out->birthyear = res->getInt(24);
+	strncpy_s(out->place, sizeof(out->place), resget(25), sizeof(out->place) - 1);
+	out->icquin = res->getInt(26);
+	strncpy_s(out->email, sizeof(out->email), resget(27), sizeof(out->email) - 1);
+
+	delete res;
 
 	return true;
 }

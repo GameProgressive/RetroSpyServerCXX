@@ -19,85 +19,55 @@
 
 #include "Defines.h"
 
-/* Fixed define of mysql */
-#ifndef _MSC_STDINT_H_
-	#define _MSC_STDINT_H_
-#endif
-#include <mysql.h>
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
+#include <cppconn/connection.h>
 
-#include <vector>
 #include <string>
 
-class CDBResult
-{
-public:
-	DLLAPI CDBResult();
-	DLLAPI ~CDBResult();
-
-	bool DLLAPI Execute(MYSQL_RES *res);
-
-	my_ulonglong DLLAPI GetTotalRows();
-	my_ulonglong DLLAPI GetProcessedRows();
-
-	unsigned int DLLAPI GetFieldsCount();
-
-	std::vector<std::string> DLLAPI GetRow(my_ulonglong index);
-	DLLAPI std::string GetColumnByRow(my_ulonglong row, unsigned int column);
-
-private:
-	std::vector<std::vector<std::string>> m_rows;
-	
-	std::vector<std::string> _Dummy;
-
-	my_ulonglong m_totalrows;
-	unsigned int m_fields;
-	my_ulonglong m_processrow;
-
-};
-
-/*
+/**
 	Function: RunDBQuery
-	Description: Run a query
-	Return: true if the query successfully executed, otherwise false
+	Description: Executes a generic query
 	Parameters:
-		stmt => The query
+		str => the query
+	Return: true if the query was successfully executed, otherwise false
 */
-DLLAPI bool RunDBQuery(const char *stmt);
+DLLAPI bool RunDBQuery(std::string str);
 
-/*
+/**
 	Function: RunDBQuery
-	Description: Run a query and store it's result
-	Return: true if the query successfully executed, otherwise false
+	Description: Executes a generic query and store it's result to the passed result res
 	Parameters:
-		stmt => The query
-		out => The result to store the query
-
-	NOTE: CREATE THE INSTANCE OF THE RESULT BEFORE EXECUTING THIS
+		str => the query
+		rs => the result set to be filled
+	Return: true if the query was successfully executed, otherwise false
 */
-DLLAPI bool RunDBQueryWithResult(const char *stmt, CDBResult *out);
+DLLAPI bool RunDBQuery(std::string str, sql::ResultSet **rs);
 
-/*
-	Function: SetDBInstance
-	Description: Set the Database instance that will be used to process query
-	Parameters:
-		db => A pointer to the database instance
-
-	NOTE: Call this once inside the Master Server (Don't call it into submodules unless you know
-		what you're doing)
-
-*/
-DLLAPI void SetDBInstance(MYSQL *db);
-
-/*
+/**
 	Function: EscapeSQLString
 	Description: Add escapes from a standard string
 	Parameters:
-		from => The string to start
-		to => The string to produce
-		length => Length of the string
-	Return: Length of the encoded string or -1 if an error occurs
+		str => The string to be escaped
+	Return: Escaped string
 */
-DLLAPI unsigned long EscapeSQLString(const char *from, char *to, unsigned long length);
+DLLAPI std::string EscapeSQLString(std::string str);
+
+/**
+	Function: EscapeSQLString
+	Description: Modify the passed string by adding escapes
+	Parameters:
+		str => The string to be escaped
+*/
+DLLAPI void EscapeSQLString(std::string &str);
+
+/**
+	Function: SetConnectionPtr
+	Description: Set the internal pointer of an SQL connection
+		NOTE: Please set the connection pointer BEFORE calling any Query API
+	Parameters:
+		c => The pointer of the connection
+*/
+DLLAPI void SetConnectionPtr(sql::Connection *c);
 
 #endif
-

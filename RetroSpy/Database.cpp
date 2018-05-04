@@ -19,9 +19,12 @@
 
 #include <stdio.h>
 
+#include <cppconn\exception.h>
+
 CDatabase::CDatabase()
 {
-	mysql_init(&m_db);
+	m_driver = get_driver_instance();
+	m_connection = NULL;
 }
 
 CDatabase::~CDatabase()
@@ -31,6 +34,8 @@ CDatabase::~CDatabase()
 
 bool CDatabase::Connect()
 {
+	std::string ppt = "";
+
 	char *pass = (char*)CConfig::GetDatabasePassword();
 	char *sock = (char*)CConfig::GetDatabaseSocket();
 
@@ -40,25 +45,45 @@ bool CDatabase::Connect()
 	if (strlen(sock) < 1)
 		sock = NULL;
 
-	if (!mysql_real_connect(&m_db,
-		CConfig::GetDatabaseHost(),
-		CConfig::GetDatabaseUsername(),
-		pass,
-		CConfig::GetDatabaseName(),
-		CConfig::GetDatabasePort(),
-		sock,
-	0))
+	if (sock)
 	{
-		printf("[Database] Cannot connect. Error: %s\n", mysql_error(&m_db));
+		ppt = "unix://";
+		ppt += sock;
+	}
+
+	if (!sock)
+	{
+		ppt = "tcp://";
+		ppt += CConfig::GetDatabaseHost();
+		ppt += ":";
+		ppt += std::to_string(CConfig::GetDatabasePort());
+	}
+
+	ppt += "/";
+	ppt += CConfig::GetDatabaseName();
+
+	try
+	{
+		m_connection = m_driver->connect(ppt, CConfig::GetDatabaseUsername(), pass);
+
+		if (!m_connection)
+			return false;
+	}
+	catch (sql::SQLException &ex)
+	{
+		printf("[Database] Cannot connect. Error: %s\n", ex.what());
 		return false;
 	}
 
-	SetDBInstance(&m_db);
+	SetConnectionPtr(m_connection);
 
 	return true;
 }
 
 void CDatabase::Disconnect()
 {
-	mysql_close(&m_db);
+	if (m_connection)
+		delete m_connection;
+
+	m_connection = NULL;
 }
