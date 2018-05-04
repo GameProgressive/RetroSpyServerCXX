@@ -15,7 +15,7 @@
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "ModuleManager.h"
-#include "Config.h"
+#include "RConfig.h"
 #include "Database.h"
 
 #include "../common/Helper.h"
