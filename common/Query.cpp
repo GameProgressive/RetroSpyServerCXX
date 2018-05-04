@@ -77,7 +77,7 @@ DLLAPI bool RunDBQuery(std::string query, sql::ResultSet **rs)
 
 	try
 	{
-		*rs = stmt->executeQuery(str);
+		*rs = stmt->executeQuery(query);
 	}
 	catch (sql::SQLException &ex)
 	{
