@@ -28,6 +28,17 @@
 	#define DLLAPI 
 #endif
 
+// Macro compatibility with win32 speicfic functions
+#ifndef _WIN32
+#include <stdio.h>
+#include <string.h>
+
+#define _stricmp strcasecmp
+#define _snprintf_s(buffer, nope, count, format, ...) snprintf(buffer, count, format, ##__VA_ARGS__)
+#define strncpy_s(buffer, nope, str, count) strncpy(buffer, str, count)
+extern DLLAPI void fopen_s(FILE**fp, const char *path, const char *mode);
+#endif
+
 
 typedef enum _GPEnum
 {

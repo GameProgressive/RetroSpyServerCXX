@@ -17,6 +17,8 @@
 #define RSC_EXPORT 1 //Export the methods
 #include "Server.h"
 
+#include <string.h>
+
 // Defines
 #define DEFAULT_BACKLOG 128
 
@@ -40,6 +42,15 @@ int uv_udp_getpeername(const uv_udp_t* handle,
   return 0;
 }
 #else
+
+//Internal definition
+#if defined(__APPLE__)
+int uv___stream_fd(const uv_stream_t* handle);
+#define uv__stream_fd(handle) (uv___stream_fd((const uv_stream_t*) (handle)))
+#else
+#define uv__stream_fd(handle) ((handle)->io_watcher.fd)
+#endif /* defined(__APPLE__) */
+
 int uv_udp_getpeername(const uv_udp_t* handle,
                        struct sockaddr* name,
                        int* namelen) {
@@ -52,7 +63,7 @@ int uv_udp_getpeername(const uv_udp_t* handle,
   socklen = (socklen_t) *namelen;
 
   if (getpeername(uv__stream_fd(handle), name, &socklen))
-    return UV__ERR(errno);
+    return -errno;
 
   *namelen = (int) socklen;
   return 0;
@@ -183,7 +194,7 @@ void _OnClose(uv_handle_t* handle)
 	{
 		// Free CClientData
 		if (handle->data)
-			delete handle->data;
+			delete (CClientData*)handle->data;
 
 		free(handle);
 	}

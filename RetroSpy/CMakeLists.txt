@@ -19,5 +19,7 @@ if (WIN32)
 	set_source_files_properties(RetroSpy.rc PROPERTIES LANGUAGE RC)
 endif()
 
+include_directories("${CMAKE_CURRENT_LIST_DIR}/../common")
+
 add_executable(RetroSpy ${SOURCES})
 target_link_libraries(RetroSpy RetroSpyCommon)

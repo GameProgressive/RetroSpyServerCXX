@@ -32,5 +32,6 @@ if (WIN32)
 endif()
 
 add_library(RetroSpyCommon SHARED ${SOURCES})
-target_link_libraries(RetroSpyCommon uv connector)
+target_link_libraries(RetroSpyCommon uv mariadbclient)
+
 

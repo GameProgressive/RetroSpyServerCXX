@@ -19,11 +19,38 @@
 
 #include "Defines.h"
 
+#include <string>
+
+#if CPP_CONNECTOR
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include <cppconn/connection.h>
+#else
+	
+#include <mysql.h>
+#include <vector>
 
-#include <string>
+namespace sql
+{
+class ResultSet
+{
+public:
+ResultSet();
+~ResultSet();
+
+bool executeQuery(MYSQL* conn, std::string str);
+
+bool first();
+unsigned int getUInt(size_t index);
+std::string getString(size_t index);
+int getInt(size_t index);
+double getDouble(size_t index);
+
+private:
+	std::vector<std::vector<std::string>> m_rows;
+};
+}
+#endif
 
 /**
 	Function: RunDBQuery
@@ -68,6 +95,10 @@ DLLAPI void EscapeSQLString(std::string &str);
 	Parameters:
 		c => The pointer of the connection
 */
+#if CPP_CONNECTOR
 DLLAPI void SetConnectionPtr(sql::Connection *c);
+#else
+DLLAPI void SetConnectionPtr(MYSQL *con);
+#endif
 
 #endif

@@ -1,7 +1,7 @@
-[submodule "mysql-connector-cpp"]
-	path = mysql-connector-cpp
-	url = https://github.com/mysql/mysql-connector-cpp
 [submodule "libuv-cmake"]
 	path = libuv-cmake
 	url = https://github.com/jen20/libuv-cmake
 	branch = v1.9.0
+[submodule "mariadb-connector-c"]
+	path = mariadb-connector-c
+	url = https://github.com/MariaDB/mariadb-connector-c

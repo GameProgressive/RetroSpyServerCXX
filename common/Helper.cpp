@@ -108,3 +108,9 @@ DLLAPI void gs_do_proof(char *out, const char *password, const char *token, cons
 	hash_md5(buffer, strlen(buffer), out);
 }
 
+#ifndef _WIN32
+DLLAPI void fopen_s(FILE**fp, const char *path, const char *mode)
+{
+	*fp = fopen(path, mode);
+}
+#endif

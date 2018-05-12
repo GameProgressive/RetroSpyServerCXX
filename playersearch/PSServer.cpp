@@ -58,13 +58,12 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 {
 	char buffer[256];
 	char email[GP_EMAIL_LEN];
-	CDBResult *result = new CDBResult();
+	sql::ResultSet *result = NULL;
 
 	buffer[0] = email[0] = 0;
 
 	if (!get_gs_data(buf, "email", email, sizeof(email)))
 	{
-		delete result;
 		return false;
 	}
 
@@ -72,7 +71,7 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 
 	_snprintf_s(buffer, sizeof(buffer), "SELECT COUNT(userid) FROM `users` WHERE `email` = '%s'", email);
 
-	if (!RunDBQueryWithResult(buffer, result))
+	if (!RunDBQuery(buffer, &result))
 	{
 		delete result;
 		return false;
@@ -100,7 +99,7 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	
 	size_t i = 0;
 
-	CDBResult *result = NULL;
+	sql::ResultSet *result = NULL;
 
 	gamename[0] = pass[0] = email[0] = passenc[0] = 0;
 
@@ -135,9 +134,7 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	str += pass;
 	str += "'";
 
-	result = new CDBResult();
-
-	if (!RunDBQueryWithResult(str.c_str(), result))
+	if (!RunDBQuery(str.c_str(), result))
 	{
 		delete result;
 		return false;

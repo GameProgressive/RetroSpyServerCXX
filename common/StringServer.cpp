@@ -19,6 +19,8 @@
 
 #include "RSString.h"
 
+#include <string.h>
+
 DLLAPI CStringServer::CStringServer(CLoop *loop) : CServer(loop) {}
 DLLAPI CStringServer::~CStringServer() {}
 

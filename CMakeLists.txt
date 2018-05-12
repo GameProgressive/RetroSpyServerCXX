@@ -1,30 +1,33 @@
 cmake_minimum_required(VERSION 3.1)
 project("RetroSpyServer")
 
+# Add definitions for w32 build that dosen't support _WIN32 macro
 if (WIN32)
-add_definitions("-DWIN32 -D__WIN32__")
+	add_definitions("-DWIN32 -D__WIN32__")
 endif()
 
-find_package(Boost REQUIRED)
+# Set -fPIC to allow compiling retrospy shared library with libuv
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-set(WITH_JDBC ON)
+# Boost inclusions
+#find_package(Boost REQUIRED)
+#include_directories(${Boost_INCLUDE_DIR})
 
-# LibUV
+# LibUV inclusions
 add_subdirectory(libuv-cmake)
 include_directories("libuv-cmake/libuv/include")
 
-# MySQL
-add_subdirectory(mysql-connector-cpp)
-include_directories("mysql-connector-cpp/jdbc")
-include_directories("${CMAKE_BINARY_DIR}/mysql-connector-cpp/jdbc/cppconn")
+# Mariadb inclusion
+set(WITH_UNIT_TESTS OFF) # Remove useless tests from mariadb build
+add_subdirectory(mariadb-connector-c)
+include_directories("mariadb-connector-c/include")
+include_directories("${CMAKE_BINARY_DIR}/mariadb-connector-c/include") # mariadb config
 
-# Boost
-include_directories(${Boost_INCLUDE_DIR})
-
-# Set Output directory
+# Set CMake output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Add modules
+# RetroSpy projects
 add_subdirectory("common")
 add_subdirectory("playersearch")
 add_subdirectory("playerspy")

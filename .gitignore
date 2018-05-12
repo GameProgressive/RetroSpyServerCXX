@@ -380,3 +380,4 @@ INFO_BIN
 *-serverlog.txt
 *-servertrace.txt
 RetroSpy.ini
+build_*

@@ -19,18 +19,34 @@
 
 #include <stdio.h>
 
+#if CPP_CONNECTOR
 #include <driver/mysql_connection.h>
 #include <cppconn/exception.h>
+#endif
 
 // Internal SQL Connection
+#if CPP_CONNECTOR
 sql::Connection *_ptr_sqlconnection_3h8hgfq28hfg = NULL;
+#else
+MYSQL *_ptr_sqlconnection_3h8hgfq28hfg = NULL;
+#endif
 
 DLLAPI std::string EscapeSQLString(std::string str)
 {
+#if CPP_CONNECTOR
 	if (!_ptr_sqlconnection_3h8hgfq28hfg)
 		return "";
 	sql::mysql::MySQL_Connection *msqc = dynamic_cast<sql::mysql::MySQL_Connection*>(_ptr_sqlconnection_3h8hgfq28hfg);
 	return msqc->escapeString(str);
+#else
+	char *x = (char*)malloc(sizeof(char)*(str.length()*2+5));
+	if (!x)
+		return "";
+	mysql_real_escape_string(_ptr_sqlconnection_3h8hgfq28hfg, x, str.c_str(), str.length());
+	std::string k = std::string(x);
+	free(x);
+	return k;
+#endif
 }
 
 DLLAPI void EscapeSQLString(std::string &str)
@@ -38,13 +54,18 @@ DLLAPI void EscapeSQLString(std::string &str)
 	str = EscapeSQLString(str.c_str());
 }
 
+#if CPP_CONNECTOR
 DLLAPI void SetConnectionPtr(sql::Connection *con)
+#else
+DLLAPI void SetConnectionPtr(MYSQL *con)
+#endif
 {
 	_ptr_sqlconnection_3h8hgfq28hfg = con;
 }
 
 DLLAPI bool RunDBQuery(std::string str)
 {
+#if CPP_CONNECTOR
 	sql::Statement* stmt = _ptr_sqlconnection_3h8hgfq28hfg->createStatement();
 	sql::ResultSet *res = NULL;
 
@@ -65,13 +86,25 @@ DLLAPI bool RunDBQuery(std::string str)
 
 	delete stmt;
 	return true;
+#else
+	if (mysql_query(_ptr_sqlconnection_3h8hgfq28hfg, str.c_str()) != 0)
+	{
+		printf("[Database] Cannot execute query. Error: %s\n", mysql_error(_ptr_sqlconnection_3h8hgfq28hfg));
+		return false;		
+	}
+	
+	return true;
+#endif
 }
 
 DLLAPI bool RunDBQuery(std::string query, sql::ResultSet **rs)
 {
+#if CPP_CONNECTOR
 	sql::Statement* stmt = _ptr_sqlconnection_3h8hgfq28hfg->createStatement();
+#endif
 	sql::ResultSet *res = NULL;
 
+#if CPP_CONNECTOR
 	if (!stmt)
 		return false;
 
@@ -87,10 +120,21 @@ DLLAPI bool RunDBQuery(std::string query, sql::ResultSet **rs)
 		return false;
 	}
 
+
 	delete stmt;
 
 	if (!*rs)
 		return false;
+#else
+	*rs = new sql::ResultSet();
+	if (!(*rs)->executeQuery(_ptr_sqlconnection_3h8hgfq28hfg, query))
+	{
+		delete rs;
+
+		printf("[Database] Cannot execute query. Error: %s\n",  mysql_error(_ptr_sqlconnection_3h8hgfq28hfg));
+		return false;		
+	}
+#endif
 
 	return true;
 }

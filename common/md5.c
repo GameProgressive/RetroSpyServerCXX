@@ -29,6 +29,11 @@
 #include "md5.h"
 #define POLARSSL_MD5_C
 
+#ifndef _WIN32
+#include <stdio.h>
+extern void fopen_s(FILE** fp, const char *file, const char *mode);
+#endif
+
 #if defined(POLARSSL_MD5_C)
 
 //#include "polarssl/md5.h"
