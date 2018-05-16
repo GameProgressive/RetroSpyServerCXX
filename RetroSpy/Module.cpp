@@ -68,7 +68,13 @@ bool CModule::Load(const char *name, ModuleConfigMap cfg)
 
 bool CModule::Load(const char *name)
 {
-	std::string dllName = name;
+	std::string dllName = "";
+	
+#ifndef _WIN32
+	dllName += "lib";
+#endif
+
+	dllName += name;
 
 #ifdef _WIN32
 	dllName += ".dll";

@@ -113,8 +113,6 @@ int main()
 	// Stop the modules
 	mm.Stop();
 
-	db.Disconnect();
-
 	ConsolePause();
 	return 0;
 }
@@ -149,7 +147,7 @@ void _PrintModuleInfo(CModuleManager mngr)
 		for (; i < mngr.GetModuleSize(); i++)
 		{
 			CModule *m = mngr.GetModule(i);
-			printf("Module %u: %s\tStatus: %s\tDatabase Status: %s\n", i, m->GetName(), m->IsRunning() ? "Running" : "Stopped", m->GetDatabaseStatus());
+			printf("Module %u: %s\tStatus: %s\t\tDatabase Status: %s\n", i, m->GetName(), m->IsRunning() ? "Running" : "Stopped", m->GetDatabaseStatus());
 		}
 	}
 }
@@ -162,9 +160,6 @@ void ConsolePause()
 {
 	char k = 0;
 
-	// Always flush otherwise input won't work
-	fflush(stdin);
-
 	printf("Press ENTER to exit...");
 
 #if _WIN32 && _MSC_VER >= 1400
@@ -172,4 +167,6 @@ void ConsolePause()
 #else
 	scanf("%1c", &k);
 #endif
+	getchar();
+	
 }

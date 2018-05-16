@@ -23,6 +23,8 @@
 #define DEFAULT_PORT 29901
 
 /* Entry point for GPSP server */
+extern "C"
+{
 int RetroSpyMain(void* data)
 {
 	ModuleMain *mm = (ModuleMain*)data;
@@ -48,4 +50,5 @@ int RetroSpyMain(void* data)
 	loop.Run();
 
 	return 0;
+}
 }
