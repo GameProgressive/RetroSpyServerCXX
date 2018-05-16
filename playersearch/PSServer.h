@@ -20,13 +20,15 @@
 #include <StringServer.h>
 #include <Loop.h>
 
+#include <mysql.h>
+
 /*
 	This class rappresents a Player Search server
 */
 class PSServer : public CStringServer
 {
 public:
-	PSServer(CLoop* loop);
+	PSServer(CLoop* loop, MYSQL* con);
 	~PSServer();
 
 	/* See CServer::OnNewConnection */
@@ -45,6 +47,8 @@ private:
 	bool OnUniqueSearch(uv_stream_t *stream, const char *buf, int size);
 	bool OnProfileList(uv_stream_t *stream, const char *buf, int size);
 	bool OnProductMatching(uv_stream_t *stream, const char *buf, int size);
+	
+	MYSQL *m_con;
 
 };
 

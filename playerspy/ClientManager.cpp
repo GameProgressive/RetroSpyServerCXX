@@ -47,7 +47,7 @@ void CClientManager::Delete(ClientMap::iterator it)
 	m_clients.erase(it);
 }
 
-bool CClientManager::CreateAndHandle(uv_stream_t *stream, const char *req, const char *buf, int len)
+bool CClientManager::CreateAndHandle(MYSQL *con, uv_stream_t *stream, const char *req, const char *buf, int len)
 {
 	ClientMap::iterator it;
 	CClient *c = NULL;
@@ -56,7 +56,7 @@ bool CClientManager::CreateAndHandle(uv_stream_t *stream, const char *req, const
 	unsigned int i = m_clients.size();
 	
 	// Create che client
-	m_clients[i] = new CClient(stream, i);
+	m_clients[i] = new CClient(stream, i, con);
 
 	it = m_clients.begin();
 	std::advance(it, i);
@@ -74,13 +74,13 @@ bool CClientManager::CreateAndHandle(uv_stream_t *stream, const char *req, const
 	return true;
 }
 
-bool CClientManager::Handle(uv_stream_t* stream, const char *req, const char*buf, int len)
+bool CClientManager::Handle(MYSQL *con, uv_stream_t* stream, const char *req, const char*buf, int len)
 {
 	CClientData *cc = (CClientData*)stream->data;
 	ClientMap::iterator it;
 
 	if (!cc->GetUserData())
-		return CreateAndHandle(stream, req, buf, len); // Create the instance
+		return CreateAndHandle(con, stream, req, buf, len); // Create the instance
 
 	it = m_clients.find(*((unsigned int *)cc->GetUserData()));
 

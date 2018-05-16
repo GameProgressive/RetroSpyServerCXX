@@ -21,36 +21,31 @@
 
 #include <string>
 
-#if CPP_CONNECTOR
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
-#include <cppconn/connection.h>
-#else
-	
 #include <mysql.h>
 #include <vector>
 
-namespace sql
-{
 class ResultSet
 {
 public:
-ResultSet();
-~ResultSet();
+DLLAPI ResultSet();
+DLLAPI ~ResultSet();
 
-bool executeQuery(MYSQL* conn, std::string str);
+DLLAPI bool executeQuery(MYSQL* conn, std::string str);
 
-bool first();
-unsigned int getUInt(size_t index);
-std::string getString(size_t index);
-int getInt(size_t index);
-double getDouble(size_t index);
+DLLAPI bool first();
+DLLAPI unsigned int getUInt(size_t index);
+DLLAPI std::string getString(size_t index);
+DLLAPI int getInt(size_t index);
+DLLAPI double getDouble(size_t index);
+
+DLLAPI size_t getRows();
+
+DLLAPI bool next();
 
 private:
 	std::vector<std::vector<std::string>> m_rows;
+	size_t m_pos;
 };
-}
-#endif
 
 /**
 	Function: RunDBQuery
@@ -59,7 +54,7 @@ private:
 		str => the query
 	Return: true if the query was successfully executed, otherwise false
 */
-DLLAPI bool RunDBQuery(std::string str);
+DLLAPI bool RunDBQuery(MYSQL* mysql, std::string str);
 
 /**
 	Function: RunDBQuery
@@ -69,7 +64,7 @@ DLLAPI bool RunDBQuery(std::string str);
 		rs => the result set to be filled
 	Return: true if the query was successfully executed, otherwise false
 */
-DLLAPI bool RunDBQuery(std::string str, sql::ResultSet **rs);
+DLLAPI bool RunDBQuery(MYSQL *mysql, std::string str, ResultSet **rs);
 
 /**
 	Function: EscapeSQLString
@@ -78,7 +73,7 @@ DLLAPI bool RunDBQuery(std::string str, sql::ResultSet **rs);
 		str => The string to be escaped
 	Return: Escaped string
 */
-DLLAPI std::string EscapeSQLString(std::string str);
+DLLAPI std::string EscapeSQLString(MYSQL* con, std::string str);
 
 /**
 	Function: EscapeSQLString
@@ -86,19 +81,5 @@ DLLAPI std::string EscapeSQLString(std::string str);
 	Parameters:
 		str => The string to be escaped
 */
-DLLAPI void EscapeSQLString(std::string &str);
-
-/**
-	Function: SetConnectionPtr
-	Description: Set the internal pointer of an SQL connection
-		NOTE: Please set the connection pointer BEFORE calling any Query API
-	Parameters:
-		c => The pointer of the connection
-*/
-#if CPP_CONNECTOR
-DLLAPI void SetConnectionPtr(sql::Connection *c);
-#else
-DLLAPI void SetConnectionPtr(MYSQL *con);
-#endif
-
+DLLAPI void EscapeSQLString(MYSQL* con, std::string &str);
 #endif

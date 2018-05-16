@@ -27,10 +27,11 @@
 
 #include <string>
 
-CClient::CClient(uv_stream_t *stream, unsigned int vid)
+CClient::CClient(uv_stream_t *stream, unsigned int vid, MYSQL* con)
 {
 	m_stream = stream;
 	m_vectorid = vid;
+	m_con = con;
 
 	m_email[0] = m_location[0] = 0;
 	m_profileid = m_userid = m_sesskey = m_partnerid = 0;
@@ -52,7 +53,7 @@ CClient::~CClient()
 void CClient::Disconnect()
 {
 	if (m_profileid != 0)
-		FreeSessionKey(m_profileid);
+		FreeSessionKey(m_con, m_profileid);
 
 	m_profileid = 0;
 }
@@ -282,27 +283,27 @@ bool CClient::HandleLogin(const char *buf, int)
 			return false;
 
 
-		m_profileid = GetProfileIDFromNickEmail(nick, email);
+		m_profileid = GetProfileIDFromNickEmail(m_con, nick, email);
 
 		if (m_profileid == 0)
 			return false;
 
-		GetUniqueNickFromProfileID(m_profileid, unick, sizeof(unick));
+		GetUniqueNickFromProfileID(m_con, m_profileid, unick, sizeof(unick));
 	}
 	else if (user[0] == 0)
 	{
 		// Login with uniquenick
 
-		m_profileid = GetProfileIDFromUniqueNick(unick);
+		m_profileid = GetProfileIDFromUniqueNick(m_con,  unick);
 
 		if (m_profileid == 0)
 			return false;
 	}
 
 	// Assign the remaining data key
-	m_userid = GetUserIDFromProfileID(m_profileid);
-	m_sesskey = AssignSessionKeyFromProfileID(m_profileid);
-	GetPasswordFromUserID(password, sizeof(password), m_userid);
+	m_userid = GetUserIDFromProfileID(m_con, m_profileid);
+	m_sesskey = AssignSessionKeyFromProfileID(m_con, m_profileid);
+	GetPasswordFromUserID(m_con, password, sizeof(password), m_userid);
 
 	// Set login ticket
 	strrnd(lt, sizeof(lt), "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ][");
@@ -482,14 +483,14 @@ void CClient::SendBuddies()
 void CClient::SendAddRequests()
 {
 	char query[256];
-	CDBResult *res = new CDBResult();
+	ResultSet *res = NULL;
 	my_ulonglong x = 0;
 	std::string str = "";
 
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), "SELECT `profileid`, `syncrequested`, `reason` FROM `addrequests` WHERE `targetid`=%u", m_profileid);
-	if (!RunDBQueryWithResult(query, res))
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `profileid`, `syncrequested`, `reason` FROM `addrequests` WHERE `targetid`=%u", m_profileid);
+	if (!RunDBQuery(m_con, query, &res))
 	{
 		delete res;
 		return;
@@ -497,23 +498,21 @@ void CClient::SendAddRequests()
 
 	m_SentAddRequests = true;
 
-	for (; x < res->GetTotalRows(); x++)
+	do
 	{
-		std::vector<std::string> vec = res->GetRow(x);
-
 		str = "\\bm\\";
 		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", GPI_BM_REQUEST);
 		str += query;
 		str += "\\f\\";
-		str += vec.at(0);
+		str += res->getString(0);
 		str += "\\msg\\";
-		str += vec.at(1);
+		str += res->getString(1);
 		str += "|signed|";
-		str += vec.at(2);
+		str += res->getString(2);
 		str += "\\final\\";
 
 		Write(str);
-	}
+	} while (res->next());
 
 	delete res;
 }
@@ -522,14 +521,20 @@ void CClient::LoadBuddies()
 {
 	char query[128];
 	my_ulonglong x = 0;
-	CDBResult *res = new CDBResult();
+	ResultSet *res = NULL;
 
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
 		"SELECT `targetid` FROM `friends` WHERE `profileid`=%u", m_profileid);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!RunDBQuery(m_con, query, &res))
+	{
+		delete res;
+		return;
+	}
+	
+	if (!res->first())
 	{
 		delete res;
 		return;
@@ -537,9 +542,11 @@ void CClient::LoadBuddies()
 
 	m_buddies.clear();
 
-	for (; x < res->GetTotalRows(); x++)
-		m_buddies.push_front(atoi(res->GetColumnByRow(x, 0).c_str()));
-
+	do
+	{
+		m_buddies.push_front(res->getInt(0));
+	} while (res->next());
+	
 	delete res;
 }
 
@@ -547,14 +554,20 @@ void CClient::LoadBlockedList()
 {
 	char query[128];
 	my_ulonglong x = 0;
-	CDBResult *res = new CDBResult();
+	ResultSet *res = NULL;
 
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
 		"SELECT `targetid` FROM `blocked` WHERE `profileid`=%u", m_profileid);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!RunDBQuery(m_con, query, &res))
+	{
+		delete res;
+		return;
+	}
+	
+	if (!res->first())
 	{
 		delete res;
 		return;
@@ -562,8 +575,10 @@ void CClient::LoadBlockedList()
 
 	m_blocked.clear();
 
-	for (; x < res->GetTotalRows(); x++)
-		m_blocked.push_front(atoi(res->GetColumnByRow(x, 0).c_str()));
+	do
+	{
+		m_blocked.push_front(res->getInt(0));
+	} while (res->next());
 
 	delete res;
 }
@@ -571,7 +586,7 @@ void CClient::LoadBlockedList()
 void CClient::SendMessages()
 {
 	char query[256];
-	CDBResult *res = new CDBResult();
+	ResultSet *res = NULL;
 	my_ulonglong x = 0;
 	std::string str = "";
 
@@ -579,33 +594,37 @@ void CClient::SendMessages()
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
 
-	if (!RunDBQueryWithResult(query, res))
+	if (!RunDBQuery(m_con, query, &res))
 	{
 		delete res;
 		return;
 	}
 
-	for (; x < res->GetTotalRows(); x++)
+	if (!res->first())
 	{
-		std::vector<std::string> row = res->GetRow(x);
-
+		delete res;
+		return;
+	}
+	
+	do
+	{
 		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", GPI_BM_MESSAGE); 
 		
 		str = "\\bm\\";
 		str += query;
 		str += "\\f\\";
-		str += row.at(1);
+		str += res->getString(1);
 		str += "\\date\\";
-		str += row.at(2);
+		str += res->getString(2);
 		str += "\\msg\\";
-		str += row.at(0);
+		str += res->getString(0);
 		str += "\\final\\";
-	}
+	} while (res->next());
 
 	delete res;
 
-	_snprintf_s(query, sizeof(query), "DELETE FROM `messages` WHERE `to`=%u", m_profileid);
-	RunDBQuery(query);
+	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "DELETE FROM `messages` WHERE `to`=%u", m_profileid);
+	RunDBQuery(m_con, query);
 }
 
 bool CClient::HandleGetProfile(const char *buf, int)
@@ -634,7 +653,7 @@ bool CClient::HandleGetProfile(const char *buf, int)
 
 	str += "\\userid\\";
 
-	if (!GetProfileInfo(pid, &info, &uid))
+	if (!GetProfileInfo(m_con, pid, &info, &uid))
 		return false;
 
 	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", uid);

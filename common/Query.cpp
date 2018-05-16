@@ -19,122 +19,182 @@
 
 #include <stdio.h>
 
-#if CPP_CONNECTOR
-#include <driver/mysql_connection.h>
-#include <cppconn/exception.h>
-#endif
-
-// Internal SQL Connection
-#if CPP_CONNECTOR
-sql::Connection *_ptr_sqlconnection_3h8hgfq28hfg = NULL;
-#else
-MYSQL *_ptr_sqlconnection_3h8hgfq28hfg = NULL;
-#endif
-
-DLLAPI std::string EscapeSQLString(std::string str)
+DLLAPI std::string EscapeSQLString(MYSQL* con, std::string str)
 {
-#if CPP_CONNECTOR
-	if (!_ptr_sqlconnection_3h8hgfq28hfg)
-		return "";
-	sql::mysql::MySQL_Connection *msqc = dynamic_cast<sql::mysql::MySQL_Connection*>(_ptr_sqlconnection_3h8hgfq28hfg);
-	return msqc->escapeString(str);
-#else
 	char *x = (char*)malloc(sizeof(char)*(str.length()*2+5));
 	if (!x)
 		return "";
-	mysql_real_escape_string(_ptr_sqlconnection_3h8hgfq28hfg, x, str.c_str(), str.length());
+	
+	mysql_real_escape_string(con, x, str.c_str(), str.length());
 	std::string k = std::string(x);
+	
 	free(x);
 	return k;
-#endif
 }
 
-DLLAPI void EscapeSQLString(std::string &str)
+DLLAPI void EscapeSQLString(MYSQL* c, std::string &str)
 {
-	str = EscapeSQLString(str.c_str());
+	str = EscapeSQLString(c, str.c_str());
 }
 
-#if CPP_CONNECTOR
-DLLAPI void SetConnectionPtr(sql::Connection *con)
-#else
-DLLAPI void SetConnectionPtr(MYSQL *con)
-#endif
+DLLAPI bool RunDBQuery(MYSQL* con, std::string str)
 {
-	_ptr_sqlconnection_3h8hgfq28hfg = con;
-}
-
-DLLAPI bool RunDBQuery(std::string str)
-{
-#if CPP_CONNECTOR
-	sql::Statement* stmt = _ptr_sqlconnection_3h8hgfq28hfg->createStatement();
-	sql::ResultSet *res = NULL;
-
-	if (!stmt)
-		return false;
-
-	try
+	if (mysql_query(con, str.c_str()) != 0)
 	{
-		stmt->executeQuery(str);
-	}
-	catch (sql::SQLException &ex)
-	{
-		delete stmt;
-
-		printf("[Database] Cannot execute query. Error: %s\n", ex.what());
-		return false;
-	}
-
-	delete stmt;
-	return true;
-#else
-	if (mysql_query(_ptr_sqlconnection_3h8hgfq28hfg, str.c_str()) != 0)
-	{
-		printf("[Database] Cannot execute query. Error: %s\n", mysql_error(_ptr_sqlconnection_3h8hgfq28hfg));
+		printf("[Query] Cannot execute query. Error: %s\n", mysql_error(con));
 		return false;		
 	}
 	
 	return true;
-#endif
 }
 
-DLLAPI bool RunDBQuery(std::string query, sql::ResultSet **rs)
+DLLAPI bool RunDBQuery(MYSQL *con, std::string query, ResultSet **rs)
 {
-#if CPP_CONNECTOR
-	sql::Statement* stmt = _ptr_sqlconnection_3h8hgfq28hfg->createStatement();
-#endif
-	sql::ResultSet *res = NULL;
-
-#if CPP_CONNECTOR
-	if (!stmt)
-		return false;
-
-	try
-	{
-		*rs = stmt->executeQuery(query);
-	}
-	catch (sql::SQLException &ex)
-	{
-		delete stmt;
-
-		printf("[Database] Cannot execute query. Error: %s\n", ex.what());
-		return false;
-	}
-
-
-	delete stmt;
-
-	if (!*rs)
-		return false;
-#else
-	*rs = new sql::ResultSet();
-	if (!(*rs)->executeQuery(_ptr_sqlconnection_3h8hgfq28hfg, query))
+	*rs = new ResultSet();
+	if (!(*rs)->executeQuery(con, query))
 	{
 		delete rs;
 
-		printf("[Database] Cannot execute query. Error: %s\n",  mysql_error(_ptr_sqlconnection_3h8hgfq28hfg));
+		printf("[Query] Cannot execute query. Error: %s\n",  mysql_error(con));
 		return false;		
 	}
-#endif
 
 	return true;
+}
+
+DLLAPI ResultSet::ResultSet()
+{
+	m_pos = 0;
+}
+
+DLLAPI ResultSet::~ResultSet()
+{
+	size_t i = 0;
+	
+	for (; i < m_rows.size(); i++)
+	{
+		m_rows.at(i).clear();
+	}
+	
+	m_rows.clear();
+}
+
+DLLAPI bool ResultSet::executeQuery(MYSQL* con, std::string str)
+{
+	MYSQL_RES *result = NULL;
+	MYSQL_ROW row;
+	unsigned int fields = 0;
+	
+	if (mysql_query(con, str.c_str()) != 0)
+	{
+		printf("[Query] Cannot execute query. Error: %s\n", mysql_error(con));
+		return false;		
+	}
+	
+	result = mysql_store_result(con);
+	if (!result)
+	{
+		printf("[Query] Cannot execute query. Error: %s\n", mysql_error(con));
+		return false;				
+	}
+	
+	if (result->row_count == 0)
+	{
+		mysql_free_result(result);
+		return true;
+	}
+	
+	fields = mysql_num_fields(result);
+	if (fields == 0)
+	{
+		mysql_free_result(result);
+		return true;		
+	}
+	
+	row = mysql_fetch_row(result);
+	if (row == NULL)
+	{
+		mysql_free_result(result);
+		printf("[Query] Cannot execute query. Error: %s\n", mysql_error(con));
+		return false;			
+	}
+	
+	do
+	{
+		std::vector<std::string> vec;
+		unsigned int i =  0;
+		
+		for (; i < fields; i++)
+			vec.push_back(row[i]);
+		
+		m_rows.push_back(vec);
+	} while (row);
+	
+	mysql_free_result(result);
+	
+	return true;
+}
+
+size_t ResultSet::getRows()
+{
+	return m_rows.size();
+}
+
+bool ResultSet::first()
+{
+	if (m_rows.size() < 1)
+		return false;
+	
+	m_pos = 0;
+	return true;
+}
+
+bool ResultSet::next()
+{
+	m_pos++;
+	
+	if (m_rows.size() < (m_pos+1))
+	{
+		m_pos = 0;
+		return false;
+	}
+	
+	return true;
+}
+
+double ResultSet::getDouble(size_t index)
+{
+	if (m_rows.at(m_pos).size() < index)
+		return 0;
+	
+	return std::stof(m_rows.at(m_pos).at(index));
+}
+
+unsigned int atoui(const char *x)
+{
+	return (unsigned int) strtol (x, (char **) NULL, 10);
+}
+
+DLLAPI unsigned int ResultSet::getUInt(size_t index)
+{
+	if (m_rows.at(m_pos).size() < index)
+		return 0;
+	
+	return atoui(m_rows.at(m_pos).at(index).c_str());
+}
+
+DLLAPI std::string ResultSet::getString(size_t index)
+{
+	if (m_rows.at(m_pos).size() < index)
+		return 0;
+	
+	return m_rows.at(m_pos).at(index);
+}
+
+DLLAPI int ResultSet::getInt(size_t index)
+{
+	if (m_rows.at(m_pos).size() < index)
+		return 0;
+	
+	return std::stoi(m_rows.at(m_pos).at(index));
 }

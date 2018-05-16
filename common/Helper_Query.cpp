@@ -23,9 +23,9 @@
 #include <string.h>
 #include <limits.h>
 
-bool ExecuteFirstQuery(sql::ResultSet **res, std::string q)
+bool ExecuteFirstQuery(MYSQL* c, ResultSet **res, std::string q)
 {
-	if (!RunDBQuery(q, res))
+	if (!RunDBQuery(c, q, res))
 		return false;
 
 	if ((*res)->first())
@@ -34,22 +34,22 @@ bool ExecuteFirstQuery(sql::ResultSet **res, std::string q)
 	return true;
 }
 
-DLLAPI unsigned int GetProfileIDFromNickEmail(const char *nick, const char *email)
+DLLAPI unsigned int GetProfileIDFromNickEmail(MYSQL* c, const char *nick, const char *email)
 {
 	std::string query = "";
 	std::string _email = "", _nick = "";
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 	unsigned int ret = 0;
 
 	query = "SELECT profiles.profileid FROM profiles INNER JOIN"
 			" users ON profiles.userid=users.userid WHERE"
 			" users.email='";
-	query += EscapeSQLString(email);
+	query += EscapeSQLString(c, email);
 	query += "' AND profiles.nick='";
-	query += EscapeSQLString(nick);
+	query += EscapeSQLString(c, nick);
 	query += "'";
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return ret;
@@ -61,16 +61,16 @@ DLLAPI unsigned int GetProfileIDFromNickEmail(const char *nick, const char *emai
 	return ret;
 }
 
-DLLAPI void GetUniqueNickFromProfileID(unsigned int pid, char *unick, int size)
+DLLAPI void GetUniqueNickFromProfileID(MYSQL* c, unsigned int pid, char *unick, int size)
 {
 	std::string query = "";
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 
 	query = "SELECT uniquenick FROM profiles WHERE profileid='";
 	query += std::to_string(pid);
 	query += "'";
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return;
@@ -81,17 +81,17 @@ DLLAPI void GetUniqueNickFromProfileID(unsigned int pid, char *unick, int size)
 	delete res;
 }
 
-DLLAPI unsigned int GetProfileIDFromUniqueNick(const char *unick)
+DLLAPI unsigned int GetProfileIDFromUniqueNick(MYSQL* c, const char *unick)
 {
 	std::string query = "";
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 	unsigned int ret = 0;
 
 	query = "SELECT profileid FROM profiles WHERE uniquenick='";
-	query += EscapeSQLString(unick);
+	query += EscapeSQLString(c, unick);
 	query += "'";
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return ret;
@@ -103,15 +103,15 @@ DLLAPI unsigned int GetProfileIDFromUniqueNick(const char *unick)
 	return ret;
 }
 
-DLLAPI void GetPasswordFromUserID(char *out, int out_len, unsigned int id)
+DLLAPI void GetPasswordFromUserID(MYSQL* c, char *out, int out_len, unsigned int id)
 {
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 	char query[61];
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT password FROM users WHERE userid='%u'", id);
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return;
@@ -122,16 +122,16 @@ DLLAPI void GetPasswordFromUserID(char *out, int out_len, unsigned int id)
 	delete res;
 }
 
-DLLAPI unsigned int GetUserIDFromProfileID(unsigned int id)
+DLLAPI unsigned int GetUserIDFromProfileID(MYSQL* c, unsigned int id)
 {
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 	char query[61];
 	unsigned int ret = 0;
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT userid FROM profiles WHERE profileid='%u'", id);
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return ret;
@@ -142,7 +142,7 @@ DLLAPI unsigned int GetUserIDFromProfileID(unsigned int id)
 	return (unsigned)std::stoi(query);
 }
 
-DLLAPI int AssignSessionKeyFromProfileID(unsigned int profileid)
+DLLAPI int AssignSessionKeyFromProfileID(MYSQL* c, unsigned int profileid)
 {
 	int ssk = 0;
 	bool bx = true;
@@ -154,33 +154,33 @@ DLLAPI int AssignSessionKeyFromProfileID(unsigned int profileid)
 		ssk = Util_RandInt(1, INT_MAX);
 		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "UPDATE profiles SET sesskey=%d WHERE profileid='%u'", ssk, profileid);
 
-		if (RunDBQuery(query))
+		if (RunDBQuery(c, query))
 			bx = false;
 	}
 
 	return ssk;
 }
 
-DLLAPI void FreeSessionKey(unsigned int profileid)
+DLLAPI void FreeSessionKey(MYSQL* c, unsigned int profileid)
 {
 	char query[61];
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "UPDATE profiles SET sesskey=NULL WHERE profileid='%u'", profileid);
 
-	RunDBQuery(query);
+	RunDBQuery(c, query);
 }
 
-DLLAPI int GetPublicMaskFromProfileID(unsigned int pid)
+DLLAPI int GetPublicMaskFromProfileID(MYSQL* c, unsigned int pid)
 {
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 	std::string query = "";
 	int ret = 0;
 
 	query = "SELECT publicmask FROM profiles WHERE profileid=";
 	query += std::to_string(pid);
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return ret;
@@ -192,11 +192,11 @@ DLLAPI int GetPublicMaskFromProfileID(unsigned int pid)
 	return ret;
 }
 
-DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id_out)
+DLLAPI bool GetProfileInfo(MYSQL* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out)
 {
 #define resget(x) res->getString(x).c_str()
 
-	sql::ResultSet *res = NULL;
+	ResultSet *res = NULL;
 	std::string query = "";
 
 	query = "SELECT profiles.uniquenick, profiles.nick, profiles.firstname, profiles.lastname, profiles.latitude," //5
@@ -208,7 +208,7 @@ DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id
 	
 	query += std::to_string(pid);
 
-	if (!ExecuteFirstQuery(&res, query))
+	if (!ExecuteFirstQuery(c, &res, query))
 	{
 		delete res;
 		return false;

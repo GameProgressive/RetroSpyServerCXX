@@ -36,7 +36,9 @@
 #define _stricmp strcasecmp
 #define _snprintf_s(buffer, nope, count, format, ...) snprintf(buffer, count, format, ##__VA_ARGS__)
 #define strncpy_s(buffer, nope, str, count) strncpy(buffer, str, count)
-extern DLLAPI void fopen_s(FILE**fp, const char *path, const char *mode);
+#define strtok_s(buffer, str, nope) strtok(buffer, str)
+#define strcpy_s(buffer, nope, str) strcpy(buffer, str)
+#define sprintf_s(buffer, nope, format, ...) sprintf(buffer, format, ##__VA_ARGS__)
 #endif
 
 

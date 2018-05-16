@@ -17,6 +17,7 @@
 #define RSC_EXPORT 1 //Export the methods
 #include "Helper.h"
 
+#include "Defines.h"
 #include "md5.h"
 
 #include <string.h>
@@ -107,10 +108,3 @@ DLLAPI void gs_do_proof(char *out, const char *password, const char *token, cons
 	/* Hash the buffer */
 	hash_md5(buffer, strlen(buffer), out);
 }
-
-#ifndef _WIN32
-DLLAPI void fopen_s(FILE**fp, const char *path, const char *mode)
-{
-	*fp = fopen(path, mode);
-}
-#endif

@@ -19,6 +19,8 @@
 
 #include "Defines.h"
 
+#include <mysql.h>
+
 // Base64
 DLLAPI void B64Decode(const char *input, char *output, int inlen, int * outlen, int encodingType);
 DLLAPI void B64Encode(const char *input, char *output, int inlen, int encodingType);
@@ -35,13 +37,13 @@ DLLAPI void gs_do_proof(char *out, const char *password, const char *token, cons
 DLLAPI void hash_md5(const char *what, int len, char *out);
 
 // Database
-DLLAPI unsigned int GetProfileIDFromNickEmail(const char *nick, const char *email);
-DLLAPI void GetUniqueNickFromProfileID(unsigned int pid, char *unick, int size);
-DLLAPI unsigned int GetProfileIDFromUniqueNick(const char *unick);
-DLLAPI void GetPasswordFromUserID(char *out, int out_len, unsigned int id);
-DLLAPI unsigned int GetUserIDFromProfileID(unsigned int id);
-DLLAPI int AssignSessionKeyFromProfileID(unsigned int id);
-DLLAPI void FreeSessionKey(unsigned int profileid);
-DLLAPI bool GetProfileInfo(unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
+DLLAPI unsigned int GetProfileIDFromNickEmail(MYSQL* c, const char *nick, const char *email);
+DLLAPI void GetUniqueNickFromProfileID(MYSQL* c, unsigned int pid, char *unick, int size);
+DLLAPI unsigned int GetProfileIDFromUniqueNick(MYSQL* c, const char *unick);
+DLLAPI void GetPasswordFromUserID(MYSQL* c, char *out, int out_len, unsigned int id);
+DLLAPI unsigned int GetUserIDFromProfileID(MYSQL* c, unsigned int id);
+DLLAPI int AssignSessionKeyFromProfileID(MYSQL* c, unsigned int id);
+DLLAPI void FreeSessionKey(MYSQL* c, unsigned int profileid);
+DLLAPI bool GetProfileInfo(MYSQL* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
 
 #endif

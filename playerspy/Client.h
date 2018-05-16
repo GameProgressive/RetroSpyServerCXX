@@ -22,6 +22,7 @@
 #include <Defines.h>
 
 #include <uv.h>
+#include <mysql.h>
 #include <time.h>
 
 #include <list>
@@ -30,7 +31,7 @@
 class CClient
 {
 public:
-	CClient(uv_stream_t *stream, unsigned int vid);
+	CClient(uv_stream_t *stream, unsigned int vid, MYSQL *con);
 	~CClient();
 
 	unsigned int GetUserID();
@@ -123,6 +124,8 @@ private:
 
 	void Write(const char *str);
 	void Write(std::string str);
+	
+	MYSQL * m_con;
 };
 
 #endif

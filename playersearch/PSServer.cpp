@@ -8,7 +8,7 @@
 
     RetroSpy Server is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSEc  See the
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
@@ -23,7 +23,10 @@
 #include <string.h>
 #include <stdio.h>
 
-PSServer::PSServer(CLoop *loop) : CStringServer(loop) {}
+PSServer::PSServer(CLoop *loop, MYSQL*con) : CStringServer(loop)
+{
+	m_con = con;
+}
 PSServer::~PSServer() {}
 
 bool PSServer::HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size)
@@ -56,28 +59,28 @@ bool PSServer::OnNewConnection(uv_stream_t*) { return true; }
 
 bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 {
-	char buffer[256];
+	std::string buffer="";
 	char email[GP_EMAIL_LEN];
-	sql::ResultSet *result = NULL;
+	ResultSet *result = NULL;
 
-	buffer[0] = email[0] = 0;
+	email[0] = 0;
 
 	if (!get_gs_data(buf, "email", email, sizeof(email)))
 	{
 		return false;
 	}
 
-	EscapeSQLString(email, email, strlen(email));
+	buffer = "SELECT COUNT(userid) FROM `users` WHERE `email` = '";
+	buffer += EscapeSQLString(m_con, email);
+	buffer += "'";
 
-	_snprintf_s(buffer, sizeof(buffer), "SELECT COUNT(userid) FROM `users` WHERE `email` = '%s'", email);
-
-	if (!RunDBQuery(buffer, &result))
+	if (!RunDBQuery(m_con, buffer, &result))
 	{
 		delete result;
 		return false;
 	}
 
-	if (atoi(result->GetColumnByRow(0, 0).c_str()) < 1)
+	if (result->first())
 		Write(client, "\\vr\\0\\final\\");
 	else
 		Write(client, "\\vr\\1\\final\\");
@@ -99,7 +102,7 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	
 	size_t i = 0;
 
-	sql::ResultSet *result = NULL;
+	ResultSet *result = NULL;
 
 	gamename[0] = pass[0] = email[0] = passenc[0] = 0;
 
@@ -107,8 +110,6 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 
 	if (!get_gs_data(buf, "email", email, sizeof(email)))
 		return false;
-
-	EscapeSQLString(email, email, strlen(email));
 
 	if (get_gs_data(buf, "passenc", passenc, sizeof(passenc)))
 	{
@@ -121,51 +122,51 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 			return false;
 	}
 
-	EscapeSQLString(pass, pass, strlen(pass));
-
 	if (get_gs_data(buf, "gamename", gamename, sizeof(gamename)))
 		bSendUnique = true;
 
 	// Create the query and execute it
 	str = "SELECT profiles.nick, profiles.uniquenick FROM profiles INNER "
 		"JOIN users ON profiles.userid=users.userid WHERE users.email='";
-	str += email;
+	str += EscapeSQLString(m_con, email);
 	str += "' AND password='";
-	str += pass;
+	str += EscapeSQLString(m_con, pass);
 	str += "'";
 
-	if (!RunDBQuery(str.c_str(), result))
+	if (!RunDBQuery(m_con, str, &result))
 	{
 		delete result;
+		
+		Write(stream, "\\nr\\\\ndone\\final\\");
 		return false;
 	}
-
-	// No nicknames found
-	if (result->GetTotalRows() == 0)
+	
+	if (!result->first())
 	{
 		delete result;
-
+		
 		Write(stream, "\\nr\\\\ndone\\final\\");
-		return true;
+		return false;
+		
 	}
 
 	// We use gamename to avoid big memory usage
-	_snprintf_s(gamename, sizeof(gamename), "\\nr\\%d", result->GetTotalRows());
+	_snprintf_s(gamename, sizeof(gamename), sizeof(gamename) - 1, "\\nr\\%d", result->getRows());
 
 	str = gamename;
 
 	// Get all the nicks and store them
-	for (; i < result->GetTotalRows(); i++)
+	do
 	{
 		str += "\\nick\\";
-		str += result->GetColumnByRow(i, 0);
+		str += result->getString(0);
 
 		if (bSendUnique)
 		{
 			str += "\\uniquenick\\";
-			str += result->GetColumnByRow(i, 1);
+			str += result->getString(1);
 		}
-	}
+	} while(result->next());
 
 	str += "\\ndone\\final\\";
 

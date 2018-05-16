@@ -25,10 +25,11 @@
 #include <string.h>
 #include <stdio.h>
 
-PYServer::PYServer(CLoop *loop) : CStringServer(loop)
+PYServer::PYServer(CLoop *loop, MYSQL* con) : CStringServer(loop)
 {
 	PYServer::server_id = 1;
 	strrnd(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	m_con = con;
 }
 
 PYServer::~PYServer()
@@ -45,7 +46,7 @@ bool PYServer::HandleRequest(uv_stream_t *stream, const char *req, const char *b
 		return true;
 	}
 
-	CClientManager::Handle(stream, req, buf, size);
+	CClientManager::Handle(m_con, stream, req, buf, size);
 	return true;
 }
 

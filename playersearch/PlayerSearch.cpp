@@ -26,12 +26,19 @@
 int RetroSpyMain(void* data)
 {
 	ModuleMain *mm = (ModuleMain*)data;
+	CLoop loop;
+	PSServer *Server = NULL;
 
 	if (mm->port == -1)
 		mm->port = DEFAULT_PORT;
+	
+	if (mm->mysql == NULL)
+	{
+		printf("[PlayerSearch] Cannot connect to MySQL!\n");
+		return 1;
+	}
 
-	CLoop loop;
-	PSServer *Server = new PSServer(&loop);
+	Server = new PSServer(&loop, mm->mysql);
 
 	if (!Server->Bind(mm->ip, mm->port, false))
 		return 1;

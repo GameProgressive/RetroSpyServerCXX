@@ -19,8 +19,6 @@
 
 #include "../common/Query.h"
 
-#include <cppconn/driver.h>
-
 class CDatabase
 {
 public:
@@ -29,10 +27,13 @@ public:
 
 	bool Connect();
 	void Disconnect();
+	
+	static bool Connect(MYSQL *mysql);
+	static void Disconnect(MYSQL *mysql);
+	static void Init(MYSQL *mysql);
 
 private:
-	sql::Driver *m_driver;
-	sql::Connection *m_connection;
+	MYSQL m_connection;
 };
 
 #endif

@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <mysql.h>
 
 typedef std::map<std::string, std::string> ModuleConfigMap;
 
@@ -27,6 +28,7 @@ typedef struct SModuleMain
 	char *ip;
 	int port;
 	ModuleConfigMap cfg;
+	MYSQL* mysql;
 } ModuleMain;
 
 

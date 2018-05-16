@@ -148,7 +148,8 @@ void _PrintModuleInfo(CModuleManager mngr)
 		size_t i = 0;
 		for (; i < mngr.GetModuleSize(); i++)
 		{
-			printf("Module: %s\tStatus: %s\n", mngr.GetModule(i)->GetName(), mngr.GetModule(i)->IsRunning() ? "Running" : "Stopped");
+			CModule *m = mngr.GetModule(i);
+			printf("Module %u: %s\tStatus: %s\tDatabase Status: %s\n", i, m->GetName(), m->IsRunning() ? "Running" : "Stopped", m->GetDatabaseStatus());
 		}
 	}
 }

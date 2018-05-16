@@ -28,18 +28,20 @@
 //#include "polarssl/config.h"
 #include "md5.h"
 #define POLARSSL_MD5_C
+#if defined(POLARSSL_MD5_C)
 
 #ifndef _WIN32
-#include <stdio.h>
-extern void fopen_s(FILE** fp, const char *file, const char *mode);
+#include "Defines.h"
 #endif
-
-#if defined(POLARSSL_MD5_C)
 
 //#include "polarssl/md5.h"
 
 #include <string.h>
 #include <stdio.h>
+
+#ifndef _WIN32
+void fopen_s(FILE**fp, const char *path, const char *mode) { *fp = fopen(path, mode); }
+#endif
 
 /*
  * 32-bit integer manipulation macros (little endian)

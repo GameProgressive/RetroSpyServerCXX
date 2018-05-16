@@ -19,6 +19,8 @@
 
 #include "ModuleManager.h"
 
+#define MAX_INI_BUFFER 100
+
 class CConfig
 {
 public:

@@ -104,6 +104,8 @@ public:
 		Return: the thread name
 	*/
 	const char *GetName();
+	
+	const char *GetDatabaseStatus();
 
 private:
 	char m_szName[MAX_MODULENAME+1];
@@ -123,6 +125,9 @@ private:
 	pthread_t m_threadID;
 	void *m_lpThread;
 #endif
+
+	MYSQL m_connection;
+	bool m_database_disabled;
 };
 
 #endif

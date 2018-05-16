@@ -26,6 +26,7 @@ include_directories("${CMAKE_BINARY_DIR}/mariadb-connector-c/include") # mariadb
 
 # Set CMake output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # RetroSpy projects
 add_subdirectory("common")

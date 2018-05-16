@@ -26,12 +26,19 @@
 int RetroSpyMain(void* data)
 {
 	ModuleMain *mm = (ModuleMain*)data;
-
+	CLoop loop;
+	PYServer *Server = NULL;
+	
 	if (mm->port == -1)
 		mm->port = DEFAULT_PORT;
+	
+	if (mm->mysql == NULL)
+	{
+		printf("[PlayerSpy] Cannot connect to MySQL\n");
+		return 1;
+	}
 
-	CLoop loop;
-	PYServer *Server = new PYServer(&loop);
+	Server = new PYServer(&loop, mm->mysql);
 
 	if (!Server->Bind(mm->ip, mm->port, false))
 		return 1;

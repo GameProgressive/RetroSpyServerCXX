@@ -20,13 +20,15 @@
 #include <StringServer.h>
 #include <Loop.h>
 
+#include <mysql.h>
+
 /*
 	This class rappresents a Player Search server
 */
 class PYServer : public CStringServer
 {
 public:
-	PYServer(CLoop* loop);
+	PYServer(CLoop* loop, MYSQL* con);
 	~PYServer();
 
 	/* See CServer::OnNewConnection */
@@ -41,6 +43,7 @@ public:
 private:
 	static char server_challenge[GP_SERVERCHALL_LEN];
 	static int server_id;
+	MYSQL *m_con;
 };
 
 #endif

@@ -15,75 +15,57 @@
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Database.h"
-#include "Config.h"
+#include "RConfig.h"
 
 #include <stdio.h>
 
-#include <cppconn\exception.h>
-
 CDatabase::CDatabase()
 {
-	m_driver = get_driver_instance();
-	m_connection = NULL;
+	Init(&m_connection);
 }
 
 CDatabase::~CDatabase()
 {
-	Disconnect();
+	Disconnect(&m_connection);
 }
 
 bool CDatabase::Connect()
 {
-	std::string ppt = "";
+	return Connect(&m_connection);
+}
 
+void CDatabase::Disconnect()
+{
+	Disconnect(&m_connection);
+}
+
+void CDatabase::Init(MYSQL *mysql)
+{
+	mysql_init(mysql);
+}
+
+bool CDatabase::Connect(MYSQL* mysql)
+{
 	char *pass = (char*)CConfig::GetDatabasePassword();
 	char *sock = (char*)CConfig::GetDatabaseSocket();
-
+	
 	if (strlen(pass) < 1)
 		pass = NULL;
 
 	if (strlen(sock) < 1)
 		sock = NULL;
 
-	if (sock)
+	if (!mysql_real_connect(mysql, sock ? NULL : CConfig::GetDatabaseHost(), CConfig::GetDatabaseUsername(),
+		pass, CConfig::GetDatabaseName(), CConfig::GetDatabasePort(), sock, 0))
 	{
-		ppt = "unix://";
-		ppt += sock;
-	}
-
-	if (!sock)
-	{
-		ppt = "tcp://";
-		ppt += CConfig::GetDatabaseHost();
-		ppt += ":";
-		ppt += std::to_string(CConfig::GetDatabasePort());
-	}
-
-	ppt += "/";
-	ppt += CConfig::GetDatabaseName();
-
-	try
-	{
-		m_connection = m_driver->connect(ppt, CConfig::GetDatabaseUsername(), pass);
-
-		if (!m_connection)
-			return false;
-	}
-	catch (sql::SQLException &ex)
-	{
-		printf("[Database] Cannot connect. Error: %s\n", ex.what());
+		printf("[Database] Cannot connect. Error: %s\n", mysql_error(mysql));
 		return false;
 	}
-
-	SetConnectionPtr(m_connection);
 
 	return true;
 }
 
-void CDatabase::Disconnect()
+void CDatabase::Disconnect(MYSQL *mysql)
 {
-	if (m_connection)
-		delete m_connection;
-
-	m_connection = NULL;
+	mysql_close(mysql);
 }

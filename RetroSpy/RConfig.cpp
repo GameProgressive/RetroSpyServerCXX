@@ -16,6 +16,8 @@
 */
 #include "RConfig.h"
 
+#include "../common/Defines.h"
+
 #include "INIReader.h"
 
 #include <stdio.h>

@@ -15,9 +15,16 @@
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Module.h"
-#include "Config.h"
+#include "RConfig.h"
+#include "Database.h"
 
 #include <stdio.h>
+
+#ifndef _WIN32
+#include <dlfcn.h>
+#include <pthread.h>
+#include <signal.h>
+#endif
 
 CModule::CModule()
 {
@@ -32,6 +39,8 @@ CModule::CModule()
 #ifdef _WIN32
 	m_handle = NULL;
 #endif
+
+	CDatabase::Init(&m_connection);
 }
 
 CModule::~CModule()
@@ -117,7 +126,28 @@ void CModule::Start()
 		else
 			m_module.ip = (char*)it->second.c_str();
 	}
-
+	
+	// Connect to MySQL server
+	{
+		ModuleConfigMap::iterator it = m_module.cfg.find("DisableMySQL");
+		
+		m_module.mysql = NULL;
+		
+		if (it != m_module.cfg.end())
+		{
+			if (it->second.compare("1") == 0)
+			{
+				m_database_disabled = true;
+			}
+		}
+		
+		if (!m_database_disabled)
+		{
+			if (CDatabase::Connect(&m_connection))
+				m_module.mysql = &m_connection;
+		}
+	}
+	
 	// Create the module thread
 #ifdef _WIN32
 	m_handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)m_cbMain, (void*)&m_module, 0, &m_threadID);
@@ -129,9 +159,20 @@ void CModule::Start()
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	
-	if (!pthread_create(&m_threadID, &attr, (start_routine)m_cbMain, (void*)&m_module))
+	if (!pthread_create(&m_threadID, &attr,(void*(*)(void*)) m_cbMain, (void*)&m_module))
 		m_bRunning = true;
 #endif
+}
+
+const char *CModule::GetDatabaseStatus()
+{
+	if (m_database_disabled)
+		return "Disabled";
+	
+	if (mysql_stat(&m_connection) == NULL)
+		return "Disconnected";
+	
+	return "Connected";
 }
 
 void CModule::Stop()
@@ -149,6 +190,9 @@ void CModule::Stop()
 	pthread_kill(m_threadID, SIGKILL);
 #endif
 	m_threadID = 0;
+	
+	// Close MySQL connection
+	CDatabase::Disconnect(&m_connection);
 }
 
 #ifdef _WIN32
