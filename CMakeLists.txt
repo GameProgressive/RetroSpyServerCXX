@@ -7,8 +7,10 @@ if (WIN32)
 endif()
 
 # Set -fPIC to allow compiling retrospy shared library with libuv
+if (NOT WIN32)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif()
 
 # Boost inclusions
 #find_package(Boost REQUIRED)
