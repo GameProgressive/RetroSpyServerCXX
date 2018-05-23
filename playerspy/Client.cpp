@@ -380,7 +380,7 @@ void CClient::SendBuddyInfo(unsigned int id)
 		_snprintf_s(statstr, sizeof(statstr), sizeof(statstr)-1, "\\bm\\%d\\f\\%u\\msg\\|s|0|ss|Offline\\final\\", GPI_BM_STATUS, m_profileid);
 	else
 	{
-		_snprintf_s(statstr, sizeof(statstr), sizeof(statstr)-1, "\\bm\\%d\\f\\%u\\|s|%s|ss|%s%s%s|ip|%d|p|%d|gm|%d\\final\\", 
+		_snprintf_s(statstr, sizeof(statstr), sizeof(statstr)-1, "\\bm\\%d\\f\\%u\\|s|%d|ss|%s%s%s|ip|%d|p|%d|gm|%d\\final\\", 
 			GPI_BM_STATUS, m_profileid, c->GetStatusType(), c->GetStatus(), c->GetLocation()[0] != 0 ? "|ls|" : "", c->GetLocation(), 
 			reverse_endian32(c->GetIP()), reverse_endian16(c->GetPort()), c->GetQuietFlags());
 	}
@@ -734,15 +734,13 @@ bool CClient::HandleGetProfile(const char *buf, int)
 	if (info.publicmask & GP_MASK_ZIPCODE)
 	{
 		str += "\\zipcode\\";
-		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.zipcode);
-		str += txp;
+		str += info.zipcode;
 	}
 
 	if (info.publicmask & GP_MASK_HOMEPAGE)
 	{
 		str += "\\homepage\\";
-		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.homepage);
-		str += txp;
+		str += info.homepage;
 	}
 
 	if (info.publicmask & GP_MASK_BIRTHDAY)
