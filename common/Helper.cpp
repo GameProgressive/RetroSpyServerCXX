@@ -108,3 +108,13 @@ DLLAPI void gs_do_proof(char *out, const char *password, const char *token, cons
 	/* Hash the buffer */
 	hash_md5(buffer, strlen(buffer), out);
 }
+
+DLLAPI void RSLog(const char *name, const char *type, const char *fmt, ...)
+{
+	va_list vl;
+	printf("[%s] [%s] >> ", name, type);
+	va_start(vl, fmt);
+	vprintf(fmt, vl);
+	va_end(vl);
+	printf("\n");
+}

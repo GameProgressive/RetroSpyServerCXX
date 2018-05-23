@@ -15,6 +15,7 @@
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "ModuleManager.h"
+#include "../common/Defines.h"
 
 CModuleManager::CModuleManager()
 {
@@ -83,7 +84,7 @@ void CModuleManager::Start()
 
 	for (; i < m_vModules.size(); i++)
 	{
-		printf("[ModuleManager] Starting module %s\n", m_vModules.at(i)->GetName());
+		LOG_INFO("Module", "Starting %s...", m_vModules.at(i)->GetName());
 		m_vModules.at(i)->Start();
 	}
 }

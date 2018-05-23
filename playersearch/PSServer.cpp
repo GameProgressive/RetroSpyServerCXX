@@ -50,7 +50,7 @@ bool PSServer::HandleRequest(uv_stream_t *stream, const char *req, const char *b
 	else if (_stricmp(req, "pmatch") == 0)
 		return OnProductMatching(stream, buf, size);
 
-	printf("[PlayerSearch] Unknown request: %s\n", req);
+	LOG_ERROR("PlayerSearch", "Unknown request \"%s\" received!", req);
 	return false;
 }
 

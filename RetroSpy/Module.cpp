@@ -40,6 +40,8 @@ CModule::CModule()
 	m_handle = NULL;
 #endif
 
+	m_exitCode = 0;
+
 	CDatabase::Init(&m_connection);
 }
 
@@ -94,7 +96,7 @@ bool CModule::Load(const char *name)
 
 	if (!m_lpThread)
 	{
-		printf("[Module] Cannot find library %s\n", m_szName);
+		LOG_ERROR("Module", "Cannot find library %s!", m_szName);
 		return false;
 	}
 
@@ -107,7 +109,7 @@ bool CModule::Load(const char *name)
 
 	if (!m_cbMain)
 	{
-		printf("[Module] Invalid library %s\n", m_szName);
+		LOG_ERROR("Module", "Invalid library %s!", m_szName);
 		return false;
 	}
 
@@ -168,6 +170,8 @@ void CModule::Start()
 	if (!pthread_create(&m_threadID, &attr,(void*(*)(void*)) m_cbMain, (void*)&m_module))
 		m_bRunning = true;
 #endif
+
+	UpdateThreadInformation();
 }
 
 const char *CModule::GetDatabaseStatus()
@@ -183,6 +187,8 @@ const char *CModule::GetDatabaseStatus()
 
 void CModule::Stop()
 {
+	UpdateThreadInformation();
+
 	if (!m_bRunning)
 		return;
 
@@ -212,10 +218,36 @@ pthread_t CModule::getThreadID()
 
 bool CModule::IsRunning()
 {
+	UpdateThreadInformation();
+
 	return m_bRunning;
 }
 
 const char *CModule::GetName()
 {
 	return m_szName;
+}
+
+unsigned long CModule::GetExitCode()
+{
+	return m_exitCode;
+}
+
+void CModule::UpdateThreadInformation()
+{
+	if (!m_handle)
+		return;
+
+#ifdef _WIN32
+	if (!GetExitCodeThread(m_handle, &m_exitCode))
+		return;
+
+	if (m_exitCode == STILL_ACTIVE)
+		m_bRunning = true;
+	else
+		m_bRunning = false;
+
+#else
+#error "REQUIRE POSIX PORTING"
+#endif
 }

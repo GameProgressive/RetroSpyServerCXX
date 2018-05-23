@@ -76,23 +76,24 @@ int main()
 	// Load the configuration
 	if (!CConfig::Load(&mm, CONFIG_NAME))
 	{
-		printf("Cannot load %s\n", CONFIG_NAME);
+		LOG_ERROR("RetroSpy", "Cannot load %s\n", CONFIG_NAME);
 		ConsolePause();
 		return 0;
 	}
 
-	if (!db.Connect())
+/*	if (!db.Connect())
 	{
 		ConsolePause();
 		return 0;
 	}
 
-	printf("Connected to Database!\n");
+	LOG_INFO("RetroSpy", "Connected to Database!\n");*/
 
 	// Start our modules
 	mm.Start();
 
-	printf("Server Started!\nType \"help\" for the list of commands avaiable.\n");
+	LOG_INFO("RetroSpy", "Server Started!");
+	LOG_INFO("RetroSpy", "Type \"help\" for the list of commands avaiable.");
 
 	// Application loop
 	while (Main_Running)
@@ -108,6 +109,8 @@ int main()
 			_PrintHelp();
 		else if (strcmp(consoleInput.c_str(), "moduleinfo") == 0)
 			_PrintModuleInfo(mm);
+		else
+			LOG_WARN("RetroSpy", "Unknown command \"%s\"", consoleInput.c_str());
 	}
 
 	// Stop the modules
@@ -125,11 +128,11 @@ void _PrintHelp()
 {
 	int i = 0;
 
-	printf("===== List of Avaiable Commands =====\n\n");
+	LOG_INFO("RetroSpy", "List of Avaiable Commands:");
 	
 	for (; i < HelpArray_Len; i++)
 	{
-		printf("\t%s\t\t%s\n", HelpArray[i].name, HelpArray[i].desc);
+		LOG_INFO("RetroSpy", "%s\t\t%s", HelpArray[i].name, HelpArray[i].desc);
 	}
 }
 
@@ -139,7 +142,7 @@ void _PrintHelp()
 */
 void _PrintModuleInfo(CModuleManager mngr)
 {
-	printf("Loaded modules: %u\n", mngr.GetModuleSize());
+	LOG_INFO("RetroSpy", "Loaded modules: %u", mngr.GetModuleSize());
 
 	if (mngr.GetModuleSize() > 0)
 	{
@@ -147,7 +150,7 @@ void _PrintModuleInfo(CModuleManager mngr)
 		for (; i < mngr.GetModuleSize(); i++)
 		{
 			CModule *m = mngr.GetModule(i);
-			printf("Module %u: %s\tStatus: %s\t\tDatabase Status: %s\n", i, m->GetName(), m->IsRunning() ? "Running" : "Stopped", m->GetDatabaseStatus());
+			LOG_INFO("RetroSpy", "Module %u: %s\tStatus: %s (Code: %d)\t\tDatabase Status: %s", i, m->GetName(), m->IsRunning() ? "Running" : "Stopped", m->GetExitCode(), m->GetDatabaseStatus());
 		}
 	}
 }
@@ -167,6 +170,7 @@ void ConsolePause()
 #else
 	scanf("%1c", &k);
 #endif
+
 	getchar();
-	
+
 }

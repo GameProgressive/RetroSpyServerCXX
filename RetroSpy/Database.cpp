@@ -58,7 +58,7 @@ bool CDatabase::Connect(MYSQL* mysql)
 	if (!mysql_real_connect(mysql, sock ? NULL : CConfig::GetDatabaseHost(), CConfig::GetDatabaseUsername(),
 		pass, CConfig::GetDatabaseName(), CConfig::GetDatabasePort(), sock, 0))
 	{
-		printf("[Database] Cannot connect. Error: %s\n", mysql_error(mysql));
+		LOG_ERROR("Database", "Cannot connect to MySQL Server. Error: %s\n", mysql_error(mysql));
 		return false;
 	}
 

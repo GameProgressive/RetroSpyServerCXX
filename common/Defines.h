@@ -297,4 +297,9 @@ typedef struct
   int conntypeid;
 } GPIInfoCache;
 
+#define LOG_INFO(name, fmt, ...) RSLog(name, "INFO", fmt, __VA_ARGS__)
+#define LOG_ERROR(name, fmt, ...) RSLog(name, "ERROR", fmt, __VA_ARGS__)
+#define LOG_WARN(name, fmt, ...) RSLog(name, "WARN", fmt, __VA_ARGS__)
+DLLAPI void RSLog(const char *name, const char *type, const char *fmt, ...);
+
 #endif

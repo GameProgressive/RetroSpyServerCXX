@@ -105,7 +105,19 @@ public:
 	*/
 	const char *GetName();
 	
+	/*
+		Function: GetDatabaseStatus
+		Description: Get the database status
+		Return: the database status
+	*/
 	const char *GetDatabaseStatus();
+
+	/*
+		Function: GetExitCode
+		Description: Get the exit code of the thread
+		Return: the exit code
+	*/
+	unsigned long GetExitCode();
 
 private:
 	char m_szName[MAX_MODULENAME+1];
@@ -126,8 +138,12 @@ private:
 	void *m_lpThread;
 #endif
 
+	unsigned long m_exitCode;
+
 	MYSQL m_connection;
 	bool m_database_disabled;
+
+	void UpdateThreadInformation();
 };
 
 #endif

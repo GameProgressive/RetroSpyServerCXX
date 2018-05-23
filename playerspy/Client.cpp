@@ -207,7 +207,10 @@ bool CClient::Handle(const char *req, const char *buf, int len)
 	else if (strcmp(req, "getprofile") == 0)
 		return HandleGetProfile(buf, len);
 	else
-		puts(req);
+	{
+		LOG_WARN("PlayerSpy", "Uknown request \"%s\" received!", req);
+		return false;
+	}
 
 	return true;
 }
