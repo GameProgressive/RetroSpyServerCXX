@@ -21,8 +21,6 @@
 
 #include <Defines.h>
 
-#include <uv.h>
-#include <mysql.h>
 #include <time.h>
 
 #include <list>
@@ -31,7 +29,7 @@
 class CClient
 {
 public:
-	CClient(uv_stream_t *stream, unsigned int vid, MYSQL *con);
+	CClient(mdk_client *stream, unsigned int vid, mdk_mysql *con);
 	~CClient();
 
 	unsigned int GetUserID();
@@ -81,7 +79,7 @@ private:
 
 	unsigned int m_sesskey;
 
-	uv_stream_t* m_stream;
+	mdk_client* m_stream;
 
 	int m_sdkversion;
 
@@ -125,7 +123,7 @@ private:
 	void Write(const char *str);
 	void Write(std::string str);
 	
-	MYSQL * m_con;
+	mdk_mysql * m_con;
 };
 
 #endif

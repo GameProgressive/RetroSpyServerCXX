@@ -19,15 +19,12 @@
 #include "ClientManager.h"
 #include "PYServer.h"
 
-#include "../common/Server.h"
-#include "../common/RSString.h"
-#include "../common/Helper.h"
-#include "../common/Query.h"
-#include "../common/chc_endian.h"
+#include <Helper.h>
+#include <chc_endian.h>
 
 #include <string>
 
-CClient::CClient(uv_stream_t *stream, unsigned int vid, MYSQL* con)
+CClient::CClient(mdk_client *stream, unsigned int vid, mdk_mysql* con)
 {
 	m_stream = stream;
 	m_vectorid = vid;
@@ -40,7 +37,7 @@ CClient::CClient(uv_stream_t *stream, unsigned int vid, MYSQL* con)
 	m_status_type = m_quiet_flags = GP_ERROR;
 	m_SentBuddies = m_SentAddRequests = false;
 
-	m_ip = CServer::GetIPFromStream(stream);
+	m_ip = Server::GetIPFromStream(stream);
 
 	strncpy_s(m_status, sizeof(m_status), "Offline", sizeof(m_status)-1);
 }
@@ -411,12 +408,12 @@ bool CClient::operator!=(CClient& c)
 
 void CClient::Write(std::string str)
 {
-	CServer::Write(m_stream, str);
+	Server::Write(m_stream, str);
 }
 
 void CClient::Write(const char *str)
 {
-	CServer::Write(m_stream, str);
+	Server::Write(m_stream, str);
 }
 
 bool CClient::HandleStatus(const char *buf, int)
@@ -487,13 +484,17 @@ void CClient::SendAddRequests()
 {
 	char query[256];
 	ResultSet *res = NULL;
-	my_ulonglong x = 0;
 	std::string str = "";
 
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `profileid`, `syncrequested`, `reason` FROM `addrequests` WHERE `targetid`=%u", m_profileid);
-	if (!RunDBQuery(m_con, query, &res))
+	if (!Database::RunDBQuery(m_con, query, &res))
+	{
+		delete res;
+		return;
+	}
+	if (!res->first())
 	{
 		delete res;
 		return;
@@ -523,7 +524,6 @@ void CClient::SendAddRequests()
 void CClient::LoadBuddies()
 {
 	char query[128];
-	my_ulonglong x = 0;
 	ResultSet *res = NULL;
 
 	query[0] = 0;
@@ -531,7 +531,7 @@ void CClient::LoadBuddies()
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
 		"SELECT `targetid` FROM `friends` WHERE `profileid`=%u", m_profileid);
 
-	if (!RunDBQuery(m_con, query, &res))
+	if (!Database::RunDBQuery(m_con, query, &res))
 	{
 		delete res;
 		return;
@@ -556,7 +556,6 @@ void CClient::LoadBuddies()
 void CClient::LoadBlockedList()
 {
 	char query[128];
-	my_ulonglong x = 0;
 	ResultSet *res = NULL;
 
 	query[0] = 0;
@@ -564,7 +563,7 @@ void CClient::LoadBlockedList()
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
 		"SELECT `targetid` FROM `blocked` WHERE `profileid`=%u", m_profileid);
 
-	if (!RunDBQuery(m_con, query, &res))
+	if (!Database::RunDBQuery(m_con, query, &res))
 	{
 		delete res;
 		return;
@@ -590,14 +589,13 @@ void CClient::SendMessages()
 {
 	char query[256];
 	ResultSet *res = NULL;
-	my_ulonglong x = 0;
 	std::string str = "";
 
 	query[0] = 0;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
 
-	if (!RunDBQuery(m_con, query, &res))
+	if (!Database::RunDBQuery(m_con, query, &res))
 	{
 		delete res;
 		return;
@@ -627,7 +625,7 @@ void CClient::SendMessages()
 	delete res;
 
 	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "DELETE FROM `messages` WHERE `to`=%u", m_profileid);
-	RunDBQuery(m_con, query);
+	Database::RunDBQuery(m_con, query);
 }
 
 bool CClient::HandleGetProfile(const char *buf, int)

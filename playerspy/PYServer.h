@@ -17,10 +17,8 @@
 #ifndef GPCMSERVER_H
 #define GPCMSERVER_H
 
+#include <Defines.h>
 #include <StringServer.h>
-#include <Loop.h>
-
-#include <mysql.h>
 
 /*
 	This class rappresents a Player Search server
@@ -28,14 +26,14 @@
 class PYServer : public CStringServer
 {
 public:
-	PYServer(CLoop* loop, MYSQL* con);
+	PYServer(mdk_mysql* con);
 	~PYServer();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(uv_stream_t* stream);
+	bool OnNewConnection(mdk_mysql* stream);
 
 	/* See CStringServer::HandleRequest */
-	bool HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size);
+	bool HandleRequest(mdk_mysql *stream, const char *req, const char *buf, int size);
 
 	static int GetServerID();
 	static const char *GetServerChallenge();
@@ -43,7 +41,7 @@ public:
 private:
 	static char server_challenge[GP_SERVERCHALL_LEN];
 	static int server_id;
-	MYSQL *m_con;
+	mdk_mysql *m_con;
 };
 
 #endif

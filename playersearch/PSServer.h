@@ -18,9 +18,6 @@
 #define GPSPSERVER_H
 
 #include <StringServer.h>
-#include <Loop.h>
-
-#include <mysql.h>
 
 /*
 	This class rappresents a Player Search server
@@ -28,27 +25,27 @@
 class PSServer : public CStringServer
 {
 public:
-	PSServer(CLoop* loop, MYSQL* con);
+	PSServer(mdk_mysql* con);
 	~PSServer();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(uv_stream_t* stream);
+	bool OnNewConnection(mdk_client* stream);
 
 	/* See CStringServer::HandleRequest */
-	bool HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size);
+	bool HandleRequest(mdk_client *stream, const char *req, const char *buf, int size);
 
 private:
-	bool OnValid(uv_stream_t *stream, const char *buf, int size);
-	bool OnSendNicks(uv_stream_t *stream, const char *buf, int size);
-	bool OnCheckNicks(uv_stream_t *stream, const char *buf, int size);
-	bool OnSearchUsers(uv_stream_t *stream, const char *buf, int size);
-	bool OnReverseBuddies(uv_stream_t *stream, const char *buf, int size);
-	bool OnOthersList(uv_stream_t *stream, const char *buf, int size);
-	bool OnUniqueSearch(uv_stream_t *stream, const char *buf, int size);
-	bool OnProfileList(uv_stream_t *stream, const char *buf, int size);
-	bool OnProductMatching(uv_stream_t *stream, const char *buf, int size);
+	bool OnValid(mdk_client *stream, const char *buf, int size);
+	bool OnSendNicks(mdk_client *stream, const char *buf, int size);
+	bool OnCheckNicks(mdk_client *stream, const char *buf, int size);
+	bool OnSearchUsers(mdk_client *stream, const char *buf, int size);
+	bool OnReverseBuddies(mdk_client *stream, const char *buf, int size);
+	bool OnOthersList(mdk_client *stream, const char *buf, int size);
+	bool OnUniqueSearch(mdk_client *stream, const char *buf, int size);
+	bool OnProfileList(mdk_client *stream, const char *buf, int size);
+	bool OnProductMatching(mdk_client *stream, const char *buf, int size);
 	
-	MYSQL *m_con;
+	mdk_mysql *m_con;
 
 };
 

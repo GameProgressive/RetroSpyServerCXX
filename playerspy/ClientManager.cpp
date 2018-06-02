@@ -14,9 +14,8 @@
     You should have received a copy of the GNU Affero General Public License
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <MasterServerMDK.h>
 #include "ClientManager.h"
-
-#include "../common/Server.h" //CClientData
 
 void CClientManager::Free()
 {
@@ -47,11 +46,13 @@ void CClientManager::Delete(ClientMap::iterator it)
 	m_clients.erase(it);
 }
 
-bool CClientManager::CreateAndHandle(MYSQL *con, uv_stream_t *stream, const char *req, const char *buf, int len)
+bool CClientManager::CreateAndHandle(mdk_mysql *con, mdk_client *stream, const char *req, const char *buf, int len)
 {
 	ClientMap::iterator it;
 	CClient *c = NULL;
-	CClientData *cc = (CClientData*)stream->data;
+	ClientData *cc = Server::GetData(stream);
+	if (!cc)
+		return false;
 
 	unsigned int i = m_clients.size();
 	
@@ -74,10 +75,12 @@ bool CClientManager::CreateAndHandle(MYSQL *con, uv_stream_t *stream, const char
 	return true;
 }
 
-bool CClientManager::Handle(MYSQL *con, uv_stream_t* stream, const char *req, const char*buf, int len)
+bool CClientManager::Handle(mdk_mysql *con, mdk_client* stream, const char *req, const char*buf, int len)
 {
-	CClientData *cc = (CClientData*)stream->data;
+	ClientData *cc = Server::GetData(stream);
 	ClientMap::iterator it;
+	if (!cc)
+		return false;
 
 	if (!cc->GetUserData())
 		return CreateAndHandle(con, stream, req, buf, len); // Create the instance

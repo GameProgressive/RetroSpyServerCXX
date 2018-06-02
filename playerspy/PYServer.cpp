@@ -18,14 +18,12 @@
 
 #include "ClientManager.h"
 
-#include "../common/RSString.h"
-#include "../common/Query.h"
-#include "../common/Helper.h"
+#include <Helper.h>
 
 #include <string.h>
 #include <stdio.h>
 
-PYServer::PYServer(CLoop *loop, MYSQL* con) : CStringServer(loop)
+PYServer::PYServer(mdk_mysql* con)
 {
 	PYServer::server_id = 1;
 	strrnd(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -37,7 +35,7 @@ PYServer::~PYServer()
 	CClientManager::Free();
 }
 
-bool PYServer::HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size)
+bool PYServer::HandleRequest(mdk_client *stream, const char *req, const char *buf, int size)
 {
 	if (_stricmp(req, "ka") == 0)
 	{
@@ -50,7 +48,7 @@ bool PYServer::HandleRequest(uv_stream_t *stream, const char *req, const char *b
 	return true;
 }
 
-bool PYServer::OnNewConnection(uv_stream_t* stream)
+bool PYServer::OnNewConnection(mdk_client* stream)
 {
 	char fch[45];
 	fch[0] = 0;

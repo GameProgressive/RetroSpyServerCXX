@@ -14,22 +14,17 @@
     You should have received a copy of the GNU Affero General Public License
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#define RSC_EXPORT 1
-#include <stdio.h>
+#include <MasterServerMDK.h>
 
-#include "../common/ModuleDef.h"
+#include <stdio.h>
 
 #include "PYServer.h"
 
 #define DEFAULT_PORT 29900
 
 /* Entry point for GPSP server */
-extern "C"
-{
-DLLAPI int RetroSpyMain(void* data)
-{
+RetroSpyModuleStart
 	ModuleMain *mm = (ModuleMain*)data;
-	CLoop loop;
 	PYServer *Server = NULL;
 	
 	if (mm->port == -1)
@@ -38,18 +33,15 @@ DLLAPI int RetroSpyMain(void* data)
 	if (mm->mysql == NULL)
 	{
 		LOG_ERROR("PlayerSpy", "Unable to retrive MySQL connection!");
-		return 1;
+		return ERROR_MYSQL_POINTER;
 	}
 
-	Server = new PYServer(&loop, mm->mysql);
+	Server = new PYServer(mm->mysql);
 
 	if (!Server->Bind(mm->ip, mm->port, false))
-		return 1;
+		return ERROR_BIND_ERROR;
 
 	LOG_INFO("PlayerSpy", "Server started on %s:%d!", mm->ip, mm->port);
 
-	loop.Run();
-
-	return 0;
-}
-}
+	return ERROR_NONE;
+RetroSpyModuleEnd

@@ -16,20 +16,18 @@
 */
 #include "PSServer.h"
 
-#include "../common/RSString.h"
-#include "../common/Query.h"
-#include "../common/Helper.h"
+#include <Helper.h>
 
 #include <string.h>
 #include <stdio.h>
 
-PSServer::PSServer(CLoop *loop, MYSQL*con) : CStringServer(loop)
+PSServer::PSServer(mdk_mysql*con)
 {
 	m_con = con;
 }
 PSServer::~PSServer() {}
 
-bool PSServer::HandleRequest(uv_stream_t *stream, const char *req, const char *buf, int size)
+bool PSServer::HandleRequest(mdk_client *stream, const char *req, const char *buf, int size)
 {
 	if (_stricmp(req, "valid") == 0)
 		return OnValid(stream, buf, size);
@@ -55,9 +53,9 @@ bool PSServer::HandleRequest(uv_stream_t *stream, const char *req, const char *b
 }
 
 // Unused
-bool PSServer::OnNewConnection(uv_stream_t*) { return true; }
+bool PSServer::OnNewConnection(mdk_client*) { return true; }
 
-bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
+bool PSServer::OnValid(mdk_client *client, const char *buf, int)
 {
 	std::string buffer="";
 	char email[GP_EMAIL_LEN];
@@ -71,10 +69,10 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 	}
 
 	buffer = "SELECT COUNT(userid) FROM `users` WHERE `email` = '";
-	buffer += EscapeSQLString(m_con, email);
+	buffer += Database::EscapeSQLString(m_con, email);
 	buffer += "'";
 
-	if (!RunDBQuery(m_con, buffer, &result))
+	if (!Database::RunDBQuery(m_con, buffer, &result))
 	{
 		delete result;
 		return false;
@@ -89,7 +87,7 @@ bool PSServer::OnValid(uv_stream_t *client, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
+bool PSServer::OnSendNicks(mdk_client *stream, const char *buf, int)
 {
 	char email[GP_EMAIL_LEN];
 	char pass[GP_PASSWORD_LEN];
@@ -128,12 +126,12 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	// Create the query and execute it
 	str = "SELECT profiles.nick, profiles.uniquenick FROM profiles INNER "
 		"JOIN users ON profiles.userid=users.userid WHERE users.email='";
-	str += EscapeSQLString(m_con, email);
+	str += Database::EscapeSQLString(m_con, email);
 	str += "' AND password='";
-	str += EscapeSQLString(m_con, pass);
+	str += Database::EscapeSQLString(m_con, pass);
 	str += "'";
 
-	if (!RunDBQuery(m_con, str, &result))
+	if (!Database::RunDBQuery(m_con, str, &result))
 	{
 		delete result;
 		
@@ -178,31 +176,31 @@ bool PSServer::OnSendNicks(uv_stream_t *stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnCheckNicks(uv_stream_t *, const char *buf, int)
+bool PSServer::OnCheckNicks(mdk_client *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnSearchUsers(uv_stream_t *, const char *buf, int)
+bool PSServer::OnSearchUsers(mdk_client *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnReverseBuddies(uv_stream_t *, const char *buf, int)
+bool PSServer::OnReverseBuddies(mdk_client *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnOthersList(uv_stream_t *, const char *buf, int)
+bool PSServer::OnOthersList(mdk_client *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnUniqueSearch(uv_stream_t *stream, const char *buf, int)
+bool PSServer::OnUniqueSearch(mdk_client *stream, const char *buf, int)
 {
 	char preferrednick[GP_NICK_LEN];
 	std::string sendmsg = "\\us\\7";
@@ -239,13 +237,13 @@ bool PSServer::OnUniqueSearch(uv_stream_t *stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnProfileList(uv_stream_t *, const char *buf, int)
+bool PSServer::OnProfileList(mdk_client *, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnProductMatching(uv_stream_t *, const char *buf, int)
+bool PSServer::OnProductMatching(mdk_client *, const char *buf, int)
 {
 	puts(buf);
 	return false;

@@ -26,7 +26,7 @@ typedef std::map<unsigned int, CClient*> ClientMap;
 class CClientManager
 {
 public:
-	static bool Handle(MYSQL *con, uv_stream_t* stream, const char *req, const char*buf, int len);
+	static bool Handle(mdk_mysql *con, mdk_client* stream, const char *req, const char*buf, int len);
 	static void Free();
 
 	static CClient *GetFromProfileID(unsigned int id);
@@ -38,7 +38,7 @@ private:
 
 private:
 	static void Delete(ClientMap::iterator it);
-	static bool CreateAndHandle(MYSQL *con, uv_stream_t* stream, const char *req, const char *buf, int len);
+	static bool CreateAndHandle(mdk_mysql *con, mdk_client* stream, const char *req, const char *buf, int len);
 };
 
 #endif
