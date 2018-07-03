@@ -37,7 +37,7 @@ RetroSpyModuleStart
 
 	Server = new PSServer(mm->mysql);
 
-	if (!Server->Bind(mm->ip, mm->port, false))
+	if (!Server->Bind(mm->loop, mm->ip, mm->port, false))
 		return ERROR_BIND_ERROR;
 
 	LOG_INFO("PlayerSearch", "Server started on %s:%d!", mm->ip, mm->port);
