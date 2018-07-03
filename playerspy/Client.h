@@ -29,7 +29,7 @@
 class CClient
 {
 public:
-	CClient(mdk_client *stream, unsigned int vid, mdk_mysql *con);
+	CClient(mdk_client stream, unsigned int vid, mdk_mysql con);
 	~CClient();
 
 	unsigned int GetUserID();
@@ -79,7 +79,7 @@ private:
 
 	unsigned int m_sesskey;
 
-	mdk_client* m_stream;
+	mdk_client m_stream;
 
 	int m_sdkversion;
 
@@ -123,7 +123,7 @@ private:
 	void Write(const char *str);
 	void Write(std::string str);
 	
-	mdk_mysql * m_con;
+	mdk_mysql m_con;
 };
 
 #endif

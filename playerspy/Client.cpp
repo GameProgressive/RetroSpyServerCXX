@@ -24,7 +24,7 @@
 
 #include <string>
 
-CClient::CClient(mdk_client *stream, unsigned int vid, mdk_mysql* con)
+CClient::CClient(mdk_client stream, unsigned int vid, mdk_mysql con)
 {
 	m_stream = stream;
 	m_vectorid = vid;

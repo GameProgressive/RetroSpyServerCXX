@@ -18,7 +18,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 ## Module Development Kit
 add_subdirectory("MDK")
-include_directories("MDK")
+include_directories("MDK/include")
 
 # RetroSpy projects
 add_subdirectory("common")

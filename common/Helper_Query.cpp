@@ -20,7 +20,7 @@
 #include <string.h>
 #include <limits.h>
 
-bool ExecuteFirstQuery(mdk_mysql* c, ResultSet **res, std::string q)
+bool ExecuteFirstQuery(mdk_mysql c, ResultSet **res, std::string q)
 {
 	if (!Database::RunDBQuery(c, q, res))
 		return false;
@@ -31,7 +31,7 @@ bool ExecuteFirstQuery(mdk_mysql* c, ResultSet **res, std::string q)
 	return true;
 }
 
-unsigned int GetProfileIDFromNickEmail(mdk_mysql* c, const char *nick, const char *email)
+unsigned int GetProfileIDFromNickEmail(mdk_mysql c, const char *nick, const char *email)
 {
 	std::string query = "";
 	std::string _email = "", _nick = "";
@@ -58,7 +58,7 @@ unsigned int GetProfileIDFromNickEmail(mdk_mysql* c, const char *nick, const cha
 	return ret;
 }
 
-void GetUniqueNickFromProfileID(mdk_mysql* c, unsigned int pid, char *unick, int size)
+void GetUniqueNickFromProfileID(mdk_mysql c, unsigned int pid, char *unick, int size)
 {
 	std::string query = "";
 	ResultSet *res = NULL;
@@ -78,7 +78,7 @@ void GetUniqueNickFromProfileID(mdk_mysql* c, unsigned int pid, char *unick, int
 	delete res;
 }
 
-unsigned int GetProfileIDFromUniqueNick(mdk_mysql* c, const char *unick)
+unsigned int GetProfileIDFromUniqueNick(mdk_mysql c, const char *unick)
 {
 	std::string query = "";
 	ResultSet *res = NULL;
@@ -100,7 +100,7 @@ unsigned int GetProfileIDFromUniqueNick(mdk_mysql* c, const char *unick)
 	return ret;
 }
 
-void GetPasswordFromUserID(mdk_mysql* c, char *out, int out_len, unsigned int id)
+void GetPasswordFromUserID(mdk_mysql c, char *out, int out_len, unsigned int id)
 {
 	ResultSet *res = NULL;
 	char query[61];
@@ -119,7 +119,7 @@ void GetPasswordFromUserID(mdk_mysql* c, char *out, int out_len, unsigned int id
 	delete res;
 }
 
-unsigned int GetUserIDFromProfileID(mdk_mysql* c, unsigned int id)
+unsigned int GetUserIDFromProfileID(mdk_mysql c, unsigned int id)
 {
 	ResultSet *res = NULL;
 	char query[61];
@@ -139,7 +139,7 @@ unsigned int GetUserIDFromProfileID(mdk_mysql* c, unsigned int id)
 	return (unsigned)std::stoi(query);
 }
 
-int AssignSessionKeyFromProfileID(mdk_mysql* c, unsigned int profileid)
+int AssignSessionKeyFromProfileID(mdk_mysql c, unsigned int profileid)
 {
 	int ssk = 0;
 	bool bx = true;
@@ -158,7 +158,7 @@ int AssignSessionKeyFromProfileID(mdk_mysql* c, unsigned int profileid)
 	return ssk;
 }
 
-void FreeSessionKey(mdk_mysql* c, unsigned int profileid)
+void FreeSessionKey(mdk_mysql c, unsigned int profileid)
 {
 	char query[61];
 	query[0] = 0;
@@ -168,7 +168,7 @@ void FreeSessionKey(mdk_mysql* c, unsigned int profileid)
 	Database::RunDBQuery(c, query);
 }
 
-int GetPublicMaskFromProfileID(mdk_mysql* c, unsigned int pid)
+int GetPublicMaskFromProfileID(mdk_mysql c, unsigned int pid)
 {
 	ResultSet *res = NULL;
 	std::string query = "";
@@ -189,7 +189,7 @@ int GetPublicMaskFromProfileID(mdk_mysql* c, unsigned int pid)
 	return ret;
 }
 
-bool GetProfileInfo(mdk_mysql* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out)
+bool GetProfileInfo(mdk_mysql c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out)
 {
 #define resget(x) res->getString(x).c_str()
 

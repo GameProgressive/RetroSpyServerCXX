@@ -18,14 +18,12 @@
 
 #include "Helper.h"
 
-#include <MSString.h>
-
 #include <string.h>
 
 CStringServer::CStringServer() {}
 CStringServer::~CStringServer() {}
 
-void CStringServer::OnRead(mdk_client* stream, const char *data, ssize_t size)
+void CStringServer::OnRead(mdk_client stream, const char *data, ssize_t size)
 {
 	bool bC = true;
 	char *buffer2 = NULL;
@@ -102,5 +100,5 @@ void CStringServer::OnRead(mdk_client* stream, const char *data, ssize_t size)
 }
 
 // Virtual functions
-bool CStringServer::OnNewConnection(mdk_client*) { return true; }
-bool CStringServer::HandleRequest(mdk_client *, const char *, const char *, int) { return true; }
+bool CStringServer::OnNewConnection(mdk_client) { return true; }
+bool CStringServer::HandleRequest(mdk_client, const char *, const char *, int) { return true; }

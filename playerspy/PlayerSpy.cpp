@@ -14,8 +14,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <MasterServerMDK.h>
-
 #include <stdio.h>
 
 #include "PYServer.h"

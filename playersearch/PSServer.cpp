@@ -21,13 +21,13 @@
 #include <string.h>
 #include <stdio.h>
 
-PSServer::PSServer(mdk_mysql*con)
+PSServer::PSServer(mdk_mysql con)
 {
 	m_con = con;
 }
 PSServer::~PSServer() {}
 
-bool PSServer::HandleRequest(mdk_client *stream, const char *req, const char *buf, int size)
+bool PSServer::HandleRequest(mdk_client stream, const char *req, const char *buf, int size)
 {
 	if (_stricmp(req, "valid") == 0)
 		return OnValid(stream, buf, size);
@@ -53,9 +53,9 @@ bool PSServer::HandleRequest(mdk_client *stream, const char *req, const char *bu
 }
 
 // Unused
-bool PSServer::OnNewConnection(mdk_client*) { return true; }
+bool PSServer::OnNewConnection(mdk_client) { return true; }
 
-bool PSServer::OnValid(mdk_client *client, const char *buf, int)
+bool PSServer::OnValid(mdk_client client, const char *buf, int)
 {
 	std::string buffer="";
 	char email[GP_EMAIL_LEN];
@@ -87,7 +87,7 @@ bool PSServer::OnValid(mdk_client *client, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnSendNicks(mdk_client *stream, const char *buf, int)
+bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 {
 	char email[GP_EMAIL_LEN];
 	char pass[GP_PASSWORD_LEN];
@@ -176,31 +176,31 @@ bool PSServer::OnSendNicks(mdk_client *stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnCheckNicks(mdk_client *, const char *buf, int)
+bool PSServer::OnCheckNicks(mdk_client, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnSearchUsers(mdk_client *, const char *buf, int)
+bool PSServer::OnSearchUsers(mdk_client, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnReverseBuddies(mdk_client *, const char *buf, int)
+bool PSServer::OnReverseBuddies(mdk_client, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnOthersList(mdk_client *, const char *buf, int)
+bool PSServer::OnOthersList(mdk_client, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnUniqueSearch(mdk_client *stream, const char *buf, int)
+bool PSServer::OnUniqueSearch(mdk_client stream, const char *buf, int)
 {
 	char preferrednick[GP_NICK_LEN];
 	std::string sendmsg = "\\us\\7";
@@ -237,13 +237,13 @@ bool PSServer::OnUniqueSearch(mdk_client *stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnProfileList(mdk_client *, const char *buf, int)
+bool PSServer::OnProfileList(mdk_client, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnProductMatching(mdk_client *, const char *buf, int)
+bool PSServer::OnProductMatching(mdk_client, const char *buf, int)
 {
 	puts(buf);
 	return false;

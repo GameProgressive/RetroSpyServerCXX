@@ -17,7 +17,7 @@
 #ifndef RETROSPYCOMMON_STRINGSERVER_H
 #define RETROSPYCOMMON_STRINGSERVER_H
 
-#include <MasterServerMDK.h>
+#include <MDK/MasterServerMDK.h>
 
 /*
 	This class is a Server that handle generic
@@ -30,10 +30,10 @@ public:
 	~CStringServer();
 
 	/* See CServer::OnRead */
-	void OnRead(mdk_client* stream, const char *data, ssize_t size);
+	void OnRead(mdk_client stream, const char *data, ssize_t size);
 
 	/* See CServer::OnNewConnection */
-	virtual bool OnNewConnection(mdk_client* stream) = 0;
+	virtual bool OnNewConnection(mdk_client stream) = 0;
 
 	/*
 		Function: HandleRequest
@@ -45,7 +45,7 @@ public:
 			buf => The content of the request
 			size => The length of the content
 	*/
-	virtual bool HandleRequest(mdk_client *stream, const char *req, const char *buf, int size);
+	virtual bool HandleRequest(mdk_client stream, const char *req, const char *buf, int size);
 };
 
 #endif

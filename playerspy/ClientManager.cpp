@@ -14,7 +14,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <MasterServerMDK.h>
 #include "ClientManager.h"
 
 void CClientManager::Free()
@@ -46,7 +45,7 @@ void CClientManager::Delete(ClientMap::iterator it)
 	m_clients.erase(it);
 }
 
-bool CClientManager::CreateAndHandle(mdk_mysql *con, mdk_client *stream, const char *req, const char *buf, int len)
+bool CClientManager::CreateAndHandle(mdk_mysql con, mdk_client stream, const char *req, const char *buf, int len)
 {
 	ClientMap::iterator it;
 	CClient *c = NULL;
@@ -75,7 +74,7 @@ bool CClientManager::CreateAndHandle(mdk_mysql *con, mdk_client *stream, const c
 	return true;
 }
 
-bool CClientManager::Handle(mdk_mysql *con, mdk_client* stream, const char *req, const char*buf, int len)
+bool CClientManager::Handle(mdk_mysql con, mdk_client stream, const char *req, const char*buf, int len)
 {
 	ClientData *cc = Server::GetData(stream);
 	ClientMap::iterator it;

@@ -1,7 +1,7 @@
 #ifndef _RETROSPY_DEFINES_HEADER_
 #define _RETROSPY_DEFINES_HEADER_
 
-#include <MasterServerMDK.h>
+#include <MDK/MasterServerMDK.h>
 
 typedef enum _GPEnum
 {

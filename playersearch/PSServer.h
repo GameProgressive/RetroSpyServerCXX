@@ -25,27 +25,27 @@
 class PSServer : public CStringServer
 {
 public:
-	PSServer(mdk_mysql* con);
+	PSServer(mdk_mysql con);
 	~PSServer();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(mdk_client* stream);
+	bool OnNewConnection(mdk_client stream);
 
 	/* See CStringServer::HandleRequest */
-	bool HandleRequest(mdk_client *stream, const char *req, const char *buf, int size);
+	bool HandleRequest(mdk_client stream, const char *req, const char *buf, int size);
 
 private:
-	bool OnValid(mdk_client *stream, const char *buf, int size);
-	bool OnSendNicks(mdk_client *stream, const char *buf, int size);
-	bool OnCheckNicks(mdk_client *stream, const char *buf, int size);
-	bool OnSearchUsers(mdk_client *stream, const char *buf, int size);
-	bool OnReverseBuddies(mdk_client *stream, const char *buf, int size);
-	bool OnOthersList(mdk_client *stream, const char *buf, int size);
-	bool OnUniqueSearch(mdk_client *stream, const char *buf, int size);
-	bool OnProfileList(mdk_client *stream, const char *buf, int size);
-	bool OnProductMatching(mdk_client *stream, const char *buf, int size);
+	bool OnValid(mdk_client stream, const char *buf, int size);
+	bool OnSendNicks(mdk_client stream, const char *buf, int size);
+	bool OnCheckNicks(mdk_client stream, const char *buf, int size);
+	bool OnSearchUsers(mdk_client stream, const char *buf, int size);
+	bool OnReverseBuddies(mdk_client stream, const char *buf, int size);
+	bool OnOthersList(mdk_client stream, const char *buf, int size);
+	bool OnUniqueSearch(mdk_client stream, const char *buf, int size);
+	bool OnProfileList(mdk_client stream, const char *buf, int size);
+	bool OnProductMatching(mdk_client stream, const char *buf, int size);
 	
-	mdk_mysql *m_con;
+	mdk_mysql m_con;
 
 };
 

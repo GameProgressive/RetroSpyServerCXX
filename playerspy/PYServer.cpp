@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdio.h>
 
-PYServer::PYServer(mdk_mysql* con)
+PYServer::PYServer(mdk_mysql con)
 {
 	PYServer::server_id = 1;
 	strrnd(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -35,7 +35,7 @@ PYServer::~PYServer()
 	CClientManager::Free();
 }
 
-bool PYServer::HandleRequest(mdk_client *stream, const char *req, const char *buf, int size)
+bool PYServer::HandleRequest(mdk_client stream, const char *req, const char *buf, int size)
 {
 	if (_stricmp(req, "ka") == 0)
 	{
@@ -48,7 +48,7 @@ bool PYServer::HandleRequest(mdk_client *stream, const char *req, const char *bu
 	return true;
 }
 
-bool PYServer::OnNewConnection(mdk_client* stream)
+bool PYServer::OnNewConnection(mdk_client stream)
 {
 	char fch[45];
 	fch[0] = 0;

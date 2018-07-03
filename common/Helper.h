@@ -17,7 +17,7 @@
 #ifndef RETROSPYCOMMON_HELPER_H
 #define RETROSPYCOMMON_HELPER_H
 
-#include <MasterServerMDK.h>
+#include <MDK/MasterServerMDK.h>
 
 #include "Defines.h"
 
@@ -37,14 +37,14 @@ void gs_do_proof(char *out, const char *password, const char *token, const char 
 void hash_md5(const char *what, int len, char *out);
 
 // Database
-unsigned int GetProfileIDFromNickEmail(mdk_mysql* c, const char *nick, const char *email);
-void GetUniqueNickFromProfileID(mdk_mysql* c, unsigned int pid, char *unick, int size);
-unsigned int GetProfileIDFromUniqueNick(mdk_mysql* c, const char *unick);
-void GetPasswordFromUserID(mdk_mysql* c, char *out, int out_len, unsigned int id);
-unsigned int GetUserIDFromProfileID(mdk_mysql* c, unsigned int id);
-int AssignSessionKeyFromProfileID(mdk_mysql* c, unsigned int id);
-void FreeSessionKey(mdk_mysql* c, unsigned int profileid);
-bool GetProfileInfo(mdk_mysql* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
+unsigned int GetProfileIDFromNickEmail(mdk_mysql c, const char *nick, const char *email);
+void GetUniqueNickFromProfileID(mdk_mysql c, unsigned int pid, char *unick, int size);
+unsigned int GetProfileIDFromUniqueNick(mdk_mysql c, const char *unick);
+void GetPasswordFromUserID(mdk_mysql c, char *out, int out_len, unsigned int id);
+unsigned int GetUserIDFromProfileID(mdk_mysql c, unsigned int id);
+int AssignSessionKeyFromProfileID(mdk_mysql c, unsigned int id);
+void FreeSessionKey(mdk_mysql c, unsigned int profileid);
+bool GetProfileInfo(mdk_mysql c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
 
 //String
 bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *lpNick, int nick_size);
