@@ -38,10 +38,9 @@ RetroSpyModuleStart
 
 	Server = new PYServer(mm->mysql);
 
-	if (!Server->Bind(mm->loop, mm->ip, mm->port, false))
+	if (!Server->Bind(mm->ip, mm->port, false))
 		return ERROR_BIND_ERROR;
 
 	LOG_INFO("PlayerSpy", "Server started on %s:%d!", mm->ip, mm->port);
 
-	return ERROR_NONE;
 RetroSpyModuleEnd

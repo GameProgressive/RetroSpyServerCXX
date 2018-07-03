@@ -272,7 +272,7 @@ typedef struct
 #endif
 #endif
 #ifdef __cplusplus
-#define RetroSpyModuleEnd }}
+#define RetroSpyModuleEnd Server->Run(); return ERROR_NONE; }}
 #else
 #define RetroSpyModuleEnd }
 #endif
