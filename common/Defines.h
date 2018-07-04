@@ -259,6 +259,7 @@ typedef struct
 } GPIInfoCache;
 
 #if _WIN32 && _MSC_VER
+#include <Windows.h>
 #ifdef __cplusplus
 #define RetroSpyModuleStart extern "C" { __declspec(dllexport) int RetroSpyMain(void* data) {
 #else
@@ -274,6 +275,6 @@ typedef struct
 #ifdef __cplusplus
 #define RetroSpyModuleEnd Server->Run(); return ERROR_NONE; }}
 #else
-#define RetroSpyModuleEnd }
+#define RetroSpyModuleEnd return ERROR_NONE; }
 #endif
 #endif
