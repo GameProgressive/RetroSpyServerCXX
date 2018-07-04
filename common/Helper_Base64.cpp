@@ -173,7 +173,11 @@ void B64Encode(const char *input, char *output, int inlen, int encodingType)
 	//assume interval of 3
 	while (todo > 0)
 	{
+#ifdef _WIN32
+		TripToQuart(input, output, min(todo, 3));
+#else
 		TripToQuart(input, output, std::min(todo, 3));
+#endif
 		output += 4;
 		input += 3;
 		todo -= 3;
