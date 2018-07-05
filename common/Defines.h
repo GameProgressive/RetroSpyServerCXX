@@ -261,15 +261,15 @@ typedef struct
 #if _WIN32 && _MSC_VER
 #include <Windows.h>
 #ifdef __cplusplus
-#define RetroSpyModuleStart extern "C" { __declspec(dllexport) int RetroSpyMain(void* data) {
+#define RetroSpyModuleStart extern "C" { __declspec(dllexport) int MDKModule(void* data) {
 #else
-#define RetroSpyModuleStart __declspec(dllexport) int RetroSpyMain(void* data) {
+#define RetroSpyModuleStart __declspec(dllexport) int MDKModule(void* data) {
 #endif
 #else
 #ifdef __cplusplus
-#define RetroSpyModuleStart extern "C" { int RetroSpyMain(void* data) {
+#define RetroSpyModuleStart extern "C" { int MDKModule(void* data) {
 #else
-#define RetroSpyModuleStart int RetroSpyMain(void* data) {
+#define RetroSpyModuleStart int MDKModule(void* data) {
 #endif
 #endif
 #ifdef __cplusplus
