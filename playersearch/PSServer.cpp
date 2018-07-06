@@ -78,7 +78,10 @@ bool PSServer::OnValid(mdk_client client, const char *buf, int)
 		return false;
 	}
 
-	if (result->first())
+	if (!result->first())
+		Write(client, "\\vr\\0\\final\\");
+
+	if (result->getInt(0) < 1)
 		Write(client, "\\vr\\0\\final\\");
 	else
 		Write(client, "\\vr\\1\\final\\");

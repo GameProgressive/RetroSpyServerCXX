@@ -25,7 +25,7 @@ bool ExecuteFirstQuery(mdk_mysql c, ResultSet **res, std::string q)
 	if (!Database::RunDBQuery(c, q, res))
 		return false;
 
-	if ((*res)->first())
+	if (!(*res)->first())
 		return false;
 
 	return true;
@@ -136,7 +136,7 @@ unsigned int GetUserIDFromProfileID(mdk_mysql c, unsigned int id)
 
 	ret = res->getUInt(0);
 	delete res;
-	return (unsigned)std::stoi(query);
+	return (unsigned)atoi(query);
 }
 
 int AssignSessionKeyFromProfileID(mdk_mysql c, unsigned int profileid)

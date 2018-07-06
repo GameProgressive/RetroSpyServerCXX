@@ -222,8 +222,8 @@ bool CClient::HandleLogin(const char *buf, int)
 	char clientchall[GP_CLIENTCHALL_LEN];
 	char authtoken[GP_AUTHTOKEN_LEN];
 	char lt[GP_LOGIN_TICKET_LEN]; //TODO: Understand login ticket
-	char sendbuf[1025];
 	char proof[MD5_BUFFER_LEN];
+	char sendbuf[1101];
 
 	response[0] = clientchall[0] = sdkver[0] = unick[0] = user[0] = 0;
 	lt[0] = authtoken[0] = sendbuf[0] = password[0] = 0;
@@ -463,20 +463,21 @@ void CClient::SendBuddies()
 
 			if (it != m_buddies.end())
 			{
-				str += ",";	
+				str += ",";
 			}
 		}
 
 		Write(str);
-	}
 
-	it = m_buddies.begin();
 
-	while (it != m_buddies.end())
-	{
-		pid = *it;
-		SendBuddyInfo(pid);
-		it++;
+		it = m_buddies.begin();
+
+		while (it != m_buddies.end())
+		{
+			pid = *it;
+			SendBuddyInfo(pid);
+			it++;
+		}
 	}
 }
 
@@ -620,6 +621,7 @@ void CClient::SendMessages()
 		str += "\\msg\\";
 		str += res->getString(0);
 		str += "\\final\\";
+		Write(str);
 	} while (res->next());
 
 	delete res;
