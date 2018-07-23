@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 project("RetroSpyServer")
 
-option(WITH_MDK "Build MDK with this project")
+option(WITH_MDK "Build MDK from the local clone")
+
 
 # Add definitions for w32 build that dosen't support _WIN32 macro
 if (WIN32)
