@@ -23,10 +23,12 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <MDK/Utility.h>
+
 PYServer::PYServer(CDatabase* db)
 {
 	PYServer::server_id = 1;
-	strrnd(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	strrand(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	m_dbConnection = db;
 }
 
@@ -35,7 +37,7 @@ PYServer::~PYServer()
 	CClientManager::Free();
 }
 
-bool PYServer::HandleRequest(mdk_client stream, const char *req, const char *buf, int size)
+bool PYServer::HandleRequest(mdk_socket stream, const char *req, const char *buf, int size)
 {
 	if (_stricmp(req, "ka") == 0)
 	{
@@ -44,11 +46,11 @@ bool PYServer::HandleRequest(mdk_client stream, const char *req, const char *buf
 		return true;
 	}
 
-	CClientManager::Handle(m_con, stream, req, buf, size);
+	CClientManager::Handle(m_dbConnection, stream, req, buf, size);
 	return true;
 }
 
-bool PYServer::OnNewConnection(mdk_client stream)
+bool PYServer::OnNewConnection(mdk_socket stream, int)
 {
 	char fch[45];
 	fch[0] = 0;

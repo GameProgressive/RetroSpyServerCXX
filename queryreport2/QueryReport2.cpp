@@ -19,6 +19,9 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "QR2Server.h"
 
+#include <MDK/ModuleEntryPoint.h>
+#include <MDK/Utility.h>
+
 #define DEFAULT_PORT 27900
 
 RetroSpyModuleStart
@@ -28,13 +31,13 @@ RetroSpyModuleStart
 	if (mm->port == -1)
 		mm->port = DEFAULT_PORT;
 
-	if (mm->mysql == NULL)
+	if (mm->db == NULL)
 	{
-		LOG_ERROR("QueryReport2", "Unable to retrive MySQL connection!");
+		LOG_ERROR("QueryReport2", "Unable to retrive Database connection!");
 		return ERROR_MYSQL_POINTER;
 	}
 
-	Server = new QR2Server(mm->mysql);
+	Server = new QR2Server(mm->db);
 
 	if (!Server->Bind(mm->ip, mm->port, false))
 	return ERROR_BIND_ERROR;

@@ -20,6 +20,8 @@
 #include "Defines.h"
 #include <MDK/Database.h>
 
+#include <string>
+
 // Base64
 void B64Decode(const char *input, char *output, int inlen, int * outlen, int encodingType);
 void B64Encode(const char *input, char *output, int inlen, int encodingType);
@@ -31,6 +33,7 @@ int RandInt(int low, int high);
 
 // Helper
 void gs_pass_decode(const char *buf, char *out);
+void gs_pass_decode(std::string& string);
 void gs_make_valid(char *name);
 void gs_do_proof(char *out, const char *password, const char *token, const char *serverch, const char *clientch);
 void hash_md5(const char *what, int len, char *out);
@@ -50,6 +53,6 @@ bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *
 bool is_gs_valid(const char *base);
 int get_gs_req(const char *base, char *out, int max_size);
 char* get_gs_data(const char *base, const char *what, char *out, int max_size);
-std::string get_gs_data(std::string& string, const char* what);
+bool get_gs_data(std::string& string, const char* what);
 
 #endif

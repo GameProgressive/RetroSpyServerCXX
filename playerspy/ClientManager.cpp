@@ -45,25 +45,22 @@ void CClientManager::Delete(ClientMap::iterator it)
 	m_clients.erase(it);
 }
 
-bool CClientManager::CreateAndHandle(mdk_mysql con, mdk_client stream, const char *req, const char *buf, int len)
+bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, int len)
 {
 	ClientMap::iterator it;
 	CClient *c = NULL;
-	ClientData *cc = Server::GetData(stream);
-	if (!cc)
-		return false;
 
 	unsigned int i = m_clients.size();
 	
 	// Create che client
-	m_clients[i] = new CClient(stream, i, con);
+	m_clients[i] = new CClient(stream, i, db);
 
 	it = m_clients.begin();
 	std::advance(it, i);
 
 	c = it->second;
 
-	cc->SetUserData((void *)&c->m_vectorid);
+	CTemplateSocket::SetSocketExtraData(stream, (void *)&c->m_vectorid);
 
 	if (!c->Handle(req, buf, len))
 	{
@@ -74,22 +71,20 @@ bool CClientManager::CreateAndHandle(mdk_mysql con, mdk_client stream, const cha
 	return true;
 }
 
-bool CClientManager::Handle(mdk_mysql con, mdk_client stream, const char *req, const char*buf, int len)
+bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const char *req, const char*buf, int len)
 {
-	ClientData *cc = Server::GetData(stream);
+	void* socket = CTemplateSocket::GetSocketExtraData(stream);
 	ClientMap::iterator it;
-	if (!cc)
-		return false;
 
-	if (!cc->GetUserData())
+	if (!socket)
 		return CreateAndHandle(con, stream, req, buf, len); // Create the instance
 
-	it = m_clients.find(*((unsigned int *)cc->GetUserData()));
+	it = m_clients.find(*(unsigned int*)CTemplateSocket::GetSocketExtraData(stream));
 
 	// Invalid number, disconnect the client
 	if (it == m_clients.end())
 	{
-		cc->SetUserData(NULL);
+		CTemplateSocket::SetSocketExtraData(stream, NULL);
 		return false;
 	}
 

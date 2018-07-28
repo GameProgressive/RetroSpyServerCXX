@@ -17,6 +17,7 @@
 #include "PSServer.h"
 
 #include <MDK/Utility.h>
+#include <MDK/Query.h>
 
 #include <Helper.h>
 
@@ -55,33 +56,35 @@ bool PSServer::HandleRequest(mdk_socket stream, const char *req, const char *buf
 }
 
 // Unused
-bool PSServer::OnNewConnection(mdk_client) { return true; }
+bool PSServer::OnNewConnection(mdk_socket, int) { return true; }
 
-bool PSServer::OnValid(mdk_client client, const char *buf, int)
+bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 {
 	std::string buffer="";
 	std::string email = "";
-	ResultSet *result = NULL;
+	CResultSet *result = NULL;
 
 	if (!get_gs_data(email, "email"))
 	{
 		return false;
 	}
 
+	result = new CResultSet();
+
 	buffer = "SELECT COUNT(userid) FROM `users` WHERE `email` = '";
 	buffer += mdk_escape_query_string(m_dbConnection, email);
 	buffer += "'";
 
-	if (!Database::RunDBQuery(m_dbConnection, buffer, &result))
+	if (!result->ExecuteQuery(m_dbConnection, buffer))
 	{
 		delete result;
 		return false;
 	}
 
-	if (!result->first())
+	if (!result->GotoFirstRow())
 		Write(client, "\\vr\\0\\final\\");
 
-	if (result->getInt(0) < 1)
+	if (result->GetIntFromRow(0) < 1)
 		Write(client, "\\vr\\0\\final\\");
 	else
 		Write(client, "\\vr\\1\\final\\");
@@ -90,9 +93,9 @@ bool PSServer::OnValid(mdk_client client, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
+bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 {
-	std::string email = "", pass = "", gamename = "", passenc = "", str = "";
+	std::string email = "", pass = "", gamename = "", str = "";
 	bool bSendUnique = false;
 	size_t i = 0;
 	CResultSet *result = new CResultSet();
@@ -105,7 +108,7 @@ bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 	if (get_gs_data(pass, "passenc"))
 	{
 		// Uncrypt the password
-		gs_pass_decode(passenc, pass);
+		gs_pass_decode(pass);
 	}
 	else
 	{
@@ -132,7 +135,7 @@ bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 		return false;
 	}
 	
-	if (!result->first())
+	if (!result->GotoFirstRow())
 	{
 		delete result;
 		
@@ -154,7 +157,7 @@ bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 			str += "\\uniquenick\\";
 			str += result->GetStringFromRow(1);
 		}
-	} while(result->next());
+	} while(result->GotoNextRow());
 
 	str += "\\ndone\\final\\";
 
@@ -166,31 +169,31 @@ bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnCheckNicks(mdk_client, const char *buf, int)
+bool PSServer::OnCheckNicks(mdk_socket, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnSearchUsers(mdk_client, const char *buf, int)
+bool PSServer::OnSearchUsers(mdk_socket, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnReverseBuddies(mdk_client, const char *buf, int)
+bool PSServer::OnReverseBuddies(mdk_socket, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnOthersList(mdk_client, const char *buf, int)
+bool PSServer::OnOthersList(mdk_socket, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnUniqueSearch(mdk_client stream, const char *buf, int)
+bool PSServer::OnUniqueSearch(mdk_socket stream, const char *buf, int)
 {
 	char preferrednick[GP_NICK_LEN];
 	std::string sendmsg = "\\us\\7";
@@ -227,13 +230,13 @@ bool PSServer::OnUniqueSearch(mdk_client stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnProfileList(mdk_client, const char *buf, int)
+bool PSServer::OnProfileList(mdk_socket, const char *buf, int)
 {
 	puts(buf);
 	return false;
 }
 
-bool PSServer::OnProductMatching(mdk_client, const char *buf, int)
+bool PSServer::OnProductMatching(mdk_socket, const char *buf, int)
 {
 	puts(buf);
 	return false;

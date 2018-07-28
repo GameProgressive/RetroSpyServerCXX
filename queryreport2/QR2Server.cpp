@@ -16,21 +16,21 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "QR2Server.h"
 
-QR2Server::QR2Server(mdk_mysql con)
+QR2Server::QR2Server(CDatabase* db)
 {
-	m_con = con;
+	m_dbConnect = db;
 }
 
 QR2Server::~QR2Server()
 {
 }
 
-void QR2Server::OnRead(mdk_client client, const char *data, ssize_t size)
+void QR2Server::OnRead(mdk_socket client, const char *data, ssize_t size)
 {
 	puts(data);
 }
 
-bool QR2Server::OnNewConnection(mdk_client stream)
+bool QR2Server::OnNewConnection(mdk_socket stream, int)
 {
 
 	return true;

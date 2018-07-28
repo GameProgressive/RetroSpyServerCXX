@@ -18,6 +18,9 @@
 
 #include "PYServer.h"
 
+#include <MDK/Utility.h>
+#include <MDK/ModuleEntryPoint.h>
+
 #define DEFAULT_PORT 29900
 
 /* Entry point for GPSP server */
@@ -28,13 +31,13 @@ RetroSpyModuleStart
 	if (mm->port == -1)
 		mm->port = DEFAULT_PORT;
 	
-	if (mm->mysql == NULL)
+	if (mm->db == NULL)
 	{
-		LOG_ERROR("PlayerSpy", "Unable to retrive MySQL connection!");
+		LOG_ERROR("PlayerSpy", "Unable to retrive Database connection!");
 		return ERROR_MYSQL_POINTER;
 	}
 
-	Server = new PYServer(mm->mysql);
+	Server = new PYServer(mm->db);
 
 	if (!Server->Bind(mm->ip, mm->port, false))
 		return ERROR_BIND_ERROR;

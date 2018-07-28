@@ -43,6 +43,22 @@ void gs_pass_decode(const char *in, char *out)
 	out[out_len] = '\0';
 }
 
+void gs_pass_decode(std::string& str)
+{
+	int pass_len = str.length(), out_len = B64DecodeLen(str.c_str(), 1), i = 0;
+	char* out = (char*)malloc(out_len + 1);
+
+	RandSeed(GP_XOR_SEED);
+	B64Decode(str.c_str(), out, pass_len, &out_len, 1);
+
+	for (; i < out_len; i++)
+		out[i] ^= (char)(RandInt(0, 0xFF));
+
+	out[out_len] = '\0';
+
+	str = out;
+}
+
 bool charValid(char ch)
 {
 	int i = 0;
@@ -103,7 +119,6 @@ void gs_do_proof(char *out, const char *password, const char *token, const char 
 	/* Hash the buffer */
 	hash_md5(buffer, strlen(buffer), out);
 }
-
 
 bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *lpNick, int nick_size)
 {
@@ -177,6 +192,13 @@ int get_gs_req(const char *base, char *out, int max_size)
 		return pos + 2; /* Double slash handling */
 
 	return pos + 1;
+}
+
+bool get_gs_data(std::string& string, const char* what)
+{
+	char possible[1024];
+	if (!get_gs_data(string.c_str(), what, possible, 1024))
+		return false;
 }
 
 char* get_gs_data(const char *base, const char *what, char *out, int max_size)

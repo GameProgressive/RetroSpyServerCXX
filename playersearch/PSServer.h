@@ -30,7 +30,7 @@ public:
 	~PSServer();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(mdk_socket stream);
+	bool OnNewConnection(mdk_socket stream, int status);
 
 	/* See CStringServer::HandleRequest */
 	bool HandleRequest(mdk_socket stream, const char *req, const char *buf, int size);

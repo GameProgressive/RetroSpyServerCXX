@@ -17,6 +17,9 @@
 #include "Defines.h"
 #include <stdio.h>
 
+#include <MDK/ModuleEntryPoint.h>
+#include <MDK/Utility.h>
+
 #include "PSServer.h"
 
 #define DEFAULT_PORT 29901
@@ -29,13 +32,13 @@ RetroSpyModuleStart
 	if (mm->port == -1)
 		mm->port = DEFAULT_PORT;
 	
-	if (mm->mysql == NULL)
+	if (mm->db == NULL)
 	{
-		LOG_ERROR("PlayerSearch", "Unable to retrive MySQL connection!");
+		LOG_ERROR("PlayerSearch", "Unable to retrive Database connection!");
 		return ERROR_MYSQL_POINTER;
 	}
 
-	Server = new PSServer(mm->mysql);
+	Server = new PSServer(mm->db);
 
 	if (!Server->Bind(mm->ip, mm->port, false))
 		return ERROR_BIND_ERROR;
