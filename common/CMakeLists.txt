@@ -8,8 +8,8 @@ set(SOURCES
 	${CMAKE_CURRENT_LIST_DIR}/Helper_Random.cpp
 	${CMAKE_CURRENT_LIST_DIR}/md5.c
 	${CMAKE_CURRENT_LIST_DIR}/md5.h
-	${CMAKE_CURRENT_LIST_DIR}/StringServer.cpp
-	${CMAKE_CURRENT_LIST_DIR}/StringServer.h
+	${CMAKE_CURRENT_LIST_DIR}/TemplateStringServer.cpp
+	${CMAKE_CURRENT_LIST_DIR}/TemplateStringServer.h
 )
 
 add_library(RetroSpyCommon STATIC ${SOURCES})

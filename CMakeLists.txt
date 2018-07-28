@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project("RetroSpyServer")
 
-option(WITH_MDK "Build MDK with this project")
-
 # Add definitions for w32 build that dosen't support _WIN32 macro
 if (WIN32)
 	add_definitions("-DWIN32 -D__WIN32__")
@@ -18,13 +16,8 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-## Module Development Kit
-if (WITH_MDK)
-add_subdirectory("MDK")
-include_directories("MDK/include")
-endif()
-
 # RetroSpy projects
 add_subdirectory("common")
 add_subdirectory("playersearch")
 add_subdirectory("playerspy")
+add_subdirectory("query_report")

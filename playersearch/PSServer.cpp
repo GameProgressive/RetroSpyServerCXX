@@ -16,18 +16,20 @@
 */
 #include "PSServer.h"
 
+#include <MDK/Utility.h>
+
 #include <Helper.h>
 
 #include <string.h>
 #include <stdio.h>
 
-PSServer::PSServer(mdk_mysql con)
+PSServer::PSServer(CDatabase* db)
 {
-	m_con = con;
+	m_dbConnection = db;
 }
 PSServer::~PSServer() {}
 
-bool PSServer::HandleRequest(mdk_client stream, const char *req, const char *buf, int size)
+bool PSServer::HandleRequest(mdk_socket stream, const char *req, const char *buf, int size)
 {
 	if (_stricmp(req, "valid") == 0)
 		return OnValid(stream, buf, size);
@@ -58,21 +60,19 @@ bool PSServer::OnNewConnection(mdk_client) { return true; }
 bool PSServer::OnValid(mdk_client client, const char *buf, int)
 {
 	std::string buffer="";
-	char email[GP_EMAIL_LEN];
+	std::string email = "";
 	ResultSet *result = NULL;
 
-	email[0] = 0;
-
-	if (!get_gs_data(buf, "email", email, sizeof(email)))
+	if (!get_gs_data(email, "email"))
 	{
 		return false;
 	}
 
 	buffer = "SELECT COUNT(userid) FROM `users` WHERE `email` = '";
-	buffer += Database::EscapeSQLString(m_con, email);
+	buffer += mdk_escape_query_string(m_dbConnection, email);
 	buffer += "'";
 
-	if (!Database::RunDBQuery(m_con, buffer, &result))
+	if (!Database::RunDBQuery(m_dbConnection, buffer, &result))
 	{
 		delete result;
 		return false;
@@ -92,49 +92,39 @@ bool PSServer::OnValid(mdk_client client, const char *buf, int)
 
 bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 {
-	char email[GP_EMAIL_LEN];
-	char pass[GP_PASSWORD_LEN];
-	char gamename[GS_GAMENAME_LEN];
-	char passenc[GP_PASSWORDENC_LEN];
-
-	std::string str = "";
-
+	std::string email = "", pass = "", gamename = "", passenc = "", str = "";
 	bool bSendUnique = false;
-	
 	size_t i = 0;
-
-	ResultSet *result = NULL;
-
-	gamename[0] = pass[0] = email[0] = passenc[0] = 0;
+	CResultSet *result = new CResultSet();
 
 	// Get data from buffer
 
-	if (!get_gs_data(buf, "email", email, sizeof(email)))
+	if (!get_gs_data(email, "email"))
 		return false;
 
-	if (get_gs_data(buf, "passenc", passenc, sizeof(passenc)))
+	if (get_gs_data(pass, "passenc"))
 	{
 		// Uncrypt the password
 		gs_pass_decode(passenc, pass);
 	}
 	else
 	{
-		if (!get_gs_data(buf, "pass", pass, sizeof(pass)))
+		if (!get_gs_data(pass, "pass"))
 			return false;
 	}
 
-	if (get_gs_data(buf, "gamename", gamename, sizeof(gamename)))
+	if (get_gs_data(gamename, "gamename"))
 		bSendUnique = true;
 
 	// Create the query and execute it
 	str = "SELECT profiles.nick, profiles.uniquenick FROM profiles INNER "
 		"JOIN users ON profiles.userid=users.userid WHERE users.email='";
-	str += Database::EscapeSQLString(m_con, email);
+	str += mdk_escape_query_string(m_dbConnection, email);
 	str += "' AND password='";
-	str += Database::EscapeSQLString(m_con, pass);
+	str += mdk_escape_query_string(m_dbConnection, pass);
 	str += "'";
 
-	if (!Database::RunDBQuery(m_con, str, &result))
+	if (!result->ExecuteQuery(m_dbConnection, str))
 	{
 		delete result;
 		
@@ -151,21 +141,18 @@ bool PSServer::OnSendNicks(mdk_client stream, const char *buf, int)
 		
 	}
 
-	// We use gamename to avoid big memory usage
-	_snprintf_s(gamename, sizeof(gamename), sizeof(gamename) - 1, "\\nr\\%d", result->getRows());
-
-	str = gamename;
+	str = "\\nr\\" + std::to_string(result->GetTotalRows());
 
 	// Get all the nicks and store them
 	do
 	{
 		str += "\\nick\\";
-		str += result->getString(0);
+		str += result->GetStringFromRow(0);
 
 		if (bSendUnique)
 		{
 			str += "\\uniquenick\\";
-			str += result->getString(1);
+			str += result->GetStringFromRow(1);
 		}
 	} while(result->next());
 

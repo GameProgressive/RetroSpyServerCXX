@@ -17,9 +17,8 @@
 #ifndef RETROSPYCOMMON_HELPER_H
 #define RETROSPYCOMMON_HELPER_H
 
-#include <MDK/MasterServerMDK.h>
-
 #include "Defines.h"
+#include <MDK/Database.h>
 
 // Base64
 void B64Decode(const char *input, char *output, int inlen, int * outlen, int encodingType);
@@ -37,19 +36,20 @@ void gs_do_proof(char *out, const char *password, const char *token, const char 
 void hash_md5(const char *what, int len, char *out);
 
 // Database
-unsigned int GetProfileIDFromNickEmail(mdk_mysql c, const char *nick, const char *email);
-void GetUniqueNickFromProfileID(mdk_mysql c, unsigned int pid, char *unick, int size);
-unsigned int GetProfileIDFromUniqueNick(mdk_mysql c, const char *unick);
-void GetPasswordFromUserID(mdk_mysql c, char *out, int out_len, unsigned int id);
-unsigned int GetUserIDFromProfileID(mdk_mysql c, unsigned int id);
-int AssignSessionKeyFromProfileID(mdk_mysql c, unsigned int id);
-void FreeSessionKey(mdk_mysql c, unsigned int profileid);
-bool GetProfileInfo(mdk_mysql c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
+unsigned int GetProfileIDFromNickEmail(CDatabase* c, const char *nick, const char *email);
+void GetUniqueNickFromProfileID(CDatabase* c, unsigned int pid, char *unick, int size);
+unsigned int GetProfileIDFromUniqueNick(CDatabase* c, const char *unick);
+void GetPasswordFromUserID(CDatabase* c, char *out, int out_len, unsigned int id);
+unsigned int GetUserIDFromProfileID(CDatabase* c, unsigned int id);
+int AssignSessionKeyFromProfileID(CDatabase* c, unsigned int id);
+void FreeSessionKey(CDatabase* c, unsigned int profileid);
+bool GetProfileInfo(CDatabase* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
 
 //String
 bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *lpNick, int nick_size);
 bool is_gs_valid(const char *base);
 int get_gs_req(const char *base, char *out, int max_size);
 char* get_gs_data(const char *base, const char *what, char *out, int max_size);
+std::string get_gs_data(std::string& string, const char* what);
 
 #endif

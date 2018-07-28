@@ -18,22 +18,23 @@
 #define GPCMSERVER_H
 
 #include <Defines.h>
-#include <StringServer.h>
+#include <TemplateStringServer.h>
+#include <MDK/Database.h>
 
 /*
 	This class rappresents a Player Search server
 */
-class PYServer : public CStringServer
+class PYServer : public CTemplateStringServer
 {
 public:
-	PYServer(mdk_mysql con);
+	PYServer(CDatabase* db);
 	~PYServer();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(mdk_mysql stream);
+	bool OnNewConnection(mdk_socket stream, int status);
 
 	/* See CStringServer::HandleRequest */
-	bool HandleRequest(mdk_mysql stream, const char *req, const char *buf, int size);
+	bool HandleRequest(mdk_socket stream, const char *req, const char *buf, int size);
 
 	static int GetServerID();
 	static const char *GetServerChallenge();
@@ -41,7 +42,7 @@ public:
 private:
 	static char server_challenge[GP_SERVERCHALL_LEN];
 	static int server_id;
-	mdk_mysql m_con;
+	CDatabase* m_dbConnection;
 };
 
 #endif

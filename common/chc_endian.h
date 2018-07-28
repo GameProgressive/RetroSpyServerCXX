@@ -18,7 +18,7 @@
 #define _CHC_ENDIAN_INC
 
 // Changed to msstdint
-#include <MDK/msstdint.h>
+#include <MDK/mdkstdint.h>
 
 //now obviously madness like this isn't used often(who would need invert_bytes for example) a lot of its just for fun and no cpu i've heard of uses such a byte order, but its still included into this header
 uint32_t little_to_middle(uint32_t x);

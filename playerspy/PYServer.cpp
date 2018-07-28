@@ -23,11 +23,11 @@
 #include <string.h>
 #include <stdio.h>
 
-PYServer::PYServer(mdk_mysql con)
+PYServer::PYServer(CDatabase* db)
 {
 	PYServer::server_id = 1;
 	strrnd(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	m_con = con;
+	m_dbConnection = db;
 }
 
 PYServer::~PYServer()
