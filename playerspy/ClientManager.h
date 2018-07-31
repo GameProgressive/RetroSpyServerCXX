@@ -19,6 +19,8 @@
 
 #include "Client.h"
 
+#include <MDK/TemplateServer.h>
+
 #include <map>
 
 typedef std::map<unsigned int, CClient*> ClientMap;
@@ -37,7 +39,7 @@ private:
 	static ClientMap m_clients;
 
 private:
-	static void Delete(ClientMap::iterator it);
+	static void Delete(ClientMap::iterator ss);
 	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, int len);
 };
 

@@ -64,7 +64,7 @@ bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 	std::string email = "";
 	CResultSet *result = NULL;
 
-	if (!get_gs_data(email, "email"))
+	if (!get_gs_data(buf, email, "email"))
 	{
 		return false;
 	}
@@ -72,7 +72,12 @@ bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 	result = new CResultSet();
 
 	buffer = "SELECT COUNT(userid) FROM `users` WHERE `email` = '";
-	buffer += mdk_escape_query_string(m_dbConnection, email);
+	if (!mdk_escape_query_string(m_dbConnection, email))
+	{
+		delete result;
+		return false;
+	}
+	buffer += email;
 	buffer += "'";
 
 	if (!result->ExecuteQuery(m_dbConnection, buffer))
@@ -98,34 +103,42 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 	std::string email = "", pass = "", gamename = "", str = "";
 	bool bSendUnique = false;
 	size_t i = 0;
-	CResultSet *result = new CResultSet();
+	CResultSet *result = NULL;
 
 	// Get data from buffer
 
-	if (!get_gs_data(email, "email"))
+	if (!get_gs_data(buf, email, "email"))
 		return false;
 
-	if (get_gs_data(pass, "passenc"))
+	if (get_gs_data(buf, pass, "passenc"))
 	{
 		// Uncrypt the password
 		gs_pass_decode(pass);
 	}
 	else
 	{
-		if (!get_gs_data(pass, "pass"))
+		if (!get_gs_data(buf, pass, "pass"))
 			return false;
 	}
 
-	if (get_gs_data(gamename, "gamename"))
+	if (get_gs_data(buf, gamename, "gamename"))
 		bSendUnique = true;
 
 	// Create the query and execute it
 	str = "SELECT profiles.nick, profiles.uniquenick FROM profiles INNER "
 		"JOIN users ON profiles.userid=users.userid WHERE users.email='";
-	str += mdk_escape_query_string(m_dbConnection, email);
+	if (!mdk_escape_query_string(m_dbConnection, email))
+		return false;
+
+	str += email;
 	str += "' AND password='";
-	str += mdk_escape_query_string(m_dbConnection, pass);
+	if (!mdk_escape_query_string(m_dbConnection, pass))
+		return false;
+
+	str += pass;
 	str += "'";
+
+	result = new CResultSet();
 
 	if (!result->ExecuteQuery(m_dbConnection, str))
 	{

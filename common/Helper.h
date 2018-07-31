@@ -41,9 +41,9 @@ void hash_md5(const char *what, int len, char *out);
 // Database
 unsigned int GetProfileIDFromNickEmail(CDatabase* c, const char *nick, const char *email);
 void GetUniqueNickFromProfileID(CDatabase* c, unsigned int pid, char *unick, int size);
-unsigned int GetProfileIDFromUniqueNick(CDatabase* c, const char *unick);
+bool GetProfileIDFromUniqueNick(CDatabase* db, const char *unick, unsigned int* out);
 void GetPasswordFromUserID(CDatabase* c, char *out, int out_len, unsigned int id);
-unsigned int GetUserIDFromProfileID(CDatabase* c, unsigned int id);
+unsigned int GetUserIDFromProfileID(CDatabase* db, unsigned int id, unsigned int* out);
 int AssignSessionKeyFromProfileID(CDatabase* c, unsigned int id);
 void FreeSessionKey(CDatabase* c, unsigned int profileid);
 bool GetProfileInfo(CDatabase* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
@@ -53,6 +53,6 @@ bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *
 bool is_gs_valid(const char *base);
 int get_gs_req(const char *base, char *out, int max_size);
 char* get_gs_data(const char *base, const char *what, char *out, int max_size);
-bool get_gs_data(std::string& string, const char* what);
+bool get_gs_data(std::string base, std::string& out, const char* what);
 
 #endif

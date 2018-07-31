@@ -28,18 +28,18 @@
 #include <string>
 
 
-CClient::CClient(mdk_socket stream, unsigned int vid, CDatabase* db)
+CClient::CClient(mdk_socket stream, unsigned int vector_id, CDatabase* db)
 {
 	m_stream = stream;
-	m_vectorid = vid;
 	m_dbConnect = db;
 
 	m_email[0] = m_location[0] = 0;
 	m_profileid = m_userid = m_sesskey = m_partnerid = 0;
 	m_sdkversion = 0;
 	m_port = 0;
+	m_vector_id = vector_id;
 	m_status_type = m_quiet_flags = GP_ERROR;
-	m_SentBuddies = m_SentAddRequests = false;
+	m_SentBuddies = m_SentAddRequests = m_bLogged = false;
 
 	m_ip = CTemplateServer::GetIPFromSocket(stream);
 
@@ -57,61 +57,8 @@ void CClient::Disconnect()
 		FreeSessionKey(m_dbConnect, m_profileid);
 
 	m_profileid = 0;
-}
-
-unsigned int CClient::GetUserID()
-{
-	return m_userid;
-}
-
-unsigned int CClient::GetProfileID()
-{
-	return m_profileid;
-}
-
-short CClient::GetPort()
-{
-	return m_port;
-}
- 
-int CClient::GetSDKVersion()
-{
-	return m_sdkversion;
-}
-
-int CClient::GetPartnerID()
-{
-	return m_partnerid;
-}
-
-int CClient::GetIP()
-{
-	return m_ip;
-}
-
-time_t CClient::GetLastPacket()
-{
-	return m_lastpacket;
-}
-
-GPEnum CClient::GetQuietFlags()
-{
-	return m_quiet_flags;
-}
-
-GPEnum CClient::GetStatusType()
-{
-	return m_status_type;
-}
-
-const char *CClient::GetStatus()
-{
-	return m_status;
-}
-
-const char *CClient::GetLocation()
-{
-	return m_location;
+	m_userid = 0;
+	m_bLogged = false;
 }
 
 bool CClient::HasBuddy(CClient *c)
@@ -193,7 +140,7 @@ bool CClient::Handle(const char *req, const char *buf, int len)
 	else if (strcmp(req, "inviteto") == 0)
 		return HandleInviteTo(buf, len);
 
-	if (m_userid == 0)
+	if (m_bLogged == 0)
 	{
 		return false;
 	}
@@ -225,7 +172,7 @@ bool CClient::HandleLogin(const char *buf, int)
 	char response[33];
 	char clientchall[GP_CLIENTCHALL_LEN];
 	char authtoken[GP_AUTHTOKEN_LEN];
-	char lt[GP_LOGIN_TICKET_LEN]; //TODO: Understand login ticket
+	char lt[GP_LOGIN_TICKET_LEN];
 	char proof[MD5_BUFFER_LEN];
 	char sendbuf[1101];
 
@@ -298,21 +245,23 @@ bool CClient::HandleLogin(const char *buf, int)
 	{
 		// Login with uniquenick
 
-		m_profileid = GetProfileIDFromUniqueNick(m_dbConnect,  unick);
-
-		if (m_profileid == 0)
+		if (!GetProfileIDFromUniqueNick(m_dbConnect, unick, &m_profileid))
 			return false;
 	}
 
 	// Assign the remaining data key
-	m_userid = GetUserIDFromProfileID(m_dbConnect, m_profileid);
+	if (!GetUserIDFromProfileID(m_dbConnect, m_profileid, &m_userid))
+		return true;
+
 	m_sesskey = AssignSessionKeyFromProfileID(m_dbConnect, m_profileid);
 	GetPasswordFromUserID(m_dbConnect, password, sizeof(password), m_userid);
 
 	// Set login ticket
-	strrand(lt, sizeof(lt), "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ][");
-	lt[GP_LOGIN_TICKET_LEN - 1] = '_';
-	lt[GP_LOGIN_TICKET_LEN - 2] = '_';
+	strrand(sendbuf, GP_LOGIN_TICKET_LEN, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ][");
+	sendbuf[GP_LOGIN_TICKET_LEN - 3] = '_';
+	sendbuf[GP_LOGIN_TICKET_LEN - 2] = '_';
+	sendbuf[GP_LOGIN_TICKET_LEN - 1] = '\0';
+	strncpy_s(lt, sizeof(lt), sendbuf, GP_LOGIN_TICKET_LEN);
 
 	// Do proof
 	gs_do_proof(proof, password, authtoken, PYServer::GetServerChallenge(), clientchall);
@@ -330,6 +279,8 @@ bool CClient::HandleLogin(const char *buf, int)
 
 	if (m_sdkversion & GPI_NEW_LIST_RETRIEVAL_ON_LOGIN)
 		SendBuddies();
+
+	m_bLogged = true;
 
 	return true;
 }

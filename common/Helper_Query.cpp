@@ -43,9 +43,13 @@ unsigned int GetProfileIDFromNickEmail(CDatabase* db, const char *nick, const ch
 	query = "SELECT profiles.profileid FROM profiles INNER JOIN"
 			" users ON profiles.userid=users.userid WHERE"
 			" users.email='";
-	query += mdk_escape_query_string(db, _email);
+	if (!mdk_escape_query_string(db, _email))
+		return false;
+	query += _email;
 	query += "' AND profiles.nick='";
-	query += mdk_escape_query_string(db, _nick);
+	if (!mdk_escape_query_string(db, _nick))
+		return false;
+	query += _nick;
 	query += "'";
 
 	if (!ExecuteFirstQuery(db, res, query))
@@ -80,26 +84,30 @@ void GetUniqueNickFromProfileID(CDatabase* db, unsigned int pid, char *unick, in
 	delete res;
 }
 
-unsigned int GetProfileIDFromUniqueNick(CDatabase* db, const char *unick)
+bool GetProfileIDFromUniqueNick(CDatabase* db, const char *unick, unsigned int* out)
 {
 	std::string query = "", _unick = unick;
 	CResultSet *res = new CResultSet();
-	unsigned int ret = 0;
 
 	query = "SELECT profileid FROM profiles WHERE uniquenick='";
-	query += mdk_escape_query_string(db, _unick);
+	if (!mdk_escape_query_string(db, _unick))
+	{
+		delete res;
+		return false;
+	}
+	query += _unick;
 	query += "'";
 
 	if (!ExecuteFirstQuery(db, res, query))
 	{
 		delete res;
-		return ret;
+		return false;
 	}
 
-	ret = res->GetUIntFromRow(0);
+	*out = res->GetUIntFromRow(0);
 
 	delete res;
-	return ret;
+	return true;
 }
 
 void GetPasswordFromUserID(CDatabase* db, char *out, int out_len, unsigned int id)
@@ -121,7 +129,7 @@ void GetPasswordFromUserID(CDatabase* db, char *out, int out_len, unsigned int i
 	delete res;
 }
 
-unsigned int GetUserIDFromProfileID(CDatabase* db, unsigned int id)
+unsigned int GetUserIDFromProfileID(CDatabase* db, unsigned int id, unsigned int* out)
 {
 	CResultSet *res = new CResultSet();
 	char query[61];
@@ -133,12 +141,14 @@ unsigned int GetUserIDFromProfileID(CDatabase* db, unsigned int id)
 	if (!ExecuteFirstQuery(db, res, query))
 	{
 		delete res;
-		return ret;
+		return false;
 	}
 
 	ret = res->GetUIntFromRow(0);
+	*out = ret;
+
 	delete res;
-	return (unsigned)atoi(query);
+	return true;
 }
 
 int AssignSessionKeyFromProfileID(CDatabase* db, unsigned int profileid)

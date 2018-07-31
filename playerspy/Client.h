@@ -32,13 +32,8 @@
 class CClient
 {
 public:
-	CClient(mdk_socket stream, unsigned int vid, CDatabase* db);
+	CClient(mdk_socket stream, unsigned int vector_id, CDatabase* db);
 	~CClient();
-
-	unsigned int GetUserID();
-	unsigned int GetProfileID();
-
-	time_t GetLastPacket();
 
 	bool HasBuddy(CClient *c);
 	bool HasBuddy(unsigned int id);
@@ -48,31 +43,38 @@ public:
 
 	void SendBuddyStatus(CClient *c);
 
-	int GetPartnerID();
-
 	bool ProductInviteable(unsigned int pid);
 
 	bool Handle(const char *req, const char *buf, int len);
 
-	short GetPort();
-	int GetIP();
+	inline unsigned int GetUserID() { return m_userid; }
+	inline unsigned int GetProfileID() { return m_profileid; }
+
+	inline time_t GetLastPacket() { return m_lastpacket; }
+
+	inline int GetPartnerID() { return m_partnerid; }
+
+	inline short GetPort() { return m_port; }
+	inline int GetIP() { return m_ip; }
 	
-	int GetSDKVersion();
+	inline int GetSDKVersion() { return m_sdkversion; }
 
-	GPEnum GetStatusType();
-	const char *GetStatus();
+	inline GPEnum GetStatusType() { return m_status_type; }
+	inline const char *GetStatus() { return m_status; }
 
-	GPEnum GetQuietFlags();
+	inline GPEnum GetQuietFlags() { return m_quiet_flags; }
 
-	const char *GetLocation();
+	inline const char *GetLocation() { return m_location; }
+
+	inline mdk_socket GetSocket() { return m_stream; }
+
+	inline unsigned int GetVectorID() { return m_vector_id; }
 
 	void Disconnect();
 
 	// Operator overload
 	bool operator==(CClient& c);
 	bool operator!=(CClient& c);
-
-	unsigned int m_vectorid;
 
 private:
 	char m_email[GP_EMAIL_LEN];
@@ -81,6 +83,8 @@ private:
 	unsigned int m_userid;
 
 	unsigned int m_sesskey;
+
+	unsigned int m_vector_id;
 
 	mdk_socket m_stream;
 
@@ -102,6 +106,7 @@ private:
 
 	bool m_SentBuddies;
 	bool m_SentAddRequests;
+	bool m_bLogged;
 
 	std::list<unsigned int> m_blocked;
 	std::list<unsigned int> m_buddies;

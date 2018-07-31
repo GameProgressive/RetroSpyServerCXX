@@ -194,11 +194,14 @@ int get_gs_req(const char *base, char *out, int max_size)
 	return pos + 1;
 }
 
-bool get_gs_data(std::string& string, const char* what)
+bool get_gs_data(std::string input, std::string& out, const char* what)
 {
 	char possible[1024];
-	if (!get_gs_data(string.c_str(), what, possible, 1024))
+	if (!get_gs_data(input.c_str(), what, possible, 1024))
 		return false;
+
+	out = possible;
+	return true;
 }
 
 char* get_gs_data(const char *base, const char *what, char *out, int max_size)

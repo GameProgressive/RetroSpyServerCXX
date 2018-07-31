@@ -16,6 +16,8 @@
 */
 #include "ClientManager.h"
 
+#include <TemplateStringServer.h>
+
 void CClientManager::Free()
 {
 	ClientMap::iterator it = m_clients.begin();
@@ -26,33 +28,36 @@ void CClientManager::Free()
 		if (it->second)
 			delete it->second;
 
-		m_clients.erase(it);
-
 		it++;
 	}
+
+	m_clients.clear();
 }
 
 void CClientManager::Delete(ClientMap::iterator it)
 {
+	CTemplateServer* server = NULL;
+
 	if (it == m_clients.end())
 		return;
 
-	if (it->second)
-	{
-		delete it->second;
-	}
-
 	m_clients.erase(it);
+
+	if (!it->second)
+		return;
+
+	CTemplateSocket::GetSocketExtraData(it->second->GetSocket())->SetData(NULL);
+
+	delete (it->second);
 }
 
 bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, int len)
 {
-	ClientMap::iterator it;
-	CClient *c = NULL;
-
-	unsigned int i = m_clients.size();
-	
 	// Create che client
+	ClientMap::iterator it;
+	CClient* c = NULL;
+	unsigned int i = m_clients.size();
+
 	m_clients[i] = new CClient(stream, i, db);
 
 	it = m_clients.begin();
@@ -60,7 +65,7 @@ bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const cha
 
 	c = it->second;
 
-	CTemplateSocket::SetSocketExtraData(stream, (void *)&c->m_vectorid);
+	CTemplateSocket::GetSocketExtraData(stream)->SetData((void*)c->GetVectorID());
 
 	if (!c->Handle(req, buf, len))
 	{
@@ -73,20 +78,16 @@ bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const cha
 
 bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const char *req, const char*buf, int len)
 {
-	void* socket = CTemplateSocket::GetSocketExtraData(stream);
 	ClientMap::iterator it;
+	unsigned int i = 0;
 
-	if (!socket)
+	if (CTemplateSocket::GetSocketExtraData(stream)->GetData() == NULL)
 		return CreateAndHandle(con, stream, req, buf, len); // Create the instance
 
-	it = m_clients.find(*(unsigned int*)CTemplateSocket::GetSocketExtraData(stream));
+	it = m_clients.find((unsigned int)CTemplateSocket::GetSocketExtraData(stream)->GetData());
 
-	// Invalid number, disconnect the client
 	if (it == m_clients.end())
-	{
-		CTemplateSocket::SetSocketExtraData(stream, NULL);
 		return false;
-	}
 
 	// Handle our client
 	if (!it->second->Handle(req, buf, len))
