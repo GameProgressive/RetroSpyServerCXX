@@ -41,14 +41,14 @@ void CClientManager::Delete(ClientMap::iterator it)
 	if (it == m_clients.end())
 		return;
 
-	m_clients.erase(it);
-
 	if (!it->second)
 		return;
 
 	CTemplateSocket::GetSocketExtraData(it->second->GetSocket())->SetData(NULL);
 
 	delete (it->second);
+
+	m_clients.erase(it);
 }
 
 bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, int len)
