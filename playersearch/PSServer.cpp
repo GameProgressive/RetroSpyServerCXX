@@ -194,10 +194,64 @@ bool PSServer::OnSearchUsers(mdk_socket, const char *buf, int)
 	return false;
 }
 
-bool PSServer::OnReverseBuddies(mdk_socket, const char *buf, int)
+bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 {
-	puts(buf);
-	return false;
+	/*
+		GP_MASK_EMAIL       = 0x00000020,
+	*/
+	CResultSet* rs = NULL;
+	std::string query = "";
+	unsigned int profileid = 0;
+
+	if (!get_gs_data(buf, query, "profileid"))
+		return false;
+
+	profileid = (unsigned int)std::stol(query);
+
+	query = "SELECT profiles.profileid, nick, uniquenick, firstname, lastname, users.email, publicmask FROM profiles INNER JOIN friends ON profiles.profileid = friends.profileid INNER JOIN users ON users.userid = profiles.userid WHERE friends.targetid = ";
+	query += std::to_string(profileid);
+
+	rs = new CResultSet();
+
+	if (!rs->ExecuteQuery(m_dbConnection, query))
+	{
+		delete rs;
+		return false;
+	}
+
+	if (!rs->GotoFirstRow())
+	{
+		Write(socket, "\\others\\odone\\final\\");
+		return true;
+	}
+
+	query = "\\others";
+
+	do
+	{
+		query += "\\o\\";
+		query += rs->GetUIntFromRow(0);
+		query += "\\nick\\";
+		query += rs->GetStringFromRow(1);
+		query += "\\uniquenick\\";
+		query += rs->GetStringFromRow(2);
+		query += "\\first\\";
+		query += rs->GetStringFromRow(3);
+		query += "\\last\\";
+		query += rs->GetStringFromRow(4);
+		query += "\\email\\";
+
+		if (rs->GetIntFromRow(6) & GP_MASK_EMAIL)
+		{
+			query += rs->GetStringFromRow(5);
+		}
+	} while (rs->GotoNextRow());
+
+	query += "\\odone\\final\\";
+
+	Write(socket, query);
+
+	return true;
 }
 
 bool PSServer::OnOthersList(mdk_socket, const char *buf, int)
