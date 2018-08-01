@@ -222,6 +222,7 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 	if (!rs->GotoFirstRow())
 	{
 		Write(socket, "\\others\\odone\\final\\");
+		delete rs;
 		return true;
 	}
 
@@ -251,6 +252,7 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 
 	Write(socket, query);
 
+	delete rs;
 	return true;
 }
 
