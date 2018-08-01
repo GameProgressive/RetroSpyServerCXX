@@ -194,6 +194,9 @@ bool PSServer::OnSearchUsers(mdk_socket, const char *buf, int)
 	return false;
 }
 
+/*
+	This function sends all the friends of an user
+*/
 bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 {
 	/*
