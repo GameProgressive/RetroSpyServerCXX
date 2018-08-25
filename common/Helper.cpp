@@ -108,7 +108,7 @@ void gs_do_proof(char *out, const char *password, const char *token, const char 
 	hash_md5(password, strlen(password), passmd5);
 
 	/* Generate the buffer */
-	_snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, "%s%s%s%s%s%s",
+	snprintf(buffer, sizeof(buffer), "%s%s%s%s%s%s",
 		passmd5,
 		"                                                ",
 		token,
@@ -149,9 +149,11 @@ bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *
 	if ((buffersize - pos) > email_size)
 		return false;	/* Nick readed too big to store into the buffer */
 
-	strncpy_s(lpNick, nick_size, buffer, pos);
-	strncpy_s(lpEmail, email_size, &buffer[pos + 1], buffersize - pos - 1);
-
+	strncpy(lpNick, buffer, nick_size);
+	lpNick[nick_size - 1] = '\0';
+	strncpy(lpEmail, &buffer[pos + 1], email_size);
+	lpEmail[email_size - 1] = '\0';
+	
 	return true;
 }
 
@@ -184,7 +186,8 @@ int get_gs_req(const char *base, char *out, int max_size)
 	if (max_size < pos)
 		return -1;
 
-	strncpy_s(out, max_size, in, pos);
+	strncpy(out, in, max_size);
+	out[max_size - 1] = '\0';
 
 	pos += 1; /* First \\ */
 
@@ -226,14 +229,16 @@ char* get_gs_data(const char *base, const char *what, char *out, int max_size)
 
 		tmp = (char*)malloc(i + 1);
 
-		strncpy_s(tmp, i + 1, bx, i);
+		strncpy(tmp, bx, i + 1);
+		tmp[i] = '\0';
 
 		if (bfound)
 		{
 			if (i < max_size)
 			{
-				strncpy_s(out, max_size, tmp, i);
-
+				strncpy(out, tmp, max_size);
+				out[max_size - 1] = '\0';
+				
 				free(tmp);
 			}
 

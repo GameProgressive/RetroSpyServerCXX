@@ -84,7 +84,7 @@ bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const char *req, 
 	if (CTemplateSocket::GetSocketExtraData(stream)->GetData() == NULL)
 		return CreateAndHandle(con, stream, req, buf, len); // Create the instance
 
-	it = m_clients.find((unsigned int)CTemplateSocket::GetSocketExtraData(stream)->GetData());
+	it = m_clients.find((uintptr_t)CTemplateSocket::GetSocketExtraData(stream)->GetData());
 
 	if (it == m_clients.end())
 		return false;

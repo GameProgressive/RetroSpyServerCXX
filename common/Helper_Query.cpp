@@ -79,8 +79,9 @@ void GetUniqueNickFromProfileID(CDatabase* db, unsigned int pid, char *unick, in
 		return;
 	}
 
-	strncpy_s(unick, size, res->GetStringFromRow(0).c_str(), size - 1);
-
+	strncpy(unick, res->GetStringFromRow(0).c_str(), size);
+	unick[size -1] = '\0';
+	
 	delete res;
 }
 
@@ -116,7 +117,7 @@ void GetPasswordFromUserID(CDatabase* db, char *out, int out_len, unsigned int i
 	char query[61];
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT password FROM users WHERE userid='%u'", id);
+	snprintf(query, sizeof(query), "SELECT password FROM users WHERE userid='%u'", id);
 
 	if (!ExecuteFirstQuery(db, res, query))
 	{
@@ -124,8 +125,9 @@ void GetPasswordFromUserID(CDatabase* db, char *out, int out_len, unsigned int i
 		return;
 	}
 
-	strncpy_s(out, out_len, res->GetStringFromRow(0).c_str(), out_len - 1);
-
+	strncpy(out, res->GetStringFromRow(0).c_str(), out_len);
+	out[out_len - 1] = '\0';
+	
 	delete res;
 }
 
@@ -136,7 +138,7 @@ unsigned int GetUserIDFromProfileID(CDatabase* db, unsigned int id, unsigned int
 	unsigned int ret = 0;
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT userid FROM profiles WHERE profileid='%u'", id);
+	snprintf(query, sizeof(query), "SELECT userid FROM profiles WHERE profileid='%u'", id);
 
 	if (!ExecuteFirstQuery(db, res, query))
 	{
@@ -161,7 +163,7 @@ int AssignSessionKeyFromProfileID(CDatabase* db, unsigned int profileid)
 	while (bx)
 	{
 		ssk = RandInt(1, INT_MAX);
-		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "UPDATE profiles SET sesskey=%d WHERE profileid='%u'", ssk, profileid);
+		snprintf(query, sizeof(query), "UPDATE profiles SET sesskey=%d WHERE profileid='%u'", ssk, profileid);
 
 		if (mdk_only_run_query(db, query))
 			bx = false;
@@ -175,7 +177,7 @@ void FreeSessionKey(CDatabase* db, unsigned int profileid)
 	char query[61];
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "UPDATE profiles SET sesskey=NULL WHERE profileid='%u'", profileid);
+	snprintf(query, sizeof(query), "UPDATE profiles SET sesskey=NULL WHERE profileid='%u'", profileid);
 
 	mdk_only_run_query(db, query);
 }
@@ -223,15 +225,20 @@ bool GetProfileInfo(CDatabase* db, unsigned int pid, GPIInfoCache *out, unsigned
 		return false;
 	}
 
-	strncpy_s(out->uniquenick, sizeof(out->uniquenick), resget(0), sizeof(out->uniquenick) - 1);
-	strncpy_s(out->nick, sizeof(out->nick), resget(1), sizeof(out->nick) - 1);
-	strncpy_s(out->firstname, sizeof(out->firstname), resget(2), sizeof(out->firstname) - 1);
-	strncpy_s(out->lastname, sizeof(out->lastname), resget(3), sizeof(out->lastname) - 1);
+	strncpy(out->uniquenick, resget(0), sizeof(out->uniquenick));
+	out->uniquenick[sizeof(out->uniquenick) - 1] = '\0';
+	strncpy(out->nick, resget(1), sizeof(out->nick));
+	out->nick[sizeof(out->nick) - 1] = '\0';
+	strncpy(out->firstname, resget(2), sizeof(out->firstname));
+	out->firstname[sizeof(out->firstname) - 1] = '\0';
+	strncpy(out->lastname, resget(3), sizeof(out->lastname));
+	out->lastname[sizeof(out->lastname) - 1] = '\0';
 	out->latitude = (float)res->GetDoubleFromRow(4);
 	out->longitude = (float)res->GetDoubleFromRow(5);
 	out->publicmask = res->GetIntFromRow(6);
 	*id_out = res->GetUIntFromRow(7);
-	strncpy_s(out->aimname, sizeof(out->aimname), resget(8), sizeof(out->aimname) - 1);
+	strncpy(out->aimname, resget(8), sizeof(out->aimname));
+	out->aimname[sizeof(out->aimname) - 1] = '\0';
 	out->pic = res->GetIntFromRow(9);
 	out->occupationid = res->GetIntFromRow(10);
 	out->incomeid = res->GetIntFromRow(11);
@@ -249,15 +256,20 @@ bool GetProfileInfo(CDatabase* db, unsigned int pid, GPIInfoCache *out, unsigned
 	else
 		out->sex = GP_PAT;	
 
-	strncpy_s(out->zipcode, sizeof(out->zipcode), resget(19), sizeof(out->zipcode) - 1);
-	strncpy_s(out->countrycode, sizeof(out->countrycode), resget(20), sizeof(out->countrycode) - 1);
-	strncpy_s(out->homepage, sizeof(out->homepage), resget(21), sizeof(out->homepage) - 1);
+	strncpy(out->zipcode, resget(19), sizeof(out->zipcode));
+	out->zipcode[sizeof(out->zipcode) - 1] = '\0';
+	strncpy(out->countrycode, resget(20), sizeof(out->countrycode));
+	out->countrycode[sizeof(out->countrycode) - 1] = '\0';
+	strncpy(out->homepage, resget(21), sizeof(out->homepage));
+	out->homepage[sizeof(out->homepage) - 1] = '\0';
 	out->birthday = res->GetIntFromRow(22);
 	out->birthmonth = res->GetIntFromRow(23);
 	out->birthyear = res->GetIntFromRow(24);
-	strncpy_s(out->place, sizeof(out->place), resget(25), sizeof(out->place) - 1);
+	strncpy(out->place, resget(25), sizeof(out->place));
+	out->place[sizeof(out->place) - 1] = '\0';
 	out->icquin = res->GetIntFromRow(26);
-	strncpy_s(out->email, sizeof(out->email), resget(27), sizeof(out->email) - 1);
+	strncpy(out->email, resget(27), sizeof(out->email));
+	out->email[sizeof(out->email) - 1] = '\0';
 
 	delete res;
 
