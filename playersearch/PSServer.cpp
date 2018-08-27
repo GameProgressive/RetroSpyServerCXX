@@ -24,6 +24,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#endif
+
 PSServer::PSServer(CDatabase* db)
 {
 	m_dbConnection = db;
@@ -32,23 +36,23 @@ PSServer::~PSServer() {}
 
 bool PSServer::HandleRequest(mdk_socket stream, const char *req, const char *buf, int size)
 {
-	if (_stricmp(req, "valid") == 0)
+	if (strcasecmp(req, "valid") == 0)
 		return OnValid(stream, buf, size);
-	else if (_stricmp(req, "nicks") == 0)
+	else if (strcasecmp(req, "nicks") == 0)
 		return OnSendNicks(stream, buf, size);
-	else if (_stricmp(req, "check") == 0)
+	else if (strcasecmp(req, "check") == 0)
 		return OnCheckNicks(stream, buf, size);
-	else if (_stricmp(req, "search") == 0)
+	else if (strcasecmp(req, "search") == 0)
 		return OnSearchUsers(stream, buf, size);
-	else if (_stricmp(req, "others") == 0)
+	else if (strcasecmp(req, "others") == 0)
 		return OnReverseBuddies(stream, buf, size);
-	else if (_stricmp(req, "otherslist") == 0)
+	else if (strcasecmp(req, "otherslist") == 0)
 		return OnOthersList(stream, buf, size);
-	else if (_stricmp(req, "uniquesearch") == 0)
+	else if (strcasecmp(req, "uniquesearch") == 0)
 		return OnUniqueSearch(stream, buf, size);
-	else if (_stricmp(req, "profilelist") == 0)
+	else if (strcasecmp(req, "profilelist") == 0)
 		return OnProfileList(stream, buf, size);
-	else if (_stricmp(req, "pmatch") == 0)
+	else if (strcasecmp(req, "pmatch") == 0)
 		return OnProductMatching(stream, buf, size);
 
 	LOG_ERROR("PlayerSearch", "Unknown request \"%s\" received!", req);

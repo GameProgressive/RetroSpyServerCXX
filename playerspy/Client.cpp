@@ -27,6 +27,12 @@
 
 #include <string>
 
+#include <string.h>
+
+#ifdef _WIN32
+/* We are on Windows */
+# define strtok_r strtok_s
+#endif
 
 CClient::CClient(mdk_socket stream, unsigned int vector_id, CDatabase* db)
 {
@@ -43,7 +49,8 @@ CClient::CClient(mdk_socket stream, unsigned int vector_id, CDatabase* db)
 
 	m_ip = CTemplateServer::GetIPFromSocket(stream);
 
-	strncpy_s(m_status, sizeof(m_status), "Offline", sizeof(m_status)-1);
+	strncpy(m_status, "Offline", sizeof(m_status));
+	m_status[sizeof(m_status) - 1] = '\0';
 }
 
 CClient::~CClient()
@@ -211,16 +218,16 @@ bool CClient::HandleLogin(const char *buf, int)
 		if (m_partnerid != GS_PARTNER_ID)
 		{
 			if (unick[0] != 0)
-				_snprintf_s(authtoken, sizeof(authtoken), sizeof(authtoken) - 1, "%d@%s", m_partnerid, unick);
+				snprintf(authtoken, sizeof(authtoken), "%d@%s", m_partnerid, unick);
 			else
-				_snprintf_s(authtoken, sizeof(authtoken), sizeof(authtoken) - 1, "%d@%s", m_partnerid, user);
+				snprintf(authtoken, sizeof(authtoken), "%d@%s", m_partnerid, user);
 		}
 		else
 		{
 			if (unick[0] != 0)
-				_snprintf_s(authtoken, sizeof(authtoken), sizeof(authtoken) - 1, "%s", unick);
+				snprintf(authtoken, sizeof(authtoken), "%s", unick);
 			else
-				_snprintf_s(authtoken, sizeof(authtoken), sizeof(authtoken) - 1, "%s", user);
+				snprintf(authtoken, sizeof(authtoken), "%s", user);
 		}
 	}
 
@@ -261,12 +268,13 @@ bool CClient::HandleLogin(const char *buf, int)
 	sendbuf[GP_LOGIN_TICKET_LEN - 3] = '_';
 	sendbuf[GP_LOGIN_TICKET_LEN - 2] = '_';
 	sendbuf[GP_LOGIN_TICKET_LEN - 1] = '\0';
-	strncpy_s(lt, sizeof(lt), sendbuf, GP_LOGIN_TICKET_LEN);
-
+	strncpy(lt, sendbuf, sizeof(lt));
+	lt[sizeof(lt) - 1] = '\0';
+	
 	// Do proof
 	gs_do_proof(proof, password, authtoken, PYServer::GetServerChallenge(), clientchall);
 
-	_snprintf_s(sendbuf, sizeof(sendbuf), sizeof(sendbuf) - 1,
+	snprintf(sendbuf, sizeof(sendbuf),
 		"\\lc\\2\\sesskey\\%d\\proof\\%s\\userid\\%u\\profileid\\%u"
 		"\\uniquenick\\%s\\lt\\%s\\id\\%d\\final\\",  m_sesskey, proof,
 		m_userid, m_profileid, unick, lt, PYServer::GetServerID());
@@ -301,14 +309,14 @@ bool CClient::HandleInviteTo(const char *buf, int)
 
 	if (strchr(products, '\\') != NULL)
 	{
-		pch = strtok_s(products, ",", &ctx);
+		pch = strtok_r(products, ",", &ctx);
 
 		while (pch != NULL)
 		{
 			pdo = atoi(pch);
 			m_products.push_front(pdo);
 			//pch = strtok(pch, ",");
-			pch = strtok_s(NULL, ",", &ctx); // TODO: Finish this
+			pch = strtok_r(NULL, ",", &ctx); // TODO: Finish this
 		}
 	}
 	else
@@ -332,10 +340,10 @@ void CClient::SendBuddyInfo(unsigned int id)
 	char statstr[GP_STATUS_STRING_LEN + GP_STATUS_STRING_LEN + 128 + 60];
 
 	if (c == NULL || c->HasBlocked(m_profileid))
-		_snprintf_s(statstr, sizeof(statstr), sizeof(statstr)-1, "\\bm\\%d\\f\\%u\\msg\\|s|0|ss|Offline\\final\\", GPI_BM_STATUS, m_profileid);
+		snprintf(statstr, sizeof(statstr), "\\bm\\%d\\f\\%u\\msg\\|s|0|ss|Offline\\final\\", GPI_BM_STATUS, m_profileid);
 	else
 	{
-		_snprintf_s(statstr, sizeof(statstr), sizeof(statstr)-1, "\\bm\\%d\\f\\%u\\|s|%d|ss|%s%s%s|ip|%d|p|%d|gm|%d\\final\\", 
+		snprintf(statstr, sizeof(statstr), "\\bm\\%d\\f\\%u\\|s|%d|ss|%s%s%s|ip|%d|p|%d|gm|%d\\final\\", 
 			GPI_BM_STATUS, m_profileid, c->GetStatusType(), c->GetStatus(), c->GetLocation()[0] != 0 ? "|ls|" : "", c->GetLocation(), 
 			reverse_endian32(c->GetIP()), reverse_endian16(c->GetPort()), c->GetQuietFlags());
 	}
@@ -398,7 +406,7 @@ void CClient::SendBuddies()
 		std::string str = "";
 		char txp[16];
 
-		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", m_buddies.size());
+		snprintf(txp, sizeof(txp), "%u", m_buddies.size());
 
 		it = m_buddies.begin();
 
@@ -410,7 +418,7 @@ void CClient::SendBuddies()
 		{
 			pid = *it;
 
-			_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", pid);
+			snprintf(txp, sizeof(txp), "%u", pid);
 
 			str += txp;
 
@@ -444,7 +452,7 @@ void CClient::SendAddRequests()
 
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `profileid`, `syncrequested`, `reason` FROM `addrequests` WHERE `targetid`=%u", m_profileid);
+	snprintf(query, sizeof(query), "SELECT `profileid`, `syncrequested`, `reason` FROM `addrequests` WHERE `targetid`=%u", m_profileid);
 	if (!res->ExecuteQuery(m_dbConnect, query))
 	{
 		delete res;
@@ -461,7 +469,7 @@ void CClient::SendAddRequests()
 	do
 	{
 		str = "\\bm\\";
-		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", GPI_BM_REQUEST);
+		snprintf(query, sizeof(query), "%d", GPI_BM_REQUEST);
 		str += query;
 		str += "\\f\\";
 		str += res->GetStringFromRow(0);
@@ -484,7 +492,7 @@ void CClient::LoadBuddies()
 
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
+	snprintf(query, sizeof(query), 
 		"SELECT `targetid` FROM `friends` WHERE `profileid`=%u", m_profileid);
 
 	if (!res->ExecuteQuery(m_dbConnect, query))
@@ -516,7 +524,7 @@ void CClient::LoadBlockedList()
 
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, 
+	snprintf(query, sizeof(query), 
 		"SELECT `targetid` FROM `blocked` WHERE `profileid`=%u", m_profileid);
 
 	if (!res->ExecuteQuery(m_dbConnect, query))
@@ -549,7 +557,7 @@ void CClient::SendMessages()
 
 	query[0] = 0;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
+	snprintf(query, sizeof(query), "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
 
 	if (!res->ExecuteQuery(m_dbConnect, query))
 	{
@@ -565,7 +573,7 @@ void CClient::SendMessages()
 	
 	do
 	{
-		_snprintf_s(query, sizeof(query), sizeof(query) - 1, "%d", GPI_BM_MESSAGE); 
+		snprintf(query, sizeof(query), "%d", GPI_BM_MESSAGE); 
 		
 		str = "\\bm\\";
 		str += query;
@@ -581,7 +589,7 @@ void CClient::SendMessages()
 
 	delete res;
 
-	_snprintf_s(query, sizeof(query), sizeof(query) - 1, "DELETE FROM `messages` WHERE `to`=%u", m_profileid);
+	snprintf(query, sizeof(query), "DELETE FROM `messages` WHERE `to`=%u", m_profileid);
 	mdk_only_run_query(m_dbConnect, query);
 }
 
@@ -614,7 +622,7 @@ bool CClient::HandleGetProfile(const char *buf, int)
 	if (!GetProfileInfo(m_dbConnect, pid, &info, &uid))
 		return false;
 
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%u", uid);
+	snprintf(txp, sizeof(txp), "%u", uid);
 	str += txp;
 
 	str += "\\nick\\";
@@ -643,49 +651,49 @@ bool CClient::HandleGetProfile(const char *buf, int)
 	str += info.aimname;
 
 	str += "\\pmask\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.publicmask);
+	snprintf(txp, sizeof(txp), "%d", info.publicmask);
 	str += txp;
 	
 	str += "\\pic\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.pic);
+	snprintf(txp, sizeof(txp), "%d", info.pic);
 	str += txp;
 
 	str += "\\ooc\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.occupationid);
+	snprintf(txp, sizeof(txp), "%d", info.occupationid);
 	str += txp;
 
 	str += "\\ind\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.industryid);
+	snprintf(txp, sizeof(txp), "%d", info.industryid);
 	str += txp;
 
 	str += "\\inc\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.incomeid);
+	snprintf(txp, sizeof(txp), "%d", info.incomeid);
 	str += txp;
 
 	str += "\\mar\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.marriedid);
+	snprintf(txp, sizeof(txp), "%d", info.marriedid);
 	str += txp;
 
 	str += "\\chc\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.childcount);
+	snprintf(txp, sizeof(txp), "%d", info.childcount);
 	str += txp;
 
 	str += "\\i1\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.interests1);
+	snprintf(txp, sizeof(txp), "%d", info.interests1);
 	str += txp;
 
 	str += "\\o1\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.ownership1);
+	snprintf(txp, sizeof(txp), "%d", info.ownership1);
 	str += txp;
 
 	str += "\\conn\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.conntypeid);
+	snprintf(txp, sizeof(txp), "%d", info.conntypeid);
 	str += txp;
 
 	if (info.publicmask & GP_MASK_SEX)
 	{
 		str += "\\sex\\";
-		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", info.sex);
+		snprintf(txp, sizeof(txp), "%d", info.sex);
 		str += txp;
 	}
 
@@ -710,16 +718,16 @@ bool CClient::HandleGetProfile(const char *buf, int)
 		bdd |= info.birthyear;
 
 		str += "\\birthday\\";
-		_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", bdd);
+		snprintf(txp, sizeof(txp), "%d", bdd);
 		str += txp;
 	}
 
 	str += "\\lon\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%f", info.longitude);
+	snprintf(txp, sizeof(txp), "%f", info.longitude);
 	str += txp;
 
 	str += "\\lat\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%f", info.latitude);
+	snprintf(txp, sizeof(txp), "%f", info.latitude);
 	str += txp;
 
 	str += "\\loc\\";
@@ -731,7 +739,7 @@ bool CClient::HandleGetProfile(const char *buf, int)
 	str += sign;
 
 	str += "\\id\\";
-	_snprintf_s(txp, sizeof(txp), sizeof(txp) - 1, "%d", id);
+	snprintf(txp, sizeof(txp), "%d", id);
 	str += txp;
 
 	// Old support

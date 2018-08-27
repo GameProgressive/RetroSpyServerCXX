@@ -67,8 +67,9 @@ void CTemplateStringServer::OnRead(mdk_socket stream, const char *data, ssize_t 
 				the_string = (char *)malloc(sizeof(char) * (pos+1));
 
 				/* Copy the request into the string */
-				strncpy_s(the_string, sizeof(char) * (pos + 1), buffer2, pos);
-
+				strncpy(the_string, buffer2, sizeof(char) * (pos + 1));
+				the_string[sizeof(char) * (pos + 1) - 1] = '\0';
+				
 				/* Get the first request "x//" */
 				rq_pos = get_gs_req(the_string, type, sizeof(type));
 				if (rq_pos == -1)

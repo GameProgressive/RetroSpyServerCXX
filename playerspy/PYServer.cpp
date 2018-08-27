@@ -25,6 +25,10 @@
 
 #include <MDK/Utility.h>
 
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#endif
+
 PYServer::PYServer(CDatabase* db)
 {
 	PYServer::server_id = 1;
@@ -39,7 +43,7 @@ PYServer::~PYServer()
 
 bool PYServer::HandleRequest(mdk_socket stream, const char *req, const char *buf, int size)
 {
-	if (_stricmp(req, "ka") == 0)
+	if (strcasecmp(req, "ka") == 0)
 	{
 		// Keep-Alive
 		Write(stream, "\\ka\\final\\");
@@ -55,7 +59,7 @@ bool PYServer::OnNewConnection(mdk_socket stream, int)
 	char fch[45];
 	fch[0] = 0;
 
-	_snprintf_s(fch, sizeof(fch), sizeof(fch)-1, "\\lc\\1\\challenge\\%s\\id\\%d\\final\\", server_challenge, server_id);
+	snprintf(fch, sizeof(fch), "\\lc\\1\\challenge\\%s\\id\\%d\\final\\", server_challenge, server_id);
 
 	Write(stream, fch);
 	return true;
