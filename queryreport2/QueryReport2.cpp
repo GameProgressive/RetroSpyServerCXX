@@ -39,7 +39,7 @@ RetroSpyModuleStart
 
 	Server = new QR2Server(mm->db);
 
-	if (!Server->Bind(mm->ip, mm->port, false))
+	if (!Server->Bind(mm->ip, mm->port, true))
 	return ERROR_BIND_ERROR;
 
 	LOG_INFO("QueryReport2", "Server started on %s:%d!", mm->ip, mm->port);
