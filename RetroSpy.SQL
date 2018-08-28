@@ -20,7 +20,7 @@ USE `retrospy`;
 CREATE TABLE IF NOT EXISTS `addrequests` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `profileid` int(10) unsigned NOT NULL DEFAULT 0,
-  `targetid` int(11) unsigned DEFAULT NULL,
+  `targetid` int(11) unsigned DEFAULT NOT NULL DEFAULT 0,
   `syncrequested` varchar(255) NOT NULL DEFAULT '',
   `reason` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
