@@ -3,7 +3,7 @@ project("RetroSpyServer")
 
 # Add definitions for w32 build that dosen't support _WIN32 macro
 if (WIN32)
-	add_definitions("-DWIN32 -D__WIN32__ _D_CRT_SECURE_NO_WARNINGS")
+	add_definitions("-DWIN32 -D__WIN32__ -D_CRT_SECURE_NO_WARNINGS")
 endif()
 
 # Set -fPIC to allow compiling retrospy shared library with libuv
