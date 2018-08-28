@@ -149,10 +149,10 @@ bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *
 	if ((buffersize - pos) > email_size)
 		return false;	/* Nick readed too big to store into the buffer */
 
-	strncpy(lpNick, buffer, nick_size);
-	lpNick[nick_size - 1] = '\0';
-	strncpy(lpEmail, &buffer[pos + 1], email_size);
-	lpEmail[email_size - 1] = '\0';
+	strncpy(lpNick, buffer, pos);
+	lpNick[pos] = '\0';
+	strncpy(lpEmail, &buffer[pos + 1], buffersize-pos-1);
+	lpEmail[buffersize - pos] = '\0';
 	
 	return true;
 }
@@ -186,8 +186,8 @@ int get_gs_req(const char *base, char *out, int max_size)
 	if (max_size < pos)
 		return -1;
 
-	strncpy(out, in, max_size);
-	out[max_size - 1] = '\0';
+	strncpy(out, in, pos);
+	out[pos] = '\0';
 
 	pos += 1; /* First \\ */
 
@@ -229,15 +229,15 @@ char* get_gs_data(const char *base, const char *what, char *out, int max_size)
 
 		tmp = (char*)malloc(i + 1);
 
-		strncpy(tmp, bx, i + 1);
+		strncpy(tmp, bx, i);
 		tmp[i] = '\0';
 
 		if (bfound)
 		{
 			if (i < max_size)
 			{
-				strncpy(out, tmp, max_size);
-				out[max_size - 1] = '\0';
+				strncpy(out, tmp, i);
+				out[i] = '\0';
 				
 				free(tmp);
 			}

@@ -80,7 +80,7 @@ void GetUniqueNickFromProfileID(CDatabase* db, unsigned int pid, char *unick, in
 	}
 
 	strncpy(unick, res->GetStringFromRow(0).c_str(), size);
-	unick[size -1] = '\0';
+	unick[size - 1] = '\0';
 	
 	delete res;
 }
