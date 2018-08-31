@@ -193,7 +193,7 @@ bool CClient::HandleLogin(const char *buf, int)
 	get_gs_data(buf, "uniquenick", unick, sizeof(unick));
 	get_gs_data(buf, "user", user, sizeof(user));
 
-	get_gs_data(buf, "sdkversion", sdkver, sizeof(sdkver));
+	get_gs_data(buf, "sdkrevision", sdkver, sizeof(sdkver));
 	if (sdkver[0] != 0)
 		m_sdkversion = atoi(sdkver);
 
@@ -401,8 +401,8 @@ void CClient::SendBuddies()
 
 	m_SentBuddies = true;
 
-	if (m_sdkversion & GPI_NEW_LIST_RETRIEVAL_ON_LOGIN)
-	{
+	//if (m_sdkversion & GPI_NEW_LIST_RETRIEVAL_ON_LOGIN)
+	//{
 		std::string str = "";
 		char txp[16];
 
@@ -429,6 +429,8 @@ void CClient::SendBuddies()
 				str += ",";
 			}
 		}
+		
+		str += "\\final\\";
 
 		Write(str);
 
@@ -441,7 +443,7 @@ void CClient::SendBuddies()
 			SendBuddyInfo(pid);
 			it++;
 		}
-	}
+	//}
 }
 
 void CClient::SendAddRequests()
@@ -492,6 +494,8 @@ void CClient::LoadBuddies()
 
 	query[0] = 0;
 
+	m_buddies.clear();
+	
 	snprintf(query, sizeof(query), 
 		"SELECT `targetid` FROM `friends` WHERE `profileid`=%u", m_profileid);
 
@@ -507,11 +511,9 @@ void CClient::LoadBuddies()
 		return;
 	}
 
-	m_buddies.clear();
-
 	do
 	{
-		m_buddies.push_front(res->GetIntFromRow(0));
+		m_buddies.push_front(res->GetUIntFromRow(0));
 	} while (res->GotoNextRow());
 	
 	delete res;
