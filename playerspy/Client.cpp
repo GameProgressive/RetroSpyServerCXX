@@ -258,7 +258,7 @@ bool CClient::HandleLogin(const char *buf, int)
 
 	// Assign the remaining data key
 	if (!GetUserIDFromProfileID(m_dbConnect, m_profileid, &m_userid))
-		return true;
+		return false;
 
 	m_sesskey = AssignSessionKeyFromProfileID(m_dbConnect, m_profileid);
 	GetPasswordFromUserID(m_dbConnect, password, sizeof(password), m_userid);

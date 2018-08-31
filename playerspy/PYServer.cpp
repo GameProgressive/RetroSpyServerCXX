@@ -50,7 +50,13 @@ bool PYServer::HandleRequest(mdk_socket stream, const char *req, const char *buf
 		return true;
 	}
 
-	CClientManager::Handle(m_dbConnection, stream, req, buf, size);
+	if (!CClientManager::Handle(m_dbConnection, stream, req, buf, size))
+	{
+		// Write something for tell the client that something happend
+		Write(stream, "\\err\\CLIENT_HANDLE_FAILED\\final\\");
+		return false;
+	}
+	
 	return true;
 }
 
