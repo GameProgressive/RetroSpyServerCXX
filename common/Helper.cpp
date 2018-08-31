@@ -152,7 +152,7 @@ bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *
 	strncpy(lpNick, buffer, pos);
 	lpNick[pos] = '\0';
 	strncpy(lpEmail, &buffer[pos + 1], buffersize-pos-1);
-	lpEmail[buffersize - pos] = '\0';
+	lpEmail[buffersize - pos-1] = '\0';
 	
 	return true;
 }

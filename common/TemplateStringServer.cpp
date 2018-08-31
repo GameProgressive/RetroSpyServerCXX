@@ -27,12 +27,16 @@ void CTemplateStringServer::OnRead(mdk_socket stream, const char *data, ssize_t 
 {
 	bool bC = true;
 	char *buffer2 = NULL;
-
-	buffer2 = (char*)data;
+	
+	if (size < 8)
+		return;
+	
+	buffer2 = (char*)malloc(sizeof(char)*(size+1));
+	strncpy(buffer2, data, size);
 	buffer2[size] = 0;
 
 	/* Check if the buffer is valid */
-	if (!is_gs_valid(data))
+	if (!is_gs_valid(buffer2))
 		return;
 
 	/* Loop to handle multiple request in the same buffer (it happends somehow) */
