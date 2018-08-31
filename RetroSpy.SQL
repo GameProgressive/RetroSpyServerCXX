@@ -6,14 +6,14 @@
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!50503 SET NAMES utf8mb4 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
 -- Dump della struttura del database retrospy
-CREATE DATABASE IF NOT EXISTS `retrospy` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE IF NOT EXISTS `retrospy` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `retrospy`;
 
 -- Dump della struttura di tabella retrospy.addrequests
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `addrequests` (
   KEY `FK_addrequests_profiles_2` (`targetid`),
   CONSTRAINT `FK_addrequests_profiles` FOREIGN KEY (`profileid`) REFERENCES `profiles` (`profileid`),
   CONSTRAINT `FK_addrequests_profiles_2` FOREIGN KEY (`targetid`) REFERENCES `profiles` (`profileid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella retrospy.addrequests: ~0 rows (circa)
 /*!40000 ALTER TABLE `addrequests` DISABLE KEYS */;
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `blocked` (
   KEY `FK_blocked_profiles_2` (`targetid`),
   CONSTRAINT `FK_blocked_profiles` FOREIGN KEY (`profileid`) REFERENCES `profiles` (`profileid`),
   CONSTRAINT `FK_blocked_profiles_2` FOREIGN KEY (`targetid`) REFERENCES `profiles` (`profileid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella retrospy.blocked: ~0 rows (circa)
 /*!40000 ALTER TABLE `blocked` DISABLE KEYS */;
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `friends` (
   KEY `FK_friends_profiles_2` (`targetid`),
   CONSTRAINT `FK_friends_profiles` FOREIGN KEY (`profileid`) REFERENCES `profiles` (`profileid`),
   CONSTRAINT `FK_friends_profiles_2` FOREIGN KEY (`targetid`) REFERENCES `profiles` (`profileid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella retrospy.friends: ~0 rows (circa)
 /*!40000 ALTER TABLE `friends` DISABLE KEYS */;
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
   KEY `FK_messages_profiles_2` (`to`),
   CONSTRAINT `FK_messages_profiles` FOREIGN KEY (`from`) REFERENCES `profiles` (`profileid`),
   CONSTRAINT `FK_messages_profiles_2` FOREIGN KEY (`to`) REFERENCES `profiles` (`profileid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella retrospy.messages: ~0 rows (circa)
 /*!40000 ALTER TABLE `messages` DISABLE KEYS */;
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `profiles` (
   UNIQUE KEY `sesskey` (`sesskey`),
   KEY `FK_profiles_users` (`userid`),
   CONSTRAINT `FK_profiles_users` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella retrospy.profiles: ~2 rows (circa)
 /*!40000 ALTER TABLE `profiles` DISABLE KEYS */;
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `emailverified` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`userid`),
   UNIQUE KEY `userid` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella retrospy.users: ~0 rows (circa)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
