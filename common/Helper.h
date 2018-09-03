@@ -48,6 +48,7 @@ int AssignSessionKeyFromProfileID(CDatabase* c, unsigned int id);
 void FreeSessionKey(CDatabase* c, unsigned int profileid);
 bool GetProfileInfo(CDatabase* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
 bool GetProfileIDFromSessKey(CDatabase* db, unsigned int seeskey, unsigned int* out);
+bool GetProfileIDFromAuthToken(CDatabase* db, const char* authtoken, unsigned int *out);
 
 //String
 bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *lpNick, int nick_size);

@@ -207,9 +207,10 @@ bool CClient::HandleLogin(const char *buf, int)
 
 	if ( (user[0] == 0) && (unick[0] == 0) )
 	{
-		// TODO: Handle authtoken login
-		puts(buf);
-		return false;
+		
+		get_gs_data(buf, "authtoken", authtoken, sizeof(authtoken));
+		if (authtoken[0] == 0)
+			return false;
 	}
 
 	if (authtoken[0] == 0)
@@ -231,7 +232,7 @@ bool CClient::HandleLogin(const char *buf, int)
 		}
 	}
 
-	if (unick[0] == 0)
+	if (unick[0] == 0 && user[0] != 0)
 	{
 		// Login with user (nick@email)
 
@@ -248,12 +249,21 @@ bool CClient::HandleLogin(const char *buf, int)
 
 		GetUniqueNickFromProfileID(m_dbConnect, m_profileid, unick, sizeof(unick));
 	}
-	else if (user[0] == 0)
+	else if (user[0] == 0 && unick[0] != 0)
 	{
 		// Login with uniquenick
 
 		if (!GetProfileIDFromUniqueNick(m_dbConnect, unick, &m_profileid))
 			return false;
+	}
+	else if (authtoken[0] != 0)
+	{
+		// Login with authentication token
+		
+		if (!GetProfileIDFromAuthToken(m_dbConnect, authtoken, &m_profileid))
+			return false;
+		
+		GetUniqueNickFromProfileID(m_dbConnect, m_profileid, unick, sizeof(unick));
 	}
 
 	// Assign the remaining data key

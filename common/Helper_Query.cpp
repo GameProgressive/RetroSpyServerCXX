@@ -275,3 +275,30 @@ bool GetProfileInfo(CDatabase* db, unsigned int pid, GPIInfoCache *out, unsigned
 
 	return true;
 }
+
+bool GetProfileIDFromAuthToken(CDatabase* db, const char *authtoken, unsigned int* out)
+{
+	std::string query = "";
+	std::string _authtoken = authtoken;
+	CResultSet *res = NULL;
+	
+	if (!mdk_escape_query_string(db, _authtoken))
+		return false;
+	
+	res = new CResultSet();
+
+	query = "SELECT profileid FROM authtoken WHERE token='";
+	query += _authtoken;
+	query += "'";
+
+	if (!ExecuteFirstQuery(db, res, query))
+	{
+		delete res;
+		return false;
+	}
+
+	*out = res->GetUIntFromRow(0);
+
+	delete res;
+	return true;
+}
