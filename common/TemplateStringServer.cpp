@@ -23,7 +23,7 @@
 CTemplateStringServer::CTemplateStringServer() {}
 CTemplateStringServer::~CTemplateStringServer() {}
 
-void CTemplateStringServer::OnRead(mdk_socket stream, const char *data, ssize_t size)
+void CTemplateStringServer::OnTCPRead(mdk_socket stream, const char *data, ssize_t size)
 {
 	bool bC = true;
 	char *buffer2 = NULL;
@@ -105,5 +105,5 @@ void CTemplateStringServer::OnRead(mdk_socket stream, const char *data, ssize_t 
 }
 
 // Virtual functions
-bool CTemplateStringServer::OnNewConnection(mdk_socket, int) { return true; }
+bool CTemplateStringServer::OnTCPNewConnection(mdk_socket, int) { return true; }
 bool CTemplateStringServer::HandleRequest(mdk_socket, const char *, const char *, int) { return true; }

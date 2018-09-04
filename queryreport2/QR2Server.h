@@ -31,10 +31,10 @@ public:
 	~QR2Server();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(mdk_socket stream, int status);
+	bool OnTCPNewConnection(mdk_socket stream, int status) { return true; }
 
-	void OnRead(mdk_socket client, const char *data, ssize_t size);
-
+	void OnTCPRead(mdk_socket client, const char *data, ssize_t size) {}
+	void OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size);
 private:
 	CDatabase* m_dbConnect;
 };

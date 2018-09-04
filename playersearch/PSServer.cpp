@@ -60,7 +60,7 @@ bool PSServer::HandleRequest(mdk_socket stream, const char *req, const char *buf
 }
 
 // Unused
-bool PSServer::OnNewConnection(mdk_socket, int) { return true; }
+bool PSServer::OnTCPNewConnection(mdk_socket, int) { return true; }
 
 bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 {
@@ -91,12 +91,12 @@ bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 	}
 
 	if (!result->GotoFirstRow())
-		Write(client, "\\vr\\0\\final\\");
+		WriteTCP(client, "\\vr\\0\\final\\");
 
 	if (result->GetIntFromRow(0) < 1)
-		Write(client, "\\vr\\0\\final\\");
+		WriteTCP(client, "\\vr\\0\\final\\");
 	else
-		Write(client, "\\vr\\1\\final\\");
+		WriteTCP(client, "\\vr\\1\\final\\");
 
 	delete result;
 	return true;
@@ -148,7 +148,7 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 	{
 		delete result;
 		
-		Write(stream, "\\nr\\\\ndone\\final\\");
+		WriteTCP(stream, "\\nr\\\\ndone\\final\\");
 		return false;
 	}
 	
@@ -156,7 +156,7 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 	{
 		delete result;
 		
-		Write(stream, "\\nr\\\\ndone\\final\\");
+		WriteTCP(stream, "\\nr\\\\ndone\\final\\");
 		return false;
 		
 	}
@@ -179,7 +179,7 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 	str += "\\ndone\\final\\";
 
 	// Send to the socket
-	Write(stream, str);
+	WriteTCP(stream, str);
 
 	delete result;
 
@@ -228,7 +228,7 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 
 	if (!rs->GotoFirstRow())
 	{
-		Write(socket, "\\others\\odone\\final\\");
+		WriteTCP(socket, "\\others\\odone\\final\\");
 		delete rs;
 		return true;
 	}
@@ -257,7 +257,7 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 
 	query += "\\odone\\final\\";
 
-	Write(socket, query);
+	WriteTCP(socket, query);
 
 	delete rs;
 	return true;
@@ -301,7 +301,7 @@ bool PSServer::OnUniqueSearch(mdk_socket stream, const char *buf, int)
 
 	sendmsg += "\\usdone\\final\\";
 
-	Write(stream, sendmsg);
+	WriteTCP(stream, sendmsg);
 
 	return true;
 }

@@ -30,10 +30,11 @@ public:
 	~CTemplateStringServer();
 
 	/* See CServer::OnRead */
-	void OnRead(mdk_socket stream, const char *data, ssize_t size);
+	void OnTCPRead(mdk_socket stream, const char *data, ssize_t size);
+	void OnUDPRead(mdk_socket stream, const struct sockaddr* addr, const char*data, ssize_t size) {}
 
 	/* See CServer::OnNewConnection */
-	virtual bool OnNewConnection(mdk_socket stream, int status) = 0;
+	virtual bool OnTCPNewConnection(mdk_socket stream, int status) = 0;
 
 	/*
 		Function: HandleRequest
