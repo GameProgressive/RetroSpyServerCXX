@@ -31,7 +31,7 @@ public:
 	~PYServer();
 
 	/* See CServer::OnNewConnection */
-	bool OnNewConnection(mdk_socket stream, int status);
+	bool OnTCPNewConnection(mdk_socket stream, int status);
 
 	/* See CStringServer::HandleRequest */
 	bool HandleRequest(mdk_socket stream, const char *req, const char *buf, int size);
@@ -43,6 +43,8 @@ private:
 	static char server_challenge[GP_SERVERCHALL_LEN];
 	static int server_id;
 	CDatabase* m_dbConnection;
+	
+	bool HandleNewUser(mdk_socket stream, const char* buf, int size);
 };
 
 #endif

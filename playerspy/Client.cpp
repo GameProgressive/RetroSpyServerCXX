@@ -188,7 +188,10 @@ bool CClient::HandleLogin(const char *buf, int)
 
 	// Get data from buffer
 	if (!get_gs_data(buf, "challenge", clientchall, sizeof(clientchall)))
+	{
+		Write("\\error\\err\\266\\fatal\\errmsg\\Invalid client challenge\\final\\");
 		return false;
+	}
 
 	get_gs_data(buf, "uniquenick", unick, sizeof(unick));
 	get_gs_data(buf, "user", user, sizeof(user));
@@ -210,7 +213,10 @@ bool CClient::HandleLogin(const char *buf, int)
 		
 		get_gs_data(buf, "authtoken", authtoken, sizeof(authtoken));
 		if (authtoken[0] == 0)
+		{
+			Write("\\err\\266\\fatal\\errmsg\\Invalid authtoken\\final\\");
 			return false;
+		}
 	}
 
 	if (authtoken[0] == 0)
@@ -239,14 +245,20 @@ bool CClient::HandleLogin(const char *buf, int)
 		char nick[GP_NICK_LEN], email[GP_EMAIL_LEN];
 
 		if (!user_to_emailnick(user, email, sizeof(email), nick, sizeof(nick)))
+		{
+			Write("\\err\\261\\fatal\\errmsg\\Invalid profile information\\final\\");
 			return false;
+		}
 
 
 		m_profileid = GetProfileIDFromNickEmail(m_dbConnect, nick, email);
 
 		if (m_profileid == 0)
+		{
+			Write("\\err\\261\\fatal\\errmsg\\Invalid profile\\final\\");
 			return false;
-
+		}
+		
 		GetUniqueNickFromProfileID(m_dbConnect, m_profileid, unick, sizeof(unick));
 	}
 	else if (user[0] == 0 && unick[0] != 0)
@@ -254,21 +266,30 @@ bool CClient::HandleLogin(const char *buf, int)
 		// Login with uniquenick
 
 		if (!GetProfileIDFromUniqueNick(m_dbConnect, unick, &m_profileid))
+		{
+			Write("\\err\\261\\fatal\\errmsg\\Invalid profile\\final\\");
 			return false;
+		}
 	}
 	else if (authtoken[0] != 0)
 	{
 		// Login with authentication token
 		
 		if (!GetProfileIDFromAuthToken(m_dbConnect, authtoken, &m_profileid))
+		{
+			Write("\\err\\266\\fatal\\errmsg\\Invalid authtoken\\final\\");
 			return false;
+		}
 		
 		GetUniqueNickFromProfileID(m_dbConnect, m_profileid, unick, sizeof(unick));
 	}
 
 	// Assign the remaining data key
 	if (!GetUserIDFromProfileID(m_dbConnect, m_profileid, &m_userid))
+	{
+		Write("\\err\\256\\fatal\\errmsg\\Unable to assign a session key\\final\\");
 		return false;
+	}
 
 	m_sesskey = AssignSessionKeyFromProfileID(m_dbConnect, m_profileid);
 	GetPasswordFromUserID(m_dbConnect, password, sizeof(password), m_userid);
@@ -381,12 +402,12 @@ bool CClient::operator!=(CClient& c)
 
 void CClient::Write(std::string str)
 {
-	CTemplateSocket::Write(m_stream, str);
+	CTemplateSocket::WriteTCP(m_stream, str);
 }
 
 void CClient::Write(const char *str)
 {
-	CTemplateSocket::Write(m_stream, str);
+	CTemplateSocket::WriteTCP(m_stream, str);
 }
 
 bool CClient::HandleStatus(const char *buf, int)

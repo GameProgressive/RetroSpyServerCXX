@@ -46,28 +46,56 @@ bool PYServer::HandleRequest(mdk_socket stream, const char *req, const char *buf
 	if (strcasecmp(req, "ka") == 0)
 	{
 		// Keep-Alive
-		Write(stream, "\\ka\\final\\");
+		WriteTCP(stream, "\\ka\\final\\");
 		return true;
+	}
+	else if (strcasecmp(req, "newuser") == 0)
+	{
+		return HandleNewUser(stream, buf, size);
 	}
 
 	if (!CClientManager::Handle(m_dbConnection, stream, req, buf, size))
 	{
-		// Write something for tell the client that something happend
-		Write(stream, "\\err\\CLIENT_HANDLE_FAILED\\final\\");
 		return false;
 	}
 	
 	return true;
 }
 
-bool PYServer::OnNewConnection(mdk_socket stream, int)
+bool PYServer::HandleNewUser(mdk_socket stream, const char* buf, int size)
+{
+	char nick[GP_NICK_LEN], email[GP_EMAIL_LEN], pass[GP_PASSWORD_LEN], passenc[GP_PASSWORDENC_LEN], unick[GP_UNIQUENICK_LEN];
+	
+	pass[0] = nick[0] = email[0] = passenc[0] = unick[0] = '\0';
+	
+	
+	if (!get_gs_data(buf, "uniquenick", unick, GP_UNIQUENICK_LEN))
+		return false;
+	
+	if (!get_gs_data(buf, "email", email, GP_EMAIL_LEN))
+		return false;
+	
+	if (!get_gs_data(buf, "nick", nick, GP_NICK_LEN))
+		return false;
+	
+	if (!get_gs_data(buf, "passenc", passenc, GP_PASSWORDENC_LEN))
+		return false;
+
+	gs_pass_decode(passenc, pass);
+	
+	
+	
+	return true;
+}
+
+bool PYServer::OnTCPNewConnection(mdk_socket stream, int)
 {
 	char fch[45];
 	fch[0] = 0;
 
 	snprintf(fch, sizeof(fch), "\\lc\\1\\challenge\\%s\\id\\%d\\final\\", server_challenge, server_id);
 
-	Write(stream, fch);
+	WriteTCP(stream, fch);
 	return true;
 
 }
