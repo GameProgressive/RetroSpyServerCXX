@@ -13,3 +13,4 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/../common")
 
 add_library(PlayerSpy SHARED ${SOURCES})
 target_link_libraries(PlayerSpy RetroSpyCommon)
+target_compile_definitions(PlayerSpy PRIVATE __64BIT__)

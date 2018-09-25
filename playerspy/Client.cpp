@@ -437,7 +437,11 @@ void CClient::SendBuddies()
 		std::string str = "";
 		char txp[16];
 
+#ifdef __64BIT__
+		snprintf(txp, sizeof(txp), "%lu", m_buddies.size());
+#else
 		snprintf(txp, sizeof(txp), "%u", m_buddies.size());
+#endif
 
 		it = m_buddies.begin();
 
