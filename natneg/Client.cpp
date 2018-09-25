@@ -24,8 +24,8 @@
 
 #include <MDK/Utility.h>
 
-#ifndef _WIN32
-#include <arpa/inet.h>
+#ifdef _WIN32
+#define close closesocket
 #endif
 
 static unsigned char NNMagicData[] = {NN_MAGIC_0, NN_MAGIC_1, NN_MAGIC_2, NN_MAGIC_3, NN_MAGIC_4, NN_MAGIC_5};
@@ -193,10 +193,10 @@ bool CClient::HandleNatifyRequest(NatNegPacket* packet)
 	si_src.sin_port = htons(MATCHUP_PORT);
 	if (packet->Packet.Init.porttype == NN_PT_NN2 || packet->Packet.Init.porttype == NN_PT_NN3)
 	{
-		si_src.sin_addr.s_addr = inet_addr(CNNServer::GetProbeIP());
+		inet_pton(AF_INET, CNNServer::GetProbeIP(), &si_src.sin_addr.s_addr);
 	}
 	else
-		si_src.sin_addr.s_addr = inet_addr(CNNServer::GetMatchIP());
+		inet_pton(AF_INET, CNNServer::GetMatchIP(), &si_src.sin_addr.s_addr);
 	
 	if (packet->Packet.Init.porttype == NN_PT_NN3)
 		ret = connect(ertsocket, (struct sockaddr*)&si_src, sizeof(si_src));

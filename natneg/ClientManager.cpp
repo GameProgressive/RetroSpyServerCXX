@@ -18,10 +18,6 @@
 
 #include <TemplateStringServer.h>
 
-#ifndef _WIN32
-#include <arpa/inet.h>
-#endif
-
 void CClientManager::Free()
 {
 	ClientMap::iterator it = m_clients.begin();
@@ -60,6 +56,7 @@ bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const str
 	SClientStruct ss;
 	
 	inet_ntop(AF_INET, &(addr_in->sin_addr), ss.ip, INET_ADDRSTRLEN);
+
 	ss.port = addr_in->sin_port;	
 	
 	m_clients[ss] = c;
