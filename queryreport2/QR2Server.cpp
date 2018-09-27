@@ -16,6 +16,8 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "QR2Server.h"
 
+#define PACKET_TYPE    0x09
+
 #include <MDK/ModuleEntryPoint.h>
 #include <MDK/Utility.h>
 
@@ -27,7 +29,26 @@ QR2Server::~QR2Server()
 
 void QR2Server::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size)
 {
-	LOG_INFO("QR2Server", "Recv UDP!!!");
+	unsigned char newdata[7];
+	
+	if (size < 6)
+		return;
+	
+	if (data[0]!=PACKET_TYPE)
+		return;
+	
+	// Packet check
+	newdata[0] = 0xFE;
+	newdata[1] = 0xFD;
+	newdata[2] = 0x09;
+	
+	// Status check (int=sizeof(4))
+	newdata[3] = 0x00; //0x00 if avaiable, 0x01 if unavaible, 0x02 if unavaiable temporarily
+	newdata[4] = 0x00;
+	newdata[5] = 0x00;
+	newdata[6] = 0x00;
+	
+	WriteUDP(client, newdata, sizeof(newdata), addr);
 }
 
 int QR2Server::Initialize()
