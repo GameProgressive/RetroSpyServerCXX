@@ -30,32 +30,6 @@ RetroSpyModuleStart
 	ModuleMain *mm = (ModuleMain*)data;
 	CNNServer *Server = NULL;
 	ModuleConfigMap::iterator it;
-	
-	if (mm->port == -1)
-		mm->port = MATCHUP_PORT;
-	
-	if (mm->db == NULL)
-	{
-		LOG_ERROR("NatNeg", "Unable to retrive Database connection!");
-		return ERROR_MYSQL_POINTER;
-	}
-	
-	Server = new CNNServer(mm->db);
-	
-	it = mm->cfg.find("MatchIP");
-	if (it == mm->cfg.end())
-	{
-		LOG_ERROR("NatNeg", "Cannot find option \"MatchIP\"");
-		return ERROR_BIND_ERROR;
-	}
-	Server->SetMatchIP(it->second.c_str());
-	it = mm->cfg.find("ProbeIP");
-	if (it == mm->cfg.end())
-	{
-		LOG_ERROR("NatNeg", "Cannot find option \"ProbeIP\"");
-		return ERROR_BIND_ERROR;
-	}
-	Server->SetProbeIP(it->second.c_str());
 
 	if (!Server->Bind(mm->ip, mm->port, true))
 		return ERROR_BIND_ERROR;

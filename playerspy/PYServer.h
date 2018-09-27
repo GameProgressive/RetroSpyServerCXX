@@ -27,8 +27,10 @@
 class PYServer : public CTemplateStringServer
 {
 public:
-	PYServer(CDatabase* db);
+	PYServer(int defaultport, bool udp);
 	~PYServer();
+	
+	int Initialize();
 
 	/* See CServer::OnNewConnection */
 	bool OnTCPNewConnection(mdk_socket stream, int status);

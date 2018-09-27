@@ -18,6 +18,7 @@
 
 #include <MDK/Utility.h>
 #include <MDK/Query.h>
+#include <MDK/ModuleEntryPoint.h>
 
 #include <Helper.h>
 
@@ -28,11 +29,16 @@
 #define strcasecmp _stricmp
 #endif
 
-PSServer::PSServer(CDatabase* db)
-{
-	m_dbConnection = db;
-}
+PSServer::PSServer(int defaultport, bool udp) : CTemplateStringServer(defaultport, udp) {}
 PSServer::~PSServer() {}
+
+int PSServer::Initialize()
+{
+	if (!m_lpDatabase)
+		return ERROR_DATABASE_ERROR;
+	
+	return ERROR_NONE;
+}
 
 bool PSServer::HandleRequest(mdk_socket stream, const char *req, const char *buf, int size)
 {
@@ -76,7 +82,7 @@ bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 	result = new CResultSet();
 
 	buffer = "SELECT COUNT(userid) FROM `users` WHERE `email` = '";
-	if (!mdk_escape_query_string(m_dbConnection, email))
+	if (!mdk_escape_query_string(m_lpDatabase, email))
 	{
 		delete result;
 		return false;
@@ -84,7 +90,7 @@ bool PSServer::OnValid(mdk_socket client, const char *buf, int)
 	buffer += email;
 	buffer += "'";
 
-	if (!result->ExecuteQuery(m_dbConnection, buffer))
+	if (!result->ExecuteQuery(m_lpDatabase, buffer))
 	{
 		delete result;
 		return false;
@@ -131,12 +137,12 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 	// Create the query and execute it
 	str = "SELECT profiles.nick, profiles.uniquenick FROM profiles INNER "
 		"JOIN users ON profiles.userid=users.userid WHERE users.email='";
-	if (!mdk_escape_query_string(m_dbConnection, email))
+	if (!mdk_escape_query_string(m_lpDatabase, email))
 		return false;
 
 	str += email;
 	str += "' AND password='";
-	if (!mdk_escape_query_string(m_dbConnection, pass))
+	if (!mdk_escape_query_string(m_lpDatabase, pass))
 		return false;
 
 	str += pass;
@@ -144,7 +150,7 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 
 	result = new CResultSet();
 
-	if (!result->ExecuteQuery(m_dbConnection, str))
+	if (!result->ExecuteQuery(m_lpDatabase, str))
 	{
 		delete result;
 		
@@ -220,7 +226,7 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 
 	rs = new CResultSet();
 
-	if (!rs->ExecuteQuery(m_dbConnection, query))
+	if (!rs->ExecuteQuery(m_lpDatabase, query))
 	{
 		delete rs;
 		return false;
@@ -317,4 +323,6 @@ bool PSServer::OnProductMatching(mdk_socket, const char *buf, int)
 	puts(buf);
 	return false;
 }
+
+ModuleEntryPoint(PSServer, 29901, false)
 

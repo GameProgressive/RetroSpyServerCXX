@@ -16,12 +16,6 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-	set(RS_64BIT TRUE)
-else()
-	set(RS_64BIT FALSE)
-endif()
-
 # RetroSpy projects
 add_subdirectory("common")
 add_subdirectory("playersearch")

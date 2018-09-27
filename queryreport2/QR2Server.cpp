@@ -16,12 +16,10 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "QR2Server.h"
 
+#include <MDK/ModuleEntryPoint.h>
 #include <MDK/Utility.h>
 
-QR2Server::QR2Server(CDatabase* db)
-{
-	m_dbConnect = db;
-}
+QR2Server::QR2Server(int defaultport, bool udp) : CThreadServer(defaultport, udp) {}
 
 QR2Server::~QR2Server()
 {
@@ -32,3 +30,12 @@ void QR2Server::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const 
 	LOG_INFO("QR2Server", "Recv UDP!!!");
 }
 
+int QR2Server::Initialize()
+{
+	if (!m_lpDatabase)
+		return ERROR_DATABASE_ERROR;
+	
+	return ERROR_NONE;
+}
+
+ModuleEntryPoint(QR2Server, 27900, true)

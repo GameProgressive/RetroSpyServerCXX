@@ -20,7 +20,7 @@
 
 #include <string.h>
 
-CTemplateStringServer::CTemplateStringServer() {}
+CTemplateStringServer::CTemplateStringServer(int defaultport, bool udp) : CThreadServer(defaultport, udp) {}
 CTemplateStringServer::~CTemplateStringServer() {}
 
 void CTemplateStringServer::OnTCPRead(mdk_socket stream, const char *data, ssize_t size)

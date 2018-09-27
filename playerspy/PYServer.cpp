@@ -23,17 +23,24 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <MDK/ModuleEntryPoint.h>
 #include <MDK/Utility.h>
 
 #ifdef _WIN32
 #define strcasecmp _stricmp
 #endif
 
-PYServer::PYServer(CDatabase* db)
+PYServer::PYServer(int defaultport, bool ip) : CTemplateStringServer(defaultport, ip) {}
+
+int PYServer::Initialize()
 {
+	if (!m_lpDatabase)
+		return ERROR_DATABASE_ERROR;
+	
 	PYServer::server_id = 1;
 	strrand(PYServer::server_challenge, sizeof(PYServer::server_challenge), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	m_dbConnection = db;
+	
+	return ERROR_NONE;
 }
 
 PYServer::~PYServer()
@@ -112,3 +119,5 @@ const char *PYServer::GetServerChallenge()
 
 int PYServer::server_id = 0;
 char PYServer::server_challenge[GP_SERVERCHALL_LEN] = {0};
+
+ModuleEntryPoint(PYServer, 29900, false)

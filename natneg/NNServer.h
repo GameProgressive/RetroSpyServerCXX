@@ -17,25 +17,20 @@
 #ifndef NNSERVER_H
 #define NNSERVER_H
 
-#include <MDK/TemplateServer.h>
-#include <MDK/Database.h>
-
-#ifdef _WIN32
-#include <WinSock2.h>
-#else
-#include <netinet/in.h> 
-#endif
+#include <MDK/ThreadServer.h>
 
 #include <string.h>
 
 /*
 	This class rappresents a Player Search server
 */
-class CNNServer : public CTemplateServer
+class CNNServer : public CThreadServer
 {
 public:
-	CNNServer(CDatabase* db);
+	CNNServer(int defaultport, bool udp);
 	~CNNServer();
+	
+	int Initialize();
 
 	bool OnTCPNewConnection(mdk_socket stream, int status) { return true; }
 

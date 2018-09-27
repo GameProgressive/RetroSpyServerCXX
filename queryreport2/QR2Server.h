@@ -18,17 +18,19 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 #define QR2SERVER_H
 
 #include <Defines.h>
-#include <MDK/TemplateServer.h>
+#include <MDK/ThreadServer.h>
 #include <MDK/Query.h>
 
 /*
 This class rappresents a Query Report 2 Server
 */
-class QR2Server : public CTemplateServer
+class QR2Server : public CThreadServer
 {
 public:
-	QR2Server(CDatabase* db);
+	QR2Server(int defaultport, bool udp);
 	~QR2Server();
+	
+	int Initialize();
 
 	/* See CServer::OnNewConnection */
 	bool OnTCPNewConnection(mdk_socket stream, int status) { return true; }

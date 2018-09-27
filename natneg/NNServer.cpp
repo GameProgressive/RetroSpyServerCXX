@@ -17,13 +17,40 @@
 #include "NNServer.h"
 #include "ClientManager.h"
 
-CNNServer::CNNServer(CDatabase* db)
-{
-	m_dbConnection = db;
-}
+#include <MDK/ModuleEntryPoint.h>
+#include <MDK/Utility.h>
+
+CNNServer::CNNServer(int defaultport, bool udp) : CThreadServer(defaultport, udp) {}
+
 CNNServer::~CNNServer()
 {
 	CClientManager::Free();	
+}
+
+int CNNServer::Initialize()
+{
+	if (!m_lpDatabase)
+		return ERROR_DATABASE_ERROR;
+
+	ModuleConfigMap::iterator it = m_cfg.find("MatchIP");
+	if (it == m_cfg.end())
+	{
+		LOG_ERROR("NatNeg", "Cannot find option \"MatchIP\"");
+		return ERROR_CONFIGURATION_ERROR;
+	}
+	SetMatchIP(it->second.c_str());
+	
+	it = m_cfg.find("ProbeIP");
+	if (it == m_cfg.end())
+	{
+		LOG_ERROR("NatNeg", "Cannot find option \"ProbeIP\"");
+		return ERROR_CONFIGURATION_ERROR;
+	}
+	
+	SetProbeIP(it->second.c_str());
+
+	
+	return ERROR_NONE;
 }
 
 void CNNServer::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size)
@@ -33,3 +60,5 @@ void CNNServer::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const 
 
 char CNNServer::m_matchIp[INET_ADDRSTRLEN] = {0};
 char CNNServer::m_probeIp[INET_ADDRSTRLEN] = {0};
+
+ModuleEntryPoint(CNNServer, MATCHUP_PORT, true)

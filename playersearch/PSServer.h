@@ -26,8 +26,10 @@
 class PSServer : public CTemplateStringServer
 {
 public:
-	PSServer(CDatabase* db);
+	PSServer(int defaultport, bool udp);
 	~PSServer();
+	
+	int Initialize();
 
 	/* See CServer::OnNewConnection */
 	bool OnTCPNewConnection(mdk_socket stream, int status);
@@ -45,9 +47,6 @@ private:
 	bool OnUniqueSearch(mdk_socket stream, const char *buf, int size);
 	bool OnProfileList(mdk_socket stream, const char *buf, int size);
 	bool OnProductMatching(mdk_socket stream, const char *buf, int size);
-	
-	CDatabase* m_dbConnection;
-
 };
 
 #endif

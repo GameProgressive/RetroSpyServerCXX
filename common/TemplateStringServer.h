@@ -17,16 +17,16 @@
 #ifndef RETROSPYCOMMON_STRINGSERVER_H
 #define RETROSPYCOMMON_STRINGSERVER_H
 
-#include <MDK/TemplateServer.h>
+#include <MDK/ThreadServer.h>
 
 /*
 	This class is a Server that handle generic
 	string packets (like GPSP requests)
 */
-class CTemplateStringServer : public CTemplateServer
+class CTemplateStringServer : public CThreadServer
 {
 public:
-	CTemplateStringServer();
+	CTemplateStringServer(int defaultport, bool udp);
 	~CTemplateStringServer();
 
 	/* See CServer::OnRead */
