@@ -594,7 +594,10 @@ void CClient::SendMessages()
 
 	query[0] = 0;
 
-	snprintf(query, sizeof(query), "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
+	if (m_dbConnect->GetDatabaseType() == DATABASE_TYPE_MARIADB)
+		snprintf(query, sizeof(query), "SELECT `message`, `from`, Unix_Timestamp(`date`) FROM `messages` WHERE `to`=%u", m_profileid);
+	else if (m_dbConnect->GetDatabaseType() == DATABASE_TYPE_SQLITE)
+		snprintf(query, sizeof(query), "SELECT `message`, `from`, `date` FROM `messages` WHERE `to`=%u", m_profileid);
 
 	if (!res->ExecuteQuery(m_dbConnect, query))
 	{
