@@ -125,7 +125,9 @@ CClient* CClientManager::FindClientByCookieIndex(int cookie, unsigned char index
 			return cc;
 		
 		it++;
-	}	
+	}
+	
+	return NULL;
 }
 
 
