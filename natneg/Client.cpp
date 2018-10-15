@@ -42,7 +42,11 @@ CClient::CClient(mdk_socket stream, const struct sockaddr_in* addr, CDatabase* d
 	memcpy(&m_addr, addr, sizeof(struct sockaddr_in));
 	memcpy(&m_punching, addr, sizeof(struct sockaddr_in));
 	
+#ifdef _WIN32
+	inet_ntop(AF_INET, (const VOID*)&(addr->sin_addr), m_ip, INET_ADDRSTRLEN);
+#else
 	inet_ntop(AF_INET, &(addr->sin_addr), m_ip, INET_ADDRSTRLEN);
+#endif
 	m_port = addr->sin_port;
 	
 	m_lastpacket = 0;
