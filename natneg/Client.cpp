@@ -175,7 +175,14 @@ bool CClient::HandleAddressCheck(NatNegPacket* packet)
 
 bool CClient::HandleNatifyRequest(NatNegPacket* packet)
 {
-	int ret = 0, ertsocket = 0;
+	int ret = 0;
+
+#ifdef _WIN32	
+	SOCKET ertsocket = INVALID_SOCKET;
+#else
+	int ertsocket = 0;
+#endif
+
 	struct sockaddr_in si, si_src;
 	
 	if (packet->Packet.Init.porttype == 1)

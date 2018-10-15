@@ -34,7 +34,7 @@
 # define strtok_r strtok_s
 #endif
 
-CClient::CClient(mdk_socket stream, unsigned int vector_id, CDatabase* db)
+CClient::CClient(mdk_socket stream, size_t vector_id, CDatabase* db)
 {
 	m_stream = stream;
 	m_dbConnect = db;
@@ -437,11 +437,7 @@ void CClient::SendBuddies()
 		std::string str = "";
 		char txp[16];
 
-#ifdef __64BIT__
-		snprintf(txp, sizeof(txp), "%lu", m_buddies.size());
-#else
-		snprintf(txp, sizeof(txp), "%u", m_buddies.size());
-#endif
+		snprintf(txp, sizeof(txp), "%zu", m_buddies.size());
 
 		it = m_buddies.begin();
 

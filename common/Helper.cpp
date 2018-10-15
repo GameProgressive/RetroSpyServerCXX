@@ -32,7 +32,7 @@ const char cvdallowed[] = "1234567890#"
 
 void gs_pass_decode(const char *in, char *out)
 {
-	int pass_len = strlen(in), out_len = B64DecodeLen(in, 1), i = 0;
+	size_t pass_len = strlen(in), out_len = B64DecodeLen(in, 1), i = 0;
 	
 	RandSeed(GP_XOR_SEED);
 	B64Decode(in, out, pass_len, &out_len, 1);
@@ -45,7 +45,7 @@ void gs_pass_decode(const char *in, char *out)
 
 void gs_pass_decode(std::string& str)
 {
-	int pass_len = str.length(), out_len = B64DecodeLen(str.c_str(), 1), i = 0;
+	size_t pass_len = str.length(), out_len = B64DecodeLen(str.c_str(), 1), i = 0;
 	char* out = (char*)malloc(out_len + 1);
 
 	RandSeed(GP_XOR_SEED);
@@ -81,15 +81,15 @@ void gs_make_valid(char *name)
 	}
 }
 
-void hash_md5(const char *what, int len, char *out)
+void hash_md5(const char *what, size_t len, char *out)
 {
 	unsigned char md5h[16];
 	static const char hex[] = "0123456789abcdef";
 	md5_context         md5t;
-	int i = 0;
+	size_t i = 0;
 
     md5_starts(&md5t);
-    md5_update(&md5t, (unsigned char *)what, len);
+    md5_update(&md5t, (unsigned char *)what, (int)len);
     md5_finish(&md5t, md5h);
 
 	for (i = 0; i < 16; i++) {
@@ -120,10 +120,10 @@ void gs_do_proof(char *out, const char *password, const char *token, const char 
 	hash_md5(buffer, strlen(buffer), out);
 }
 
-bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *lpNick, int nick_size)
+bool user_to_emailnick(const char *buffer, char *lpEmail, size_t email_size, char *lpNick, size_t nick_size)
 {
 	char *pch = NULL;
-	int buffersize = 0, pos = 0;
+	size_t buffersize = 0, pos = 0;
 
 	/* Check if the parametras are NULL */
 	if (buffer == NULL)
@@ -170,11 +170,11 @@ bool is_gs_valid(const char *base)
 	return true;
 }
 
-int get_gs_req(const char *base, char *out, int max_size)
+size_t get_gs_req(const char *base, char *out, size_t max_size)
 {
 	char *pch = NULL;
 	const char *in = &base[1];
-	int pos = 0;
+	size_t pos = 0;
 
 	pch = (char*)strstr(in, "\\");
 
@@ -207,10 +207,10 @@ bool get_gs_data(std::string input, std::string& out, const char* what)
 	return true;
 }
 
-char* get_gs_data(const char *base, const char *what, char *out, int max_size)
+char* get_gs_data(const char *base, const char *what, char *out, size_t max_size)
 {
 	char *pch = NULL, *bx = NULL;
-	int i2 = 0, i = 0;
+	size_t i2 = 0, i = 0;
 	bool bfound = false, bRun = true;
 
 	out[0] = '\0';

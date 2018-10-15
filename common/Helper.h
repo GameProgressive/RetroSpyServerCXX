@@ -23,9 +23,9 @@
 #include <string>
 
 // Base64
-void B64Decode(const char *input, char *output, int inlen, int * outlen, int encodingType);
-void B64Encode(const char *input, char *output, int inlen, int encodingType);
-int B64DecodeLen(const char *input, int encodingType);
+void B64Decode(const char *input, char *output, size_t inlen, size_t * outlen, int encodingType);
+void B64Encode(const char *input, char *output, size_t inlen, int encodingType);
+size_t B64DecodeLen(const char *input, int encodingType);
 
 // Random
 void RandSeed(unsigned long seed);
@@ -36,7 +36,7 @@ void gs_pass_decode(const char *buf, char *out);
 void gs_pass_decode(std::string& string);
 void gs_make_valid(char *name);
 void gs_do_proof(char *out, const char *password, const char *token, const char *serverch, const char *clientch);
-void hash_md5(const char *what, int len, char *out);
+void hash_md5(const char *what, size_t len, char *out);
 
 // Database
 unsigned int GetProfileIDFromNickEmail(CDatabase* c, const char *nick, const char *email);
@@ -51,10 +51,10 @@ bool GetProfileIDFromSessKey(CDatabase* db, unsigned int seeskey, unsigned int* 
 bool GetProfileIDFromAuthToken(CDatabase* db, const char* authtoken, unsigned int *out);
 
 //String
-bool user_to_emailnick(const char *buffer, char *lpEmail, int email_size, char *lpNick, int nick_size);
+bool user_to_emailnick(const char *buffer, char *lpEmail, size_t email_size, char *lpNick, size_t nick_size);
 bool is_gs_valid(const char *base);
-int get_gs_req(const char *base, char *out, int max_size);
-char* get_gs_data(const char *base, const char *what, char *out, int max_size);
+size_t get_gs_req(const char *base, char *out, size_t max_size);
+char* get_gs_data(const char *base, const char *what, char *out, size_t max_size);
 bool get_gs_data(std::string base, std::string& out, const char* what);
 
 #endif

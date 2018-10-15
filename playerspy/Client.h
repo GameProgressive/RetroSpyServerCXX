@@ -32,7 +32,7 @@
 class CClient
 {
 public:
-	CClient(mdk_socket stream, unsigned int vector_id, CDatabase* db);
+	CClient(mdk_socket stream, size_t vector_id, CDatabase* db);
 	~CClient();
 
 	bool HasBuddy(CClient *c);
@@ -84,7 +84,7 @@ private:
 
 	unsigned int m_sesskey;
 
-	unsigned int m_vector_id;
+	size_t		m_vector_id;
 
 	mdk_socket m_stream;
 
