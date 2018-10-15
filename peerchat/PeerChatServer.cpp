@@ -38,4 +38,4 @@ int PeerChatServer::Initialize()
 	return ERROR_NONE;
 }
 
-ModuleEntryPoint(PeerChatServer, 27900, true)
+ModuleEntryPoint(PeerChatServer, 6667, false)
