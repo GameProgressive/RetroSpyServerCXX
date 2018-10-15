@@ -37,8 +37,6 @@ public:
 
 	void OnTCPRead(mdk_socket client, const char *data, ssize_t size) {}
 	void OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size);
-private:
-	CDatabase* m_dbConnect;
 };
 
 #endif
