@@ -44,8 +44,6 @@ public:
 	void SetMatchIP(const char* ip) { strncpy(m_matchIp, ip, INET_ADDRSTRLEN); }
 	void SetProbeIP(const char* ip) { strncpy(m_probeIp, ip, INET_ADDRSTRLEN); }
 private:
-	CDatabase* m_dbConnection;
-
 	static char m_matchIp[INET_ADDRSTRLEN];
 	static char m_probeIp[INET_ADDRSTRLEN];
 };

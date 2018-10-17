@@ -14,21 +14,21 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef QR2SERVER_H
-#define QR2SERVER_H
+#ifndef PEERCHATSERVER_H
+#define PEERCHATSERVER_H
 
 #include <Defines.h>
 #include <MDK/ThreadServer.h>
 #include <MDK/Query.h>
 
 /*
-This class rappresents a Query Report 2 Server
+This class rappresents a Peer Chat Server
 */
-class QR2Server : public CThreadServer
+class PeerChatServer : public CThreadServer
 {
 public:
-	QR2Server(int defaultport, bool udp);
-	~QR2Server();
+	PeerChatServer(int defaultport, bool udp);
+	~PeerChatServer();
 	
 	int Initialize();
 

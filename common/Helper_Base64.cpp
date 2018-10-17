@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-static void QuartToTrip(char *quart, char *trip, int inlen)
+static void QuartToTrip(char *quart, char *trip, size_t inlen)
 {
 	if (inlen >= 2)
 		trip[0] = (char)(quart[0] << 2 | quart[1] >> 4);
@@ -32,7 +32,7 @@ static void QuartToTrip(char *quart, char *trip, int inlen)
 		trip[2] = (char)((quart[2] & 0x3) << 6 | quart[3]);
 }
 
-static void TripToQuart(const char *trip, char *quart, int inlen)
+static void TripToQuart(const char *trip, char *quart, size_t inlen)
 {
 	unsigned char triptemp[3];
 	int i;
@@ -56,7 +56,7 @@ const char defaultEncoding[] = { '+','/','=' };
 const char alternateEncoding[] = { '[',']','_' };
 const char urlSafeEncodeing[] = { '-','_','=' };
 
-void B64Decode(const char *input, char *output, int inlen, int * outlen, int encodingType)
+void B64Decode(const char *input, char *output, size_t inlen, size_t * outlen, int encodingType)
 {
 	const char *encoding = 0;
 	int readpos = 0;
@@ -149,12 +149,12 @@ void B64Decode(const char *input, char *output, int inlen, int * outlen, int enc
 		*outlen = writepos;
 }
 
-void B64Encode(const char *input, char *output, int inlen, int encodingType)
+void B64Encode(const char *input, char *output, size_t inlen, int encodingType)
 {
 	const char *encoding;
 	char *holdout = output;
 	char *lastchar;
-	int todo = inlen;
+	size_t todo = inlen;
 
 	// 10-31-2004 : Added by Saad Nader
 	// now supports URL safe encoding
@@ -176,7 +176,7 @@ void B64Encode(const char *input, char *output, int inlen, int encodingType)
 #ifdef _WIN32
 		TripToQuart(input, output, min(todo, 3));
 #else
-		TripToQuart(input, output, std::min(todo, 3));
+		TripToQuart(input, output, std::min<unsigned int>(todo, 3));
 #endif
 		output += 4;
 		input += 3;
@@ -206,7 +206,7 @@ void B64Encode(const char *input, char *output, int inlen, int encodingType)
 	}
 }
 
-int B64DecodeLen(const char *input, int encodingType)
+size_t B64DecodeLen(const char *input, int encodingType)
 {
 	const char *encoding;
 	const char *holdin = input;

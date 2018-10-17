@@ -56,7 +56,7 @@ bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const cha
 	// Create che client
 	ClientMap::iterator it;
 	CClient* c = NULL;
-	unsigned int i = m_clients.size();
+	size_t i = m_clients.size();
 
 	m_clients[i] = new CClient(stream, i, db);
 

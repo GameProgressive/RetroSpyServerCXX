@@ -45,7 +45,7 @@ void CTemplateStringServer::OnTCPRead(mdk_socket stream, const char *data, ssize
 		char *find_str = NULL;
 		char *the_string = NULL;
 
-		int pos = 0;
+		size_t pos = 0;
 
 		/* Check if the buffer is NULL */
 		if (buffer2[0] == '\0')
@@ -63,7 +63,7 @@ void CTemplateStringServer::OnTCPRead(mdk_socket stream, const char *data, ssize
 
 				type[0] = 0;
 
-				int rq_pos = 0;
+				size_t rq_pos = 0;
 
 				pos = find_str - buffer2;
 			

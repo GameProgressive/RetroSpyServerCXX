@@ -14,29 +14,28 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef QR2SERVER_H
-#define QR2SERVER_H
+#include "PeerChatServer.h"
 
-#include <Defines.h>
-#include <MDK/ThreadServer.h>
-#include <MDK/Query.h>
+#include <MDK/ModuleEntryPoint.h>
+#include <MDK/Utility.h>
 
-/*
-This class rappresents a Query Report 2 Server
-*/
-class QR2Server : public CThreadServer
+PeerChatServer::PeerChatServer(int defaultport, bool udp) : CThreadServer(defaultport, udp) {}
+
+PeerChatServer::~PeerChatServer()
 {
-public:
-	QR2Server(int defaultport, bool udp);
-	~QR2Server();
+}
+
+void PeerChatServer::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size)
+{
+	LOG_INFO("PeerChat", "RECV: %s", data);
+}
+
+int PeerChatServer::Initialize()
+{
+	if (!m_lpDatabase)
+		return ERROR_DATABASE_ERROR;
 	
-	int Initialize();
+	return ERROR_NONE;
+}
 
-	/* See CServer::OnNewConnection */
-	bool OnTCPNewConnection(mdk_socket stream, int status) { return true; }
-
-	void OnTCPRead(mdk_socket client, const char *data, ssize_t size) {}
-	void OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size);
-};
-
-#endif
+ModuleEntryPoint(PeerChatServer, 6667, false)

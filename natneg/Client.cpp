@@ -42,7 +42,11 @@ CClient::CClient(mdk_socket stream, const struct sockaddr_in* addr, CDatabase* d
 	memcpy(&m_addr, addr, sizeof(struct sockaddr_in));
 	memcpy(&m_punching, addr, sizeof(struct sockaddr_in));
 	
+#ifdef _WIN32
+	inet_ntop(AF_INET, (const VOID*)&(addr->sin_addr), m_ip, INET_ADDRSTRLEN);
+#else
 	inet_ntop(AF_INET, &(addr->sin_addr), m_ip, INET_ADDRSTRLEN);
+#endif
 	m_port = addr->sin_port;
 	
 	m_lastpacket = 0;
@@ -175,7 +179,14 @@ bool CClient::HandleAddressCheck(NatNegPacket* packet)
 
 bool CClient::HandleNatifyRequest(NatNegPacket* packet)
 {
-	int ret = 0, ertsocket = 0;
+	int ret = 0;
+
+#ifdef _WIN32	
+	SOCKET ertsocket = INVALID_SOCKET;
+#else
+	int ertsocket = 0;
+#endif
+
 	struct sockaddr_in si, si_src;
 	
 	if (packet->Packet.Init.porttype == 1)

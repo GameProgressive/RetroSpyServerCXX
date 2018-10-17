@@ -234,16 +234,16 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 
 	if (!rs->GotoFirstRow())
 	{
-		WriteTCP(socket, "\\others\\odone\\final\\");
+		WriteTCP(socket, "\\others\\\\odone\\final\\");
 		delete rs;
 		return true;
 	}
 
-	query = "\\others";
+	query = "\\others\\";
 
 	do
 	{
-		query += "\\o\\";
+		query += "o\\";
 		query += rs->GetUIntFromRow(0);
 		query += "\\nick\\";
 		query += rs->GetStringFromRow(1);
@@ -259,6 +259,8 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 		{
 			query += rs->GetStringFromRow(5);
 		}
+
+		query += "\\";
 	} while (rs->GotoNextRow());
 
 	query += "\\odone\\final\\";

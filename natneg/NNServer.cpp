@@ -55,7 +55,7 @@ int CNNServer::Initialize()
 
 void CNNServer::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size)
 {
-	CClientManager::Handle(m_dbConnection, client, addr, data, size);
+	CClientManager::Handle(m_lpDatabase, client, addr, data, size);
 }
 
 char CNNServer::m_matchIp[INET_ADDRSTRLEN] = {0};
