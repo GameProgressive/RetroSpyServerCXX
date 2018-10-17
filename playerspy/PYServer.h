@@ -44,7 +44,6 @@ public:
 private:
 	static char server_challenge[GP_SERVERCHALL_LEN];
 	static int server_id;
-	CDatabase* m_dbConnection;
 	
 	bool HandleNewUser(mdk_socket stream, const char* buf, int size);
 };

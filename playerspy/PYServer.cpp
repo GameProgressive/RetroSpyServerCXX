@@ -61,7 +61,7 @@ bool PYServer::HandleRequest(mdk_socket stream, const char *req, const char *buf
 		return HandleNewUser(stream, buf, size);
 	}
 
-	if (!CClientManager::Handle(m_dbConnection, stream, req, buf, size))
+	if (!CClientManager::Handle(m_lpDatabase, stream, req, buf, size))
 	{
 		return false;
 	}
