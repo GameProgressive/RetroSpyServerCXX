@@ -18,9 +18,16 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 #define _CACHE_H_
 
 #include "IRCClient.h"
+#include "IRCChannel.h"
+#include "Structs.h"
+
+#include <MDK/Database.h>
+
+#include <vector>
 #include <map>
 
 typedef std::map<unsigned long long, CIRCClient*> TClientMap;
+typedef std::vector<CIRCChannel*> TChannelVector;
 
 class CCache
 {
@@ -28,16 +35,31 @@ public:
 		CCache();
 		~CCache();
 		
-		bool LoadData();
+		bool LoadData(CDatabase * db);
 		
 		bool AddUser(mdk_socket socket);
 		CIRCClient* GetUser(unsigned long long id);
 		void DelUser(unsigned long long id);
 		
 		inline static CCache* Instance() { return m_instance; }
+		
+		CIRCChannel* FindChannel(const char* name);
+		
+		void UpdateChannelProperties(SChannelProps props, bool kickexisting);	
+		void UpdateUserModes(SUserProps props);
+		
 protected:
 		TClientMap m_clients;
+		TChannelVector m_channels;
+		
+		std::vector<SUserProps> m_vUserProps;
+		std::vector<SChannelProps> m_vChannelProps;
+		std::vector<SGameClient> m_vGameClients;
+		
 		unsigned long long m_sReservedClientID;
+
+		void AddOperator(unsigned int id, unsigned int mask);
+		SChannelProps GetClosestChannelProperties(const char* name);
 		
 private:
 		static CCache* m_instance;
