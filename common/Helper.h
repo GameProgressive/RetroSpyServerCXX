@@ -57,4 +57,8 @@ size_t get_gs_req(const char *base, char *out, size_t max_size);
 char* get_gs_data(const char *base, const char *what, char *out, size_t max_size);
 bool get_gs_data(std::string base, std::string& out, const char* what);
 
+// Mask
+bool match_mask_with_name(const char *mask, const char *name);
+bool match_mask_with_name2(const char *mask, const char *name);
+
 #endif

@@ -259,3 +259,78 @@ char* get_gs_data(const char *base, const char *what, char *out, size_t max_size
 
 	return out;
 }
+
+bool match_mask_with_name2(const char *mask, const char *name)
+{
+	const unsigned char *m = (unsigned char *)mask;
+	const unsigned char *n = (unsigned char *)name;
+	const unsigned char *ma = NULL;
+	const unsigned char *na = (unsigned char *)name;
+
+	while(true)
+	{
+		if (*m == '*')
+		{
+			while (*m == '*') /* collapse.. */
+				m++;
+			ma = m; 
+			na = n;
+		}
+		
+		if (!*m)
+		{
+			if (!*n)
+				return false;
+			if (!ma)
+				return true;
+			for (m--; (m > (const unsigned char *)mask) && (*m == '?'); m--);
+			if (*m == '*')
+				return false;
+			m = ma;
+			n = ++na;
+		} else
+		if (!*n)
+		{
+			while (*m == '*') /* collapse.. */
+				m++;
+			return (*m != 0);
+		}
+		
+		if ((tolower(*m) != tolower(*n)) && !((*m == '_') && (*n == ' ')) && (*m != '?'))
+		{
+			if (!ma)
+				return true;
+			m = ma;
+			n = ++na;
+		} else
+		{
+			m++;
+			n++;
+		}
+	}
+	
+	return true;
+}
+
+bool match_mask_with_name(const char *mask, const char *name)
+{
+	if (mask[0] == '*' && mask[1] == '!') {
+		mask += 2;
+		while (*name != '!' && *name)
+			name++;
+		if (!*name)
+			return true;
+		name++;
+	}
+		
+	if (mask[0] == '*' && mask[1] == '@') {
+		mask += 2;
+		while (*name != '@' && *name)
+			name++;
+		if (!*name)
+			return true;
+		name++;
+	}
+	
+	return match_mask_with_name2(mask,name);
+}
