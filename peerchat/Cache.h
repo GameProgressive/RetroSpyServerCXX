@@ -14,34 +14,33 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PEERCHATSERVER_H
-#define PEERCHATSERVER_H
+#ifndef _CACHE_H_
+#define _CACHE_H_
 
-#include <Defines.h>
-#include <MDK/ThreadServer.h>
-#include <MDK/Query.h>
+#include "IRCClient.h"
+#include <map>
 
-#include "Cache.h"
+typedef std::map<unsigned long long, CIRCClient*> TClientMap;
 
-/*
-This class rappresents a Peer Chat Server
-*/
-class PeerChatServer : public CThreadServer
+class CCache
 {
 public:
-	PeerChatServer(int defaultport, bool udp);
-	~PeerChatServer();
-	
-	int Initialize();
-
-	/* See CServer::OnNewConnection */
-	bool OnTCPNewConnection(mdk_socket stream, int status);
-
-	void OnTCPRead(mdk_socket client, const char *data, ssize_t size);
-	void OnUDPRead(mdk_socket client, const struct sockaddr*, const char *, ssize_t) {} //Waste UDP
-	
+		CCache();
+		~CCache();
+		
+		bool LoadData();
+		
+		bool AddUser(mdk_socket socket);
+		CIRCClient* GetUser(unsigned long long id);
+		void DelUser(unsigned long long id);
+		
+		inline static CCache* Instance() { return m_instance; }
 protected:
-	CCache* m_cache;
+		TClientMap m_clients;
+		unsigned long long m_sReservedClientID;
+		
+private:
+		static CCache* m_instance;
 };
 
 #endif

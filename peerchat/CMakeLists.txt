@@ -1,6 +1,9 @@
 set(SOURCES
 	${CMAKE_CURRENT_LIST_DIR}/PeerChatServer.h
 	${CMAKE_CURRENT_LIST_DIR}/PeerChatServer.cpp
+	${CMAKE_CURRENT_LIST_DIR}/Cache.h
+	${CMAKE_CURRENT_LIST_DIR}/Cache.cpp
+	${CMAKE_CURRENT_LIST_DIR}/IRCClient.h
 )
 
 include_directories("${CMAKE_CURRENT_LIST_DIR}/../common")
