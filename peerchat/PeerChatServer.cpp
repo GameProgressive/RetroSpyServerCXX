@@ -16,18 +16,42 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PeerChatServer.h"
 
+#include "Cache.h"
+
 #include <MDK/ModuleEntryPoint.h>
 #include <MDK/Utility.h>
 
-PeerChatServer::PeerChatServer(int defaultport, bool udp) : CThreadServer(defaultport, udp) {}
+PeerChatServer::PeerChatServer(int defaultport, bool udp) : CThreadServer(defaultport, udp)
+{
+	m_cache = new CCache();
+}
 
 PeerChatServer::~PeerChatServer()
 {
+	if (m_cache)
+		delete m_cache;
+	
+	m_cache = NULL;
 }
 
-void PeerChatServer::OnUDPRead(mdk_socket client, const struct sockaddr* addr, const char *data, ssize_t size)
+bool PeerChatServer::OnTCPNewConnection(mdk_socket stream, int status)
 {
-	LOG_INFO("PeerChat", "RECV: %s", data);
+	if (m_cache->AddUser(stream))
+		return false;
+	
+	return true;
+}
+
+void PeerChatServer::OnTCPRead(mdk_socket client, const char *data, ssize_t size)
+{
+	if (GetSocketExtraData(client)->GetData() == NULL)
+	{
+		// No client pointer!
+		Close(client);
+		return;
+	}
+	
+	((CIRCClient*)GetSocketExtraData(client)->GetData())->Process(data, size);
 }
 
 int PeerChatServer::Initialize()

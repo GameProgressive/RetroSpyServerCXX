@@ -14,34 +14,20 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PEERCHATSERVER_H
-#define PEERCHATSERVER_H
+#ifndef _IRCCHANNEL_H_
+#define _IRCCHANNEL_H_
 
-#include <Defines.h>
-#include <MDK/ThreadServer.h>
-#include <MDK/Query.h>
+#include "Structs.h"
 
-#include "Cache.h"
-
-/*
-This class rappresents a Peer Chat Server
-*/
-class PeerChatServer : public CThreadServer
+class CIRCChannel
 {
 public:
-	PeerChatServer(int defaultport, bool udp);
-	~PeerChatServer();
+	CIRCChannel(const char* mask);
+	~CIRCChannel();
 	
-	int Initialize();
-
-	/* See CServer::OnNewConnection */
-	bool OnTCPNewConnection(mdk_socket stream, int status);
-
-	void OnTCPRead(mdk_socket client, const char *data, ssize_t size);
-	void OnUDPRead(mdk_socket client, const struct sockaddr*, const char *, ssize_t) {} //Waste UDP
+	const char * GetName();
 	
-protected:
-	CCache* m_cache;
+	void UpdateChannelProperties(SChannelProps props, bool kickexisting);
 };
 
 #endif
