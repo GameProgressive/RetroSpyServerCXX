@@ -22,7 +22,9 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <limits.h>
 #include <string.h>
-
+#ifdef _win32_
+#define strcasecmp stricmp
+#endif
 CCache::CCache()
 {
 	m_instance = this;
