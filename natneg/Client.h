@@ -34,7 +34,7 @@ public:
 	CClient(mdk_socket stream, const struct sockaddr_in* addr, CDatabase* db);
 	~CClient();
 
-	bool Handle(const char *buf, int len);
+	bool Handle(const char *buf, ssize_t len);
 
 	inline unsigned short GetPort() { return m_port; }
 	inline const char* GetIP() { return m_ip; }

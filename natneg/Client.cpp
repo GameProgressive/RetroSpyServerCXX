@@ -64,7 +64,7 @@ void CClient::Disconnect()
 	m_connected = false;
 }
 
-bool CClient::Handle(const char *buf, int len)
+bool CClient::Handle(const char *buf, ssize_t len)
 {
 	NatNegPacket *packet = (NatNegPacket*)buf;
 	if (memcmp(packet->magic, NNMagicData, NATNEG_MAGIC_LEN) != 0)

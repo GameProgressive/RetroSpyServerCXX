@@ -49,7 +49,7 @@ void CClientManager::Delete(ClientMap::iterator it)
 	m_clients.erase(it);
 }
 
-bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const struct sockaddr_in* addr_in, const char *data, int len)
+bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const struct sockaddr_in* addr_in, const char *data, ssize_t len)
 {
 	// Create che client
 	CClient* c = new CClient(stream, addr_in, db);

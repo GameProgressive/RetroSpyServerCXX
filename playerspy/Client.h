@@ -68,7 +68,7 @@ public:
 
 	inline mdk_socket GetSocket() { return m_stream; }
 
-	inline unsigned int GetVectorID() { return m_vector_id; }
+	inline size_t GetVectorID() { return m_vector_id; }
 
 	void Disconnect();
 
