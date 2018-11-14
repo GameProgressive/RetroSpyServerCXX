@@ -70,7 +70,7 @@ bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const str
 	return true;
 }
 
-bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const struct sockaddr* addr, const char *data, int len)
+bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const struct sockaddr* addr, const char *data, ssize_t len)
 {
 	ClientMap::iterator it;
 	unsigned int i = 0;

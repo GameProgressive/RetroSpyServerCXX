@@ -28,7 +28,7 @@ typedef std::map<unsigned int, CClient*> ClientMap;
 class CClientManager
 {
 public:
-	static bool Handle(CDatabase* db, mdk_socket stream, const char *req, const char*buf, int len);
+	static bool Handle(CDatabase* db, mdk_socket stream, const char *req, const char*buf, ssize_t len);
 	static void Free();
 
 	static CClient *GetFromProfileID(unsigned int id);
@@ -40,7 +40,7 @@ private:
 
 private:
 	static void Delete(ClientMap::iterator ss);
-	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, int len);
+	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, ssize_t len);
 };
 
 #endif

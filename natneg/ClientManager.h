@@ -51,7 +51,7 @@ private:
 
 private:
 	static void Delete(ClientMap::iterator ss);
-	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const struct sockaddr_in* addr, const char *data, int len);
+	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const struct sockaddr_in* addr, const char *data, ssize_t len);
 };
 
 #endif

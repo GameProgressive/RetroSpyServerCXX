@@ -51,7 +51,7 @@ void CClientManager::Delete(ClientMap::iterator it)
 	m_clients.erase(it);
 }
 
-bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, int len)
+bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const char *req, const char *buf, ssize_t len)
 {
 	// Create che client
 	ClientMap::iterator it;
@@ -76,7 +76,7 @@ bool CClientManager::CreateAndHandle(CDatabase* db, mdk_socket stream, const cha
 	return true;
 }
 
-bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const char *req, const char*buf, int len)
+bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const char *req, const char*buf, ssize_t len)
 {
 	ClientMap::iterator it;
 	unsigned int i = 0;
@@ -84,7 +84,7 @@ bool CClientManager::Handle(CDatabase* con, mdk_socket stream, const char *req, 
 	if (CTemplateSocket::GetSocketExtraData(stream)->GetData() == NULL)
 		return CreateAndHandle(con, stream, req, buf, len); // Create the instance
 
-	it = m_clients.find((uintptr_t)CTemplateSocket::GetSocketExtraData(stream)->GetData());
+	it = m_clients.find((size_t)CTemplateSocket::GetSocketExtraData(stream)->GetData());
 
 	if (it == m_clients.end())
 		return false;
