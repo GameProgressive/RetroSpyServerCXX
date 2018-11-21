@@ -21,6 +21,14 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 #include <MDK/ModuleEntryPoint.h>
 #include <MDK/Utility.h>
 
+int PeerChatServer::Initialize()
+{
+	if (!m_lpDatabase)
+		return ERROR_DATABASE_ERROR;
+	
+	return ERROR_NONE;
+}
+
 PeerChatServer::PeerChatServer(int defaultport, bool udp) : CThreadServer(defaultport, udp)
 {
 	m_cache = new CCache();
@@ -54,12 +62,5 @@ void PeerChatServer::OnTCPRead(mdk_socket client, const char *data, ssize_t size
 	((CIRCClient*)GetSocketExtraData(client)->GetData())->Process(data, size);
 }
 
-int PeerChatServer::Initialize()
-{
-	if (!m_lpDatabase)
-		return ERROR_DATABASE_ERROR;
-	
-	return ERROR_NONE;
-}
 
 ModuleEntryPoint(PeerChatServer, 6667, false)

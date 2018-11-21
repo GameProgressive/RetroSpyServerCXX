@@ -14,17 +14,14 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "Cache.h"
-
 #include <MDK/Query.h>
-
 #include <Helper.h>
-
 #include <limits.h>
 #include <string.h>
-#ifdef _win32_
-#define strcasecmp stricmp
-#endif
+
+
 CCache::CCache()
 {
 	m_instance = this;
@@ -200,19 +197,6 @@ void CCache::UpdateChannelProperties(SChannelProps props, bool kickexisting)
 			if (GetClosestChannelProperties(chan->GetName()) == props)
 				chan->UpdateChannelProperties(props, kickexisting);
 		}
-		
-		it++;
-	}
-}
-
-CIRCChannel* CCache::FindChannel(const char* name)
-{
-	TChannelVector::iterator it = m_channels.begin();
-	
-	while (it != m_channels.end())
-	{
-		if (strcasecmp(name, (*it)->GetName()) == 0)
-			return *it;
 		
 		it++;
 	}
