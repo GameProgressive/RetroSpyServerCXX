@@ -25,10 +25,7 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <map>
-#include <string.h>
-#ifdef _win32_
-#define strcasecmp stricmp
-#endif
+
 typedef std::map<unsigned long long, CIRCClient*> TClientMap;
 typedef std::vector<CIRCChannel*> TChannelVector;
 
