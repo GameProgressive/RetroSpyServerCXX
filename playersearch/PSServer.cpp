@@ -194,13 +194,17 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 
 bool PSServer::OnCheckNicks(mdk_socket, const char *buf, int)
 {
-	puts(buf);
+	LOG_ERROR("PlayerSearch", "Received body for CheckNicks: %s!", buf);
+	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+
 	return false;
 }
 
 bool PSServer::OnSearchUsers(mdk_socket, const char *buf, int)
 {
-	puts(buf);
+	LOG_ERROR("PlayerSearch", "Received body for SearchUsers: %s!", buf);
+	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+
 	return false;
 }
 
@@ -273,7 +277,9 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 
 bool PSServer::OnOthersList(mdk_socket, const char *buf, int)
 {
-	puts(buf);
+	LOG_ERROR("PlayerSearch", "Received body for OnOthersList: %s!", buf);
+	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+
 	return false;
 }
 
@@ -316,13 +322,17 @@ bool PSServer::OnUniqueSearch(mdk_socket stream, const char *buf, int)
 
 bool PSServer::OnProfileList(mdk_socket, const char *buf, int)
 {
-	puts(buf);
+	LOG_ERROR("PlayerSearch", "Received body for OnProfileList: %s!", buf);
+	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+
 	return false;
 }
 
 bool PSServer::OnProductMatching(mdk_socket, const char *buf, int)
 {
-	puts(buf);
+	LOG_ERROR("PlayerSearch", "Received body for OnProductMatching: %s!", buf);
+	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+
 	return false;
 }
 

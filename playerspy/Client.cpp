@@ -361,7 +361,9 @@ bool CClient::HandleInviteTo(const char *buf, int)
 
 bool CClient::HandleNewUser(const char *buf, int)
 {
-	puts(buf);
+	LOG_ERROR("PlayerSpy", "Received body for HandleNewUser: %s!", buf);
+	LOG_INFO("PlayerSpy", "Please report this message (inclusing the body) to any contributor!");
+
 	return false;
 }
 
