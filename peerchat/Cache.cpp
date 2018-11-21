@@ -20,8 +20,14 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 #include <Helper.h>
 #include <limits.h>
 #include <string.h>
+<<<<<<< HEAD
 
 
+=======
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#endif
+>>>>>>> 769e44752bb4f0a44f3a72d5bb0d890af84ffe8c
 CCache::CCache()
 {
 	m_instance = this;
@@ -67,7 +73,7 @@ bool CCache::AddUser(mdk_socket socket)
 
 CIRCClient* CCache::GetUser(unsigned long long id)
 {
-	
+	return NULL;
 }
 
 void CCache::DelUser(unsigned long long id)
@@ -202,4 +208,22 @@ void CCache::UpdateChannelProperties(SChannelProps props, bool kickexisting)
 	}
 }
 
+<<<<<<< HEAD
+=======
+CIRCChannel* CCache::FindChannel(const char* name)
+{
+	TChannelVector::iterator it = m_channels.begin();
+	
+	while (it != m_channels.end())
+	{
+		if (strcasecmp(name, (*it)->GetName()) == 0)
+			return *it;
+		
+		it++;
+	}
+	
+	return NULL;
+}
+
+>>>>>>> 769e44752bb4f0a44f3a72d5bb0d890af84ffe8c
 CCache* CCache::m_instance = NULL;

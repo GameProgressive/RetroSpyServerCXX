@@ -35,7 +35,7 @@ static void QuartToTrip(char *quart, char *trip, size_t inlen)
 static void TripToQuart(const char *trip, char *quart, size_t inlen)
 {
 	unsigned char triptemp[3];
-	int i;
+	size_t i;
 	for (i = 0; i < inlen; i++)
 	{
 		triptemp[i] = (unsigned char)trip[i];
@@ -59,7 +59,7 @@ const char urlSafeEncodeing[] = { '-','_','=' };
 void B64Decode(const char *input, char *output, size_t inlen, size_t * outlen, int encodingType)
 {
 	const char *encoding = 0;
-	int readpos = 0;
+	size_t readpos = 0;
 	int writepos = 0;
 	char block[4];
 

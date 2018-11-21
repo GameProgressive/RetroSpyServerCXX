@@ -39,7 +39,7 @@ typedef std::map<SClientStruct, CClient*> ClientMap;
 class CClientManager
 {
 public:
-	static bool Handle(CDatabase* db, mdk_socket stream, const struct sockaddr* addr, const char*data, int len);
+	static bool Handle(CDatabase* db, mdk_socket stream, const struct sockaddr* addr, const char*data, ssize_t len);
 	static void Free();
 
 	static CClient* FindClientByCookieIndex(int cookie, unsigned char index);
@@ -51,7 +51,7 @@ private:
 
 private:
 	static void Delete(ClientMap::iterator ss);
-	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const struct sockaddr_in* addr, const char *data, int len);
+	static bool CreateAndHandle(CDatabase* db, mdk_socket stream, const struct sockaddr_in* addr, const char *data, ssize_t len);
 };
 
 #endif
