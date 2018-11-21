@@ -47,6 +47,7 @@ private:
 	bool OnUniqueSearch(mdk_socket stream, const char *buf, int size);
 	bool OnProfileList(mdk_socket stream, const char *buf, int size);
 	bool OnProductMatching(mdk_socket stream, const char *buf, int size);
+	bool OnNewUser(mdk_socket stream, const char *buf, int size);
 };
 
 #endif

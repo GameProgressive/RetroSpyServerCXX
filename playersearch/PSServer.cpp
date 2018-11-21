@@ -60,6 +60,8 @@ bool PSServer::HandleRequest(mdk_socket stream, const char *req, const char *buf
 		return OnProfileList(stream, buf, size);
 	else if (strcasecmp(req, "pmatch") == 0)
 		return OnProductMatching(stream, buf, size);
+	else if (strcasecmp(req, "newuser") == 0)
+		return OnNewUser(stream, buf, size);
 
 	LOG_ERROR("PlayerSearch", "Unknown request \"%s\" received!", req);
 	return false;
@@ -334,6 +336,14 @@ bool PSServer::OnProductMatching(mdk_socket, const char *buf, int)
 	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
 
 	return false;
+}
+
+bool PSServer::OnNewUser(mdk_socket stream, const char *buf, int size)
+{
+	LOG_ERROR("PlayerSearch", "Received body for OnNewUser: %s!", buf);
+	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+
+	return false;	
 }
 
 ModuleEntryPoint(PSServer, 29901, false)
