@@ -196,7 +196,15 @@ typedef enum _GPEnum
 
 	// Flags for checking if newer version of status info is supported
 	GP_NEW_STATUS_INFO_SUPPORTED = 0xC00,
-	GP_NEW_STATUS_INFO_NOT_SUPPORTED = 0xC01
+	GP_NEW_STATUS_INFO_NOT_SUPPORTED = 0xC01,
+	
+	// Error codes that can occur while creating a new user.
+	GP_NEWUSER						= 512, // 0x200, There was an error creating a new user.
+	GP_NEWUSER_BAD_NICK				= 513, // 0x201, A profile with that nick already exists.
+	GP_NEWUSER_BAD_PASSWORD			= 514, // 0x202, The password does not match the email address.
+	GP_NEWUSER_UNIQUENICK_INVALID	= 515, // 0x203, The uniquenick is invalid.
+	GP_NEWUSER_UNIQUENICK_INUSE = 516, // 0x204, The uniquenick is already in use.
+
 } GPEnum;
 
 #define GS_REQUEST_LEN				20

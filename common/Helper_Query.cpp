@@ -33,12 +33,11 @@ bool ExecuteFirstQuery(CDatabase* db, CResultSet *res, std::string query)
 	return true;
 }
 
-unsigned int GetProfileIDFromNickEmail(CDatabase* db, const char *nick, const char *email)
+bool GetProfileIDFromNickEmail(CDatabase* db, const char *nick, const char *email, unsigned int* pid)
 {
 	std::string query = "";
 	std::string _email = email, _nick = nick;
-	CResultSet *res = new CResultSet();
-	unsigned int ret = 0;
+	CResultSet *res = NULL;
 
 	query = "SELECT profiles.profileid FROM profiles INNER JOIN"
 			" users ON profiles.userid=users.userid WHERE"
@@ -52,16 +51,83 @@ unsigned int GetProfileIDFromNickEmail(CDatabase* db, const char *nick, const ch
 	query += _nick;
 	query += "'";
 
+	res = new CResultSet();
 	if (!ExecuteFirstQuery(db, res, query))
 	{
 		delete res;
-		return ret;
+		return false;
 	}
 
-	ret = res->GetUIntFromRow(0);
+	*pid = res->GetUIntFromRow(0);
 
 	delete res;
-	return ret;
+	return true;
+}
+
+bool GetProfileIDFromNickEmailAndPass(CDatabase* c, const char *nick, const char *email, const char* pass, unsigned int* id)
+{
+	std::string query = "";
+	std::string _email = email, _nick = nick, _pass = pass;
+	CResultSet* res = NULL;
+	
+	query = "SELECT profiles.profileid FROM profiles INNER JOIN"
+	" users ON profiles.userid=users.userid WHERE"
+	" users.email='";
+	
+	if (!mdk_escape_query_string(c, _email))
+		return false;
+	
+	query += _email;
+	query += "' AND profiles.nick='";
+	
+	if (!mdk_escape_query_string(c, _nick))
+		return false;
+	
+	query += _nick;
+	query += "' AND users.password='";
+	
+	if (!mdk_escape_query_string(c, _pass))
+		return false;
+	
+	query += "'";
+	
+	res = new CResultSet();
+
+	if (!ExecuteFirstQuery(c, res, query))
+	{
+		delete res;
+		return false;
+	}
+
+	*id = res->GetUIntFromRow(0);
+
+	delete res;
+	return true;
+}
+
+bool GetUserIDFromEmail(CDatabase* db, const char* email, unsigned int* id)
+{
+	std::string _email = email, query = "";
+	CResultSet* res = NULL;
+	
+	if (!mdk_escape_query_string(db, _email))
+		return false;
+	
+	query = "SELECT usersid FROM users WHERE email='";
+	query += _email;
+	query += "'";
+	
+	res = new CResultSet();
+	if (!ExecuteFirstQuery(db, res, query))
+	{
+		delete res;
+		return false;
+	}
+
+	*id = res->GetUIntFromRow(0);
+
+	delete res;
+	return true;
 }
 
 void GetUniqueNickFromProfileID(CDatabase* db, unsigned int pid, char *unick, int size)
@@ -301,4 +367,10 @@ bool GetProfileIDFromAuthToken(CDatabase* db, const char *authtoken, unsigned in
 
 	delete res;
 	return true;
+}
+
+bool RegisterUser(CDatabase* db, const char* email, const char* nick, const char* pass, unsigned int* userid)
+{
+	//TODO
+	return false;
 }

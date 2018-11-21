@@ -39,7 +39,8 @@ void gs_do_proof(char *out, const char *password, const char *token, const char 
 void hash_md5(const char *what, size_t len, char *out);
 
 // Database
-unsigned int GetProfileIDFromNickEmail(CDatabase* c, const char *nick, const char *email);
+bool GetProfileIDFromNickEmailAndPass(CDatabase* c, const char *nick, const char *email, const char* pass, unsigned int* id);
+bool GetProfileIDFromNickEmail(CDatabase* c, const char *nick, const char *email, unsigned int* pid);
 void GetUniqueNickFromProfileID(CDatabase* c, unsigned int pid, char *unick, int size);
 bool GetProfileIDFromUniqueNick(CDatabase* db, const char *unick, unsigned int* out);
 void GetPasswordFromUserID(CDatabase* c, char *out, int out_len, unsigned int id);
@@ -49,6 +50,8 @@ void FreeSessionKey(CDatabase* c, unsigned int profileid);
 bool GetProfileInfo(CDatabase* c, unsigned int pid, GPIInfoCache *out, unsigned int *id_out);
 bool GetProfileIDFromSessKey(CDatabase* db, unsigned int seeskey, unsigned int* out);
 bool GetProfileIDFromAuthToken(CDatabase* db, const char* authtoken, unsigned int *out);
+bool GetUserIDFromEmail(CDatabase* db, const char* email, unsigned int* id);
+bool RegisterUser(CDatabase* db, const char* email, const char* nick, const char* pass, unsigned int* userid);
 
 //String
 bool user_to_emailnick(const char *buffer, char *lpEmail, size_t email_size, char *lpNick, size_t nick_size);

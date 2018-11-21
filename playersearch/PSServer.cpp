@@ -340,10 +340,54 @@ bool PSServer::OnProductMatching(mdk_socket, const char *buf, int)
 
 bool PSServer::OnNewUser(mdk_socket stream, const char *buf, int size)
 {
-	LOG_ERROR("PlayerSearch", "Received body for OnNewUser: %s!", buf);
-	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+	char email[GP_EMAIL_LEN], pass[GP_PASSWORD_LEN], nick[GP_NICK_LEN];
+	unsigned int userid = 0;
+	
+	if (!get_gs_data(buf, "email", email, sizeof(email)))
+	{
+		// Added this because OpenSpy reports an Unique Nickname usage
+		LOG_ERROR("PlayerSearch", "Received mysterious body for OnNewUser: %s!", buf);
+		LOG_INFO("PlayerSearch", "Please report the error message to any contributor if you see something similar to \"uniquenick\" or \"authtoken\"!");
+		
+		return false;
+	}
+	
+	if (!get_gs_data(buf, "pass", pass, sizeof(pass)))
+		return false;
+	
+	if (!get_gs_data(buf, "nick", nick, sizeof(nick)))
+	{
+		// Added this because OpenSpy reports an Unique Nickname usage
+		
+		LOG_ERROR("PlayerSearch", "Received mysterious body for OnNewUser: %s!", buf);
+		LOG_INFO("PlayerSearch", "Please report the error message to any contributor if you see something similar to \"uniquenick\" or \"authtoken\"!");
 
-	return false;	
+		return false;
+	}
+
+	if (!GetUserIDFromEmail(m_lpDatabase, email, &userid))
+	{
+		// user does not exist
+		if (!RegisterUser(m_lpDatabase, email, nick, pass, &userid))
+		{
+			snprintf(email, GP_EMAIL_LEN, "\\nur\\%u\\final\\", GP_NEWUSER_UNIQUENICK_INUSE);
+			WriteTCP(stream, email);
+			return false;
+		}
+	}
+	
+	if (!GetProfileIDFromNickEmailAndPass(m_lpDatabase, nick, email, pass, &userid))
+	{
+		snprintf(email, GP_EMAIL_LEN, "\\nur\\%u\\final\\", GP_NEWUSER_BAD_PASSWORD);
+		WriteTCP(stream, email);		
+		return false;
+	}
+	
+	snprintf(email, GP_EMAIL_LEN, "\\nur\\0\\pid\\%u\\final\\", userid);
+	
+	WriteTCP(stream, email);
+	
+	return true;	
 }
 
 ModuleEntryPoint(PSServer, 29901, false)

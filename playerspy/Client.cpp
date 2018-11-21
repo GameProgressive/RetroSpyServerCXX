@@ -251,9 +251,7 @@ bool CClient::HandleLogin(const char *buf, int)
 		}
 
 
-		m_profileid = GetProfileIDFromNickEmail(m_dbConnect, nick, email);
-
-		if (m_profileid == 0)
+		if (!GetProfileIDFromNickEmail(m_dbConnect, nick, email, &m_profileid))
 		{
 			Write("\\err\\261\\fatal\\errmsg\\Invalid profile\\final\\");
 			return false;
