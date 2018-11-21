@@ -18,6 +18,7 @@ along with RetroSpy Server.  If not, see <http://www.gnu.org/licenses/>.
 #define _STRUCTS_H_
 
 #include <string.h>
+#include <time.h>
 
 #define MAX_NAME 64
 #define MAX_COMMENT 256
