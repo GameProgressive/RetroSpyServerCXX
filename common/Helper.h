@@ -51,7 +51,7 @@ bool GetProfileInfo(CDatabase* c, unsigned int pid, GPIInfoCache *out, unsigned 
 bool GetProfileIDFromSessKey(CDatabase* db, unsigned int seeskey, unsigned int* out);
 bool GetProfileIDFromAuthToken(CDatabase* db, const char* authtoken, unsigned int *out);
 bool GetUserIDFromEmail(CDatabase* db, const char* email, unsigned int* id);
-bool RegisterUser(CDatabase* db, const char* email, const char* nick, const char* pass, unsigned int* userid);
+int RegisterUser(CDatabase* db, const char* email, const char* nick, const char* pass, unsigned int* userid);
 
 //String
 bool user_to_emailnick(const char *buffer, char *lpEmail, size_t email_size, char *lpNick, size_t nick_size);

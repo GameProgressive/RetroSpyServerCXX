@@ -203,7 +203,7 @@ typedef enum _GPEnum
 	GP_NEWUSER_BAD_NICK				= 513, // 0x201, A profile with that nick already exists.
 	GP_NEWUSER_BAD_PASSWORD			= 514, // 0x202, The password does not match the email address.
 	GP_NEWUSER_UNIQUENICK_INVALID	= 515, // 0x203, The uniquenick is invalid.
-	GP_NEWUSER_UNIQUENICK_INUSE = 516, // 0x204, The uniquenick is already in use.
+	GP_NEWUSER_UNIQUENICK_INUSE 	= 516, // 0x204, The uniquenick is already in use.
 
 } GPEnum;
 

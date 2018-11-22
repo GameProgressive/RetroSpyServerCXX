@@ -368,9 +368,11 @@ bool PSServer::OnNewUser(mdk_socket stream, const char *buf, int size)
 	if (!GetUserIDFromEmail(m_lpDatabase, email, &userid))
 	{
 		// user does not exist
-		if (!RegisterUser(m_lpDatabase, email, nick, pass, &userid))
+		int ec = RegisterUser(m_lpDatabase, email, nick, pass, &userid);
+		
+		if (ec != -1)
 		{
-			snprintf(email, GP_EMAIL_LEN, "\\nur\\%u\\final\\", GP_NEWUSER_UNIQUENICK_INUSE);
+			snprintf(email, GP_EMAIL_LEN, "\\nur\\%d\\final\\", ec);
 			WriteTCP(stream, email);
 			return false;
 		}

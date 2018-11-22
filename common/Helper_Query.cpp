@@ -369,8 +369,102 @@ bool GetProfileIDFromAuthToken(CDatabase* db, const char *authtoken, unsigned in
 	return true;
 }
 
-bool RegisterUser(CDatabase* db, const char* email, const char* nick, const char* pass, unsigned int* userid)
+int RegisterUser(CDatabase* db, const char* email, const char* nick, const char* pass, unsigned int* userid)
 {
-	//TODO
-	return false;
+	std::string query = "", _email = email, _nick = nick, _pass = pass;
+	CResultSet* res = NULL;
+	
+	if (!mdk_escape_query_string(db, _email))
+		return false;
+	
+	if (!mdk_escape_query_string(db, _nick))
+		return false;
+	
+	if (!mdk_escape_query_string(db, _pass))
+		return false;
+	
+	query = "SELECT uniquenick FROM profiles WHERE uniquenick='";
+	query += _nick;
+	query += "'";
+	
+	res = new CResultSet();
+	
+	if (!res->ExecuteQuery(db, query.c_str()))
+	{
+		delete res;
+		return GP_NEWUSER;
+	}
+	
+	if (res->GetTotalRows() > 0)
+	{
+		delete res;
+		return GP_NEWUSER_UNIQUENICK_INUSE;
+	}
+	
+	query = "SELECT email FROM users WHERE email='";
+	query += _email;
+	query += "'";
+	
+	if (!res->ExecuteQuery(db, query.c_str()))
+	{
+		delete res;
+		return GP_NEWUSER;
+	}
+	
+	if (res->GetTotalRows() > 0)
+	{
+		delete res;
+		return GP_NEWUSER;
+	}
+	
+	query = "INSERT INTO users(email, password, deleted, emailverified) VALUES ('";
+	query += _email;
+	query += "', '";
+	query += _pass;
+	query += "', 0, 1)";
+	
+	if (!mdk_only_run_query(db, query))
+	{
+		delete res;
+		return GP_NEWUSER;		
+	}
+	
+	query = "SELECT userid FROM users WHERE email='";
+	query += _email;
+	query += "'";
+
+	if (!ExecuteFirstQuery(db, res, query))
+	{
+		delete res;
+		return GP_NEWUSER;
+	}
+	
+	query = "INSERT INTO profiles(userid, uniquenick, nick) VALUES (";
+	query += std::to_string(res->GetUIntFromRow(0));
+	query += ", '";
+	query += _nick;
+	query += "', '";
+	query += _nick;
+	query += "')";
+	
+	if (!mdk_only_run_query(db, query))
+	{
+		delete res;
+		return GP_NEWUSER;
+	}
+	
+	query = "SELECT profileid FROM profiles WHERE uniquenick='";
+	query += _nick;
+	query += "'";
+	
+	if (!ExecuteFirstQuery(db, res, query))
+	{
+		delete res;
+		return GP_NEWUSER;		
+	}
+	
+	*userid = res->GetUIntFromRow(0);
+
+	delete res;
+	return -1;
 }
