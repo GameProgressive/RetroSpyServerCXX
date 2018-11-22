@@ -77,7 +77,7 @@ CIRCClient* CCache::GetUser(unsigned long long id)
 
 void CCache::DelUser(unsigned long long id)
 {
-	
+	//already done in ~Cache();
 }
 
 bool CCache::LoadData(CDatabase* db)
