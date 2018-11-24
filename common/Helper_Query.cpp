@@ -113,7 +113,7 @@ bool GetUserIDFromEmail(CDatabase* db, const char* email, unsigned int* id)
 	if (!mdk_escape_query_string(db, _email))
 		return false;
 	
-	query = "SELECT usersid FROM users WHERE email='";
+	query = "SELECT userid FROM users WHERE email='";
 	query += _email;
 	query += "'";
 	
