@@ -205,6 +205,12 @@ typedef enum _GPEnum
 	GP_NEWUSER_UNIQUENICK_INVALID	= 515, // 0x203, The uniquenick is invalid.
 	GP_NEWUSER_UNIQUENICK_INUSE 	= 516, // 0x204, The uniquenick is already in use.
 
+	// Error codes that can occur while checking whether a user exists.
+	GP_CHECK						= 3584, // 0xE00, There was an error checking the user account.
+	GP_CHECK_BAD_EMAIL				= 3585, // 0xE01, No account exists with the provided e-mail address.
+	GP_CHECK_BAD_NICK				= 3586,	// 0xE02, No such profile exists for the provided e-mail address.
+	GP_CHECK_BAD_PASSWORD			= 3587, // 0xE03, The password is incorrect.
+
 } GPEnum;
 
 #define GS_REQUEST_LEN				20

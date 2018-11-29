@@ -194,18 +194,52 @@ bool PSServer::OnSendNicks(mdk_socket stream, const char *buf, int)
 	return true;
 }
 
-bool PSServer::OnCheckNicks(mdk_socket, const char *buf, int)
+bool PSServer::OnCheckNicks(mdk_socket stream, const char *buf, int)
 {
-	LOG_ERROR("PlayerSearch", "Received body for CheckNicks: %s!", buf);
-	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+	char email[GP_EMAIL_LEN], nick[GP_NICK_LEN], pass[GP_PASSWORD_LEN], passenc[GP_PASSWORDENC_LEN];
+	unsigned int id = 0;
+	
+	if (!get_gs_data(buf, email, "email", GP_EMAIL_LEN))
+		return false;
+	
+	if (!get_gs_data(buf, passenc, "passenc", GP_PASSWORDENC_LEN))
+	{
+		if (!get_gs_data(buf, pass, "pass", GP_PASSWORD_LEN))
+		{
+			LOG_ERROR("PlayerSearch", "No passenc passed on OnCheckNicks: %s!", buf);
+			LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
+			return false;
+		}
+	}
+	else
+	{
+		gs_pass_decode(passenc, pass);
+	}
+	
+	if (!get_gs_data(buf, nick, "nick", GP_NICK_LEN))
+	{
+		LOG_ERROR("PlayerSearch", "No nicks passed on OnCheckNicks: %s!", buf);
+		LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
+		return false;
+	}
 
+	if (!GetProfileIDFromNickEmailAndPass(m_lpDatabase, nick, email, pass, &id))
+	{
+		snprintf(email, GP_EMAIL_LEN, "\\cur\\%d\\final\\", GP_CHECK_BAD_PASSWORD);
+		WriteTCP(stream, email);
+		return false;
+	}
+	
+	// TODO: Shouldn't be there some nicknames after cur?
+	snprintf(email, GP_EMAIL_LEN, "\\cur\\0\\pid\\%d\\final\\", id);
+	WriteTCP(stream, email);
 	return false;
 }
 
 bool PSServer::OnSearchUsers(mdk_socket, const char *buf, int)
 {
 	LOG_ERROR("PlayerSearch", "Received body for SearchUsers: %s!", buf);
-	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+	LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
 
 	return false;
 }
@@ -280,7 +314,7 @@ bool PSServer::OnReverseBuddies(mdk_socket socket, const char *buf, int)
 bool PSServer::OnOthersList(mdk_socket, const char *buf, int)
 {
 	LOG_ERROR("PlayerSearch", "Received body for OnOthersList: %s!", buf);
-	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+	LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
 
 	return false;
 }
@@ -325,7 +359,7 @@ bool PSServer::OnUniqueSearch(mdk_socket stream, const char *buf, int)
 bool PSServer::OnProfileList(mdk_socket, const char *buf, int)
 {
 	LOG_ERROR("PlayerSearch", "Received body for OnProfileList: %s!", buf);
-	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+	LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
 
 	return false;
 }
@@ -333,7 +367,7 @@ bool PSServer::OnProfileList(mdk_socket, const char *buf, int)
 bool PSServer::OnProductMatching(mdk_socket, const char *buf, int)
 {
 	LOG_ERROR("PlayerSearch", "Received body for OnProductMatching: %s!", buf);
-	LOG_INFO("PlayerSearch", "Please report this message (inclusing the body) to any contributor!");
+	LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
 
 	return false;
 }
