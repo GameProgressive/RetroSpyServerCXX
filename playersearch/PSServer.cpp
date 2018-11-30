@@ -199,12 +199,12 @@ bool PSServer::OnCheckNicks(mdk_socket stream, const char *buf, int)
 	char email[GP_EMAIL_LEN], nick[GP_NICK_LEN], pass[GP_PASSWORD_LEN], passenc[GP_PASSWORDENC_LEN];
 	unsigned int id = 0;
 	
-	if (!get_gs_data(buf, email, "email", GP_EMAIL_LEN))
+	if (!get_gs_data(buf, "email", email, GP_EMAIL_LEN))
 		return false;
 	
-	if (!get_gs_data(buf, passenc, "passenc", GP_PASSWORDENC_LEN))
+	if (!get_gs_data(buf, "passenc", passenc, GP_PASSWORDENC_LEN))
 	{
-		if (!get_gs_data(buf, pass, "pass", GP_PASSWORD_LEN))
+		if (!get_gs_data(buf, "pass", pass, GP_PASSWORD_LEN))
 		{
 			LOG_ERROR("PlayerSearch", "No passenc passed on OnCheckNicks: %s!", buf);
 			LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
@@ -216,7 +216,7 @@ bool PSServer::OnCheckNicks(mdk_socket stream, const char *buf, int)
 		gs_pass_decode(passenc, pass);
 	}
 	
-	if (!get_gs_data(buf, nick, "nick", GP_NICK_LEN))
+	if (!get_gs_data(buf, "nick", nick, GP_NICK_LEN))
 	{
 		LOG_ERROR("PlayerSearch", "No nicks passed on OnCheckNicks: %s!", buf);
 		LOG_INFO("PlayerSearch", "Please report this message (including the body) to any contributor!");
