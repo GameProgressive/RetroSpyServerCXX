@@ -225,7 +225,7 @@ bool PSServer::OnCheckNicks(mdk_socket stream, const char *buf, int)
 
 	if (!GetProfileIDFromNickEmailAndPass(m_lpDatabase, nick, email, pass, &id))
 	{
-		snprintf(email, GP_EMAIL_LEN, "\\cur\\%d\\final\\", GP_CHECK_BAD_PASSWORD);
+		snprintf(email, GP_EMAIL_LEN, "\\err\\%d\\final\\", GP_CHECK_BAD_PASSWORD);
 		WriteTCP(stream, email);
 		return false;
 	}
